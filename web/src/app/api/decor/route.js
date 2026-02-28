@@ -8,33 +8,34 @@ import {
   setDoc,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
 
 // GET /api/decor - Fetch decor packages for a branch or franchise
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const franchiseId = searchParams.get("franchise_id");
-    const branchId = searchParams.get("branch_id");
+    const franchiseId = searchParams.get("franchise_id") || "pfd";
 
     const decorRef = collection(db, "decor");
-    let q;
-    if (branchId) {
-      q = query(decorRef, where("branch_id", "==", branchId));
-    } else if (franchiseId) {
-      q = query(decorRef, where("franchise_id", "==", franchiseId));
-    } else {
-      return NextResponse.json(
-        { success: false, error: "branch_id or franchise_id required" },
-        { status: 400 },
-      );
-    }
+    const q = query(decorRef, where("franchise_id", "==", franchiseId));
 
     const snapshot = await getDocs(q);
-    const decorData = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-    decorData.sort(
-      (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
-    );
+    const decorData = [];
+
+    snapshot.forEach((doc) => {
+      decorData.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    // Sort by created_at in memory (newest first)
+    decorData.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA;
+    });
 
     return NextResponse.json({
       success: true,
@@ -57,20 +58,14 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { franchise_id, branch_id, ...rest } = body;
+    const { franchise_id = "pfd", ...decorData } = body;
 
-    if (!franchise_id || !branch_id) {
-      return NextResponse.json(
-        { success: false, error: "franchise_id and branch_id are required" },
-        { status: 400 },
-      );
-    }
-
-    // Generate a sequential ID per branch
+    // Generate next decor ID for this franchise
     const decorRef = collection(db, "decor");
-    const snap = await getDocs(
-      query(decorRef, where("branch_id", "==", branch_id)),
-    );
+    const q = query(decorRef, where("franchise_id", "==", franchise_id));
+    const snapshot = await getDocs(q);
+
+    // Find the highest existing number
     let maxNum = 0;
     snap.forEach((d) => {
       const m = d.id.match(new RegExp(`^${branch_id}_d(\\d+)$`));
@@ -95,7 +90,9 @@ export async function POST(request) {
       theme: rest.theme || "Custom",
     };
 
+    // Save with custom document ID
     await setDoc(doc(db, "decor", nextId), newDecor);
+
     return NextResponse.json({
       success: true,
       data: { id: nextId, ...newDecor },

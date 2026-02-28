@@ -15,10 +15,8 @@
  * Access: branch_manager and above can DELETE; others can only PUT/GET
  */
 
-import { db } from '@/lib/firebase';
-import {
-  doc, getDoc, updateDoc, deleteDoc, serverTimestamp,
-} from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+import admin from 'firebase-admin';
 import { NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 
@@ -28,14 +26,10 @@ const statusKey = (fid, bid, s)    => `leads:${fid}:${bid}:${s}`;
 const detailKey = (fid, bid, lid)  => `leads:${fid}:${bid}:${lid}`;
 const LEAD_TTL  = 120; // 2 minutes
 
-function leadDocRef(lead_id) {
-  return doc(db, 'leads', lead_id);
-}
-
 // ── GET ────────────────────────────────────────────────────────────────────
 export async function GET(request, { params }) {
   try {
-    const { id: lead_id } = params;
+    const { id: lead_id } = await params;
     const { searchParams } = new URL(request.url);
     const franchise_id = searchParams.get('franchise_id');
     const branch_id    = searchParams.get('branch_id');
@@ -49,8 +43,9 @@ export async function GET(request, { params }) {
     const cached = cache.get(cKey);
     if (cached) return NextResponse.json({ ...cached, cached: true });
 
-    const snap = await getDoc(leadDocRef(lead_id));
-    if (!snap.exists()) {
+    const adminDb = getAdminDb();
+    const snap = await adminDb.collection('leads').doc(lead_id).get();
+    if (!snap.exists) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
     }
 
@@ -74,7 +69,7 @@ export async function GET(request, { params }) {
 // ── PUT ────────────────────────────────────────────────────────────────────
 export async function PUT(request, { params }) {
   try {
-    const { id: lead_id } = params;
+    const { id: lead_id } = await params;
     const body = await request.json();
 
     const { franchise_id, branch_id, ...updates } = body;
@@ -92,19 +87,18 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    await updateDoc(leadDocRef(lead_id), {
+    const adminDb = getAdminDb();
+    await adminDb.collection('leads').doc(lead_id).update({
       ...cleanUpdates,
-      updated_at: serverTimestamp(),
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     // Invalidate caches
     cache.del(detailKey(franchise_id, branch_id, lead_id));
     cache.del(listKey(franchise_id, branch_id));
-    // Invalidate status caches for both old and new status
     if (cleanUpdates.status) {
       cache.del(statusKey(franchise_id, branch_id, cleanUpdates.status));
     }
-    // Broad sweep of all lead caches for this branch
     cache.delPattern(`leads:${franchise_id}:${branch_id}:`);
 
     return NextResponse.json({ success: true, message: 'Lead updated' });
@@ -118,7 +112,7 @@ export async function PUT(request, { params }) {
 // ── DELETE ─────────────────────────────────────────────────────────────────
 export async function DELETE(request, { params }) {
   try {
-    const { id: lead_id } = params;
+    const { id: lead_id } = await params;
     const body = await request.json();
     const { franchise_id, branch_id } = body;
 
@@ -126,7 +120,8 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'franchise_id and branch_id are required in body' }, { status: 400 });
     }
 
-    await deleteDoc(leadDocRef(lead_id));
+    const adminDb = getAdminDb();
+    await adminDb.collection('leads').doc(lead_id).delete();
 
     // Invalidate all related caches
     cache.delPattern(`leads:${franchise_id}:${branch_id}:`);

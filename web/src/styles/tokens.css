@@ -125,6 +125,10 @@
   --color-text-on-gold: #1a1a1a;
   --color-text-footer: rgba(255, 255, 255, 0.75);
 
+  /* Surfaces (dashboard cards / form backgrounds) */
+  --color-surface: #ffffff;
+  --color-surface-2: #faf7f2;
+
   /* Borders */
   --color-border: #e8e0d0;
   --color-border-hover: rgba(123, 28, 28, 0.25);
@@ -209,6 +213,10 @@
   --color-text-inverse: #1a0a05;
   --color-text-on-gold: #1a0a05;
   --color-text-footer: rgba(245, 237, 224, 0.65);
+
+  /* Surfaces */
+  --color-surface: #1c0d0d;
+  --color-surface-2: #160a0a;
 
   /* Borders */
   --color-border: rgba(201, 96, 58, 0.15);

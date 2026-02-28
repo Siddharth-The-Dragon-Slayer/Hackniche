@@ -1,26 +1,11 @@
-﻿"use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Save,
-  CheckCircle2,
-  Sparkles,
-  Building2,
-  CalendarDays,
-  Users,
-  Palette,
-  Utensils,
-  IndianRupee,
-  AlertCircle,
-  Loader2,
-  Check,
-} from "lucide-react";
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { ArrowLeft, Save, Loader2, AlertCircle, Building2, Sparkles, Info } from 'lucide-react';
 
 // ── Constants ────────────────────────────────────────────────────
 const EVENT_TYPES = [
@@ -51,6 +36,7 @@ const STEPS = [
   { id: 5, label: "Summary", icon: <IndianRupee size={15} /> },
 ];
 
+
 const fmt = (n) => "\u20B9" + Number(n || 0).toLocaleString("en-IN");
 const fmtD = (d) =>
   d
@@ -76,93 +62,10 @@ function StepBar({ step }) {
               {done ? <Check size={13} /> : s.icon}
             </div>
             <span className={`ws-label ${current ? "ws-label-active" : ""}`}>
-              {s.label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <div className={`ws-line ${done ? "ws-line-done" : ""}`} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Bill rows component ──────────────────────────────────────────
-function BillRow({ label, sub, amount, highlight }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        padding: "10px 0",
-        borderBottom: "1px solid var(--color-border)",
-      }}
-    >
-      <div>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: highlight ? 700 : 500,
-            color: "var(--color-text-h)",
-          }}
-        >
-          {label}
-        </div>
-        {sub && (
-          <div
-            style={{
-              fontSize: 12,
-              color: "var(--color-text-muted)",
-              marginTop: 2,
-            }}
-          >
-            {sub}
-          </div>
-        )}
-      </div>
-      <div
-        style={{
-          fontSize: highlight ? 17 : 14,
-          fontWeight: highlight ? 800 : 600,
-          color: highlight ? "var(--color-primary)" : "var(--color-text-h)",
-          fontFamily: "var(--font-mono)",
-          whiteSpace: "nowrap",
-          paddingLeft: 12,
-        }}
-      >
-        {amount === 0 ? (
-          <span style={{ color: "#27ae60", fontWeight: 600 }}>Included</span>
-        ) : typeof amount === "number" ? (
-          fmt(amount)
-        ) : (
-          amount
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Main Wizard Page ─────────────────────────────────────────────
-export default function CreateLeadPage() {
-  const router = useRouter();
-  const { userProfile } = useAuth();
-
-  const role = userProfile?.role || "customer";
-  const isCustomer = role === "customer";
-  const franchise_id = userProfile?.franchise_id || FRANCHISE_ID_DEFAULT;
-
-  const [step, setStep] = useState(1);
-
-  // ─ Step 1 state: customer details
-  const [details, setDetails] = useState({
-    customer_name: "",
     phone: "",
     email: "",
     event_type: "Wedding",
     budget_range: "",
-  });
 
   // ─ Step 2 state: venue
   const [branches, setBranches] = useState([]);
@@ -192,27 +95,32 @@ export default function CreateLeadPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [usersInBranch, setUsersInBranch] = useState([]); // For sales exec assignment
 
-  // ── Sync userProfile into venue on load
+  const [form, setForm] = useState({
+    customer_name: '', phone: '', email: '',
+    event_type: 'Wedding', event_date: '',
+    expected_guest_count: '', 
+    // Sales exec only fields
+    budget_range: '',
+    branch_id: '', hall_id: '', hall_name: '',
+    assigned_to_uid: '', assigned_to_name: '',
+  });
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  // Sync userProfile into form once it loads (avoids async race on initial render)
   useEffect(() => {
     if (!userProfile) return;
-    setDetails((p) => ({
-      ...p,
-      customer_name:
-        p.customer_name || (isCustomer ? userProfile.name || "" : ""),
-      phone: p.phone || (isCustomer ? userProfile.phone || "" : ""),
-      email: p.email || (isCustomer ? userProfile.email || "" : ""),
+    setForm(prev => ({
+      ...prev,
+      customer_name: prev.customer_name || (isBasicCapture ? userProfile.name  || '' : ''),
+      phone:         prev.phone         || (isBasicCapture ? userProfile.phone || '' : ''),
+      email:         prev.email         || (isBasicCapture ? userProfile.email || '' : ''),
+      branch_id:     prev.branch_id     || (!isBasicCapture ? userProfile.branch_id || '' : ''),
+      assigned_to_uid:  prev.assigned_to_uid  || (!isBasicCapture ? userProfile.uid  || '' : ''),
+      assigned_to_name: prev.assigned_to_name || (!isBasicCapture ? userProfile.name || '' : ''),
     }));
-    setVenue((p) => ({
-      ...p,
-      branch_id: p.branch_id || userProfile.branch_id || "",
-      assigned_to_uid:
-        p.assigned_to_uid || (!isCustomer ? userProfile.uid || "" : ""),
-      assigned_to_name:
-        p.assigned_to_name || (!isCustomer ? userProfile.name || "" : ""),
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userProfile]);
+  }, [userProfile, isBasicCapture]);
 
   // ── Load all branches (customers pick a branch)
   useEffect(() => {
@@ -228,10 +136,10 @@ export default function CreateLeadPage() {
       .catch(() => {});
   }, [isCustomer]);
 
-  // ── Load halls when branch changes
-  const effectiveBranchId = venue.branch_id || userProfile?.branch_id || "";
+  // Load halls whenever branch_id changes (for sales exec)
   useEffect(() => {
-    if (!effectiveBranchId) return;
+    const bid = form.branch_id || (isSalesExec ? userProfile?.branch_id : null);
+    if (!bid) return;
     setHalls([]);
     getDocs(
       query(
@@ -247,7 +155,20 @@ export default function CreateLeadPage() {
         ),
       )
       .catch(() => {});
-  }, [effectiveBranchId]);
+  }, [form.branch_id, isSalesExec, userProfile?.branch_id]);
+
+  // Load users in the branch (for sales exec to assign leads)
+  useEffect(() => {
+    const bid = form.branch_id || (isSalesExec ? userProfile?.branch_id : null);
+    if (!isSalesExec || !bid) return;
+    getDocs(query(collection(db, 'users'), where('branch_id', '==', bid)))
+      .then(snap => setUsersInBranch(
+        snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(u => SALES_EXEC_ROLES.includes(u.role) || u.role === 'receptionist')
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      ))
+      .catch(() => {});
+  }, [form.branch_id, isSalesExec, userProfile?.branch_id]);
 
   // ── Load decor packages when moving to step 3
   useEffect(() => {
@@ -335,43 +256,52 @@ export default function CreateLeadPage() {
   // ── Submit
   const handleSubmit = async () => {
     setSaveError(null);
+    const missing = [];
+    if (!form.customer_name.trim())   missing.push('Full Name');
+    if (!form.phone.trim())           missing.push('Phone');
+    if (!form.event_type)             missing.push('Event Type');
+    if (!form.event_date)             missing.push('Event Date');
+    if (!form.expected_guest_count)   missing.push('Expected Guests');
+    
+    // Sales exec must fill all fields
+    if (isSalesExec) {
+      if (!form.branch_id) missing.push('Branch/Venue');
+      if (!form.budget_range) missing.push('Budget Range');
+    }
+    
+    if (missing.length) { setSaveError(`Required: ${missing.join(', ')}`); return; }
+
     setSaving(true);
     const bid = effectiveBranchId || "pfd_b1";
     try {
-      const payload = {
-        franchise_id,
-        branch_id: bid,
-        customer_name: details.customer_name.trim(),
-        phone: details.phone.trim(),
-        email: details.email.trim() || null,
-        event_type: details.event_type,
-        event_date: venue.event_date,
-        expected_guest_count: guests,
-        budget_range: details.budget_range || null,
-        hall_id: venue.hall_id || null,
-        hall_name: venue.hall_name || null,
-        hall_base_price: hallPrice || null,
-        decor_package_id: selectedDecor?.id || null,
-        decor_package_name: selectedDecor?.name || null,
-        decor_price: decorPrice || null,
-        menu_id: selectedMenu?.id || null,
-        menu_name: selectedMenu?.menu_name || selectedMenu?.name || null,
-        menu_price_per_plate: menuPPP || null,
-        estimated_menu_total: menuTotal || null,
-        estimated_total: grandTotal || null,
-        assigned_to_uid: venue.assigned_to_uid || null,
-        assigned_to_name: venue.assigned_to_name || null,
-        customer_uid: isCustomer ? userProfile?.uid : null,
-      };
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          franchise_id,
+          branch_id: bid,
+          customer_name: form.customer_name.trim(),
+          phone: form.phone.trim(),
+          email: form.email.trim() || null,
+          event_type: form.event_type,
+          event_date: form.event_date,
+          expected_guest_count: Number(form.expected_guest_count),
+          // Only sales exec fills these out initially
+          budget_range: isSalesExec ? form.budget_range || null : null,
+          hall_id: isSalesExec ? form.hall_id || null : null,
+          hall_name: isSalesExec ? form.hall_name || null : null,
+          assigned_to_uid: isSalesExec ? form.assigned_to_uid || null : null,
+          assigned_to_name: isSalesExec ? form.assigned_to_name || null : null,
+          // Customer self‑service: tie the doc to their UID so they can track it
+          customer_uid: isCustomer ? assignerUid : null,
+          // Flag to indicate if this is initial capture or sales exec input
+          created_by_role: role,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to submit");
 
-      if (isCustomer) {
+      if (isBasicCapture) {
         setSubmitted(true);
       } else {
         router.push(
@@ -384,7 +314,6 @@ export default function CreateLeadPage() {
     setSaving(false);
   };
 
-  // ── Success screen
   if (submitted) {
     return (
       <div
@@ -497,8 +426,13 @@ export default function CreateLeadPage() {
     );
   }
 
-  const backHref = isCustomer ? "/dashboard/customer" : "/leads";
-  const backLabel = isCustomer ? "Back to Dashboard" : "Back to Leads";
+  const backHref = isBasicCapture ? '/dashboard/customer' : '/leads';
+  const backLabel = isBasicCapture ? 'Back to Dashboard' : 'Back to Leads';
+  const pageTitle = isBasicCapture ? 'Submit Event Enquiry' : 'Create New Lead';
+  const pageSubtitle = isBasicCapture 
+    ? 'Tell us about your event and our team will get back to you' 
+    : 'Capture basic enquiry and coordinate with sales team';
+  const submitButtonLabel = isBasicCapture ? 'Submit Enquiry' : 'Create Lead';
 
   return (
     <div>
@@ -519,12 +453,17 @@ export default function CreateLeadPage() {
           >
             <ArrowLeft size={14} /> {backLabel}
           </Link>
-          <h1>{isCustomer ? "Submit Event Enquiry" : "Create New Lead"}</h1>
-          <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>
-            {isCustomer
-              ? "Tell us about your event — we'll build your perfect package"
-              : "Capture enquiry details with venue, decoration & menu preferences"}
+          <h1>{pageTitle}</h1>
+          <p style={{ color:'var(--color-text-muted)', fontSize:14 }}>
+            {pageSubtitle}
           </p>
+        </div>
+        <div className="page-actions">
+          <button className="btn btn-ghost" onClick={() => router.push(backHref)} disabled={saving}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
+            {saving ? <Loader2 size={15} style={{ animation:'spin 1s linear infinite' }} /> : <Save size={15} />}
+            {saving ? 'Submitting…' : submitButtonLabel}
+          </button>
         </div>
       </div>
 
@@ -551,13 +490,65 @@ export default function CreateLeadPage() {
         </div>
       )}
 
-      {/* ─────────────────────── STEP 1: Details ─────────────────────── */}
-      {step === 1 && (
-        <div className="form-card">
-          {isCustomer && (
-            <>
-              <div className="form-section-title">
-                Select Branch / Venue City
+      {isSalesExec && (
+        <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'flex-start', gap:8, color:'#1e40af', fontSize:13 }}>
+          <Info size={15} style={{ marginTop:2, flexShrink:0 }} />
+          <div>
+            <strong>Sales Executive Flow:</strong> Fill in all details (venue, budget, and assignment) to complete the lead capture.
+          </div>
+        </div>
+      )}
+
+      {isBasicCapture && (
+        <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'flex-start', gap:8, color:'#166534', fontSize:13 }}>
+          <Info size={15} style={{ marginTop:2, flexShrink:0 }} />
+          <div>
+            <strong>Basic Enquiry:</strong> Provide your event details. A sales executive will contact you shortly to finalize the venue and budget.
+          </div>
+        </div>
+      )}
+
+      <div className="form-card">
+        {/* Branch selector — for sales executives only */}
+        {isSalesExec && (
+          <>
+            <div className="form-section-title">Select Branch / Venue</div>
+            <div className="form-grid">
+              <div className="form-field form-span-2">
+                <label className="form-label">Branch *</label>
+                <select className="input" value={form.branch_id} onChange={e => { set('branch_id', e.target.value); set('hall_id', ''); set('hall_name', ''); }}>
+                  <option value="">Choose a branch…</option>
+                  {branches.length === 0 ? (
+                    // Auto-select current branch for staff
+                    userProfile?.branch_id && (
+                      <option key={userProfile.branch_id} value={userProfile.branch_id}>
+                        {userProfile.branch_name || `Branch ${userProfile.branch_id}`}
+                      </option>
+                    )
+                  ) : (
+                    branches.map(b => (
+                      <option key={b.id} value={b.id}>{b.name} — {b.city} ({b.address?.slice(0,40)}…)</option>
+                    ))
+                  )}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Customer branch selector — for customer basic capture only */}
+        {isCustomer && (
+          <>
+            <div className="form-section-title">Select Branch / Venue</div>
+            <div className="form-grid">
+              <div className="form-field form-span-2">
+                <label className="form-label">Preferred Branch / Venue (Optional)</label>
+                <select className="input" value={form.branch_id} onChange={e => { set('branch_id', e.target.value); set('hall_id', ''); set('hall_name', ''); }}>
+                  <option value="">No preference - sales team will contact you with options</option>
+                  {branches.map(b => (
+                    <option key={b.id} value={b.id}>{b.name} — {b.city}</option>
+                  ))}
+                </select>
               </div>
               <div className="form-grid">
                 <div className="form-field form-span-2">
@@ -636,158 +627,96 @@ export default function CreateLeadPage() {
           <div className="form-section-title" style={{ marginTop: 24 }}>
             Event Details
           </div>
-          <div className="form-grid">
-            <div className="form-field">
-              <label className="form-label">Event Type *</label>
-              <select
-                className="input"
-                value={details.event_type}
-                onChange={(e) =>
-                  setDetails((p) => ({ ...p, event_type: e.target.value }))
-                }
-              >
-                {EVENT_TYPES.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label className="form-label">Budget Range</label>
-              <select
-                className="input"
-                value={details.budget_range}
-                onChange={(e) =>
-                  setDetails((p) => ({ ...p, budget_range: e.target.value }))
-                }
-              >
-                <option value="">Select…</option>
-                {BUDGET_RANGES.map((r) => (
-                  <option key={r} value={r}>
-                    {r
-                      .replace("-", " – \u20B9")
-                      .replace("+", " & above")
-                      .replace(/^(\d+)/, "\u20B9$1")}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="form-field">
+            <label className="form-label">Phone *</label>
+            <input
+              className="input"
+              placeholder="+91-9876543210"
+              value={form.phone}
+              onChange={e => set('phone', e.target.value)}
+              readOnly={isCustomer && !!userProfile?.phone}
+              style={isCustomer && userProfile?.phone ? { background:'var(--color-surface-2)', cursor:'default' } : {}}
+            />
           </div>
+          <div className="form-field form-span-2">
+            <label className="form-label">Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="rajesh@email.com"
+              value={form.email}
+              onChange={e => set('email', e.target.value)}
+              readOnly={isCustomer && !!userProfile?.email}
+              style={isCustomer && userProfile?.email ? { background:'var(--color-surface-2)', cursor:'default' } : {}}
+            />
+          </div>
+        </div>
 
-          <div className="form-actions">
-            <span />
-            <button
-              className="btn btn-primary"
-              onClick={goNext}
-              style={{ display: "flex", alignItems: "center", gap: 5 }}
-            >
-              Next: Venue <ArrowRight size={14} />
-            </button>
+        {/* Event Details */}
+        <div className="form-section-title" style={{ marginTop:24 }}>Event Details</div>
+        <div className="form-grid">
+          <div className="form-field">
+            <label className="form-label">Event Type *</label>
+            <select className="input" value={form.event_type} onChange={e => set('event_type', e.target.value)}>
+              {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
+            </select>
           </div>
+          <div className="form-field">
+            <label className="form-label">Event Date *</label>
+            <input className="input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} />
+          </div>
+          <div className="form-field">
+            <label className="form-label">Expected Guests *</label>
+            <input className="input" type="number" placeholder="250" min="1" value={form.expected_guest_count} onChange={e => set('expected_guest_count', e.target.value)} />
+          </div>
+          {isSalesExec && (
+            <div className="form-field">
+              <label className="form-label">Budget Range (₹) *</label>
+              <select className="input" value={form.budget_range} onChange={e => set('budget_range', e.target.value)}>
+                <option value="">Select range…</option>
+                {BUDGET_RANGES.map(r => <option key={r} value={r}>{r.replace('-',' – ₹').replace('+',' & above').replace(/^(\d+)/, '₹$1')}</option>)}
+              </select>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ─────────────────────── STEP 2: Venue ───────────────────────── */}
-      {step === 2 && (
-        <div className="form-card">
-          <div className="form-section-title">Venue &amp; Date</div>
-          <div className="form-grid">
-            <div className="form-field">
-              <label className="form-label">Event Date *</label>
-              <input
-                className="input"
-                type="date"
-                value={venue.event_date}
-                onChange={(e) =>
-                  setVenue((p) => ({ ...p, event_date: e.target.value }))
-                }
-                min={new Date().toISOString().slice(0, 10)}
-              />
+        {/* Hall Selection — sales exec only */}
+        {isSalesExec && (
+          <>
+            <div className="form-section-title" style={{ marginTop:24, display:'flex', alignItems:'center', gap:8 }}>
+              <Building2 size={16} /> Hall / Venue Assignment
             </div>
-            <div className="form-field">
-              <label className="form-label">Expected Guests *</label>
-              <input
-                className="input"
-                type="number"
-                placeholder="250"
-                min="1"
-                value={venue.expected_guest_count}
-                onChange={(e) =>
-                  setVenue((p) => ({
-                    ...p,
-                    expected_guest_count: e.target.value,
-                  }))
-                }
-              />
+            <div className="form-grid">
+              <div className="form-field form-span-2">
+                <label className="form-label">Suggested Hall</label>
+                {!form.branch_id && !userProfile?.branch_id ? (
+                  <select className="input" disabled><option>Select a branch first to see halls</option></select>
+                ) : halls.length === 0 ? (
+                  <select className="input" disabled><option>Loading halls…</option></select>
+                ) : (
+                  <select className="input" value={form.hall_id} onChange={e => handleHallChange(e.target.value)}>
+                    <option value="">TBD - to be decided after discussion</option>
+                    {halls.map(h => (
+                      <option key={h.id} value={h.id}>
+                        {h.name} — Seating: {h.capacity_seating} | Floating: {h.capacity_floating} | ₹{h.base_price?.toLocaleString('en-IN')}/day
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
             </div>
-            <div className="form-field form-span-2">
-              <label className="form-label">Select Hall</label>
-              {!effectiveBranchId ? (
-                <select className="input" disabled>
-                  <option>Select a branch first</option>
-                </select>
-              ) : halls.length === 0 ? (
-                <select className="input" disabled>
-                  <option>Loading halls…</option>
-                </select>
-              ) : (
-                <select
-                  className="input"
-                  value={venue.hall_id}
-                  onChange={(e) => {
-                    const h = halls.find((h) => h.id === e.target.value);
-                    setVenue((p) => ({
-                      ...p,
-                      hall_id: e.target.value,
-                      hall_name: h?.name || "",
-                      hall_base_price: h?.base_price || 0,
-                    }));
-                  }}
-                >
-                  <option value="">No preference / decide later</option>
-                  {halls.map((h) => (
-                    <option key={h.id} value={h.id}>
-                      {h.name} — Seating:{" "}
-                      {h.capacity_seating || h.capacity || "?"} |{" "}
-                      {fmt(h.base_price || 0)}/day
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
+          </>
+        )}
 
-          {venue.hall_id && venue.hall_base_price > 0 && (
-            <div
-              style={{
-                background: "var(--color-primary-ghost)",
-                border: "1.5px solid var(--color-primary)",
-                borderRadius: 10,
-                padding: "12px 16px",
-                marginTop: 4,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 14,
-                    color: "var(--color-text-h)",
-                  }}
-                >
-                  {venue.hall_name}
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "var(--color-text-muted)",
-                    marginTop: 2,
-                  }}
-                >
-                  Hall hire charge
-                </div>
+        {/* Assignment — sales exec only */}
+        {isSalesExec && (
+          <>
+            <div className="form-section-title" style={{ marginTop:24 }}>Assignment</div>
+            <div className="form-grid">
+              <div className="form-field">
+                <label className="form-label">Assigned To (Name)</label>
+                <input className="input" placeholder="Sales executive name" value={form.assigned_to_name} onChange={e => set('assigned_to_name', e.target.value)} />
               </div>
               <div
                 style={{

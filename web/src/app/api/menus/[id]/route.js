@@ -10,11 +10,9 @@
  *   → delete menu doc + all dishes in sub-collection
  */
 
-import { db } from '@/lib/firebase';
-import {
-  doc, getDoc, getDocs, updateDoc, deleteDoc,
-  collection, writeBatch, serverTimestamp,
-} from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+
+const db = getAdminDb();
 import { NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 
@@ -25,22 +23,16 @@ const MENU_TTL  = 300;
 // ── helpers ────────────────────────────────────────────────────────────────
 
 function menuDocRef(franchise_id, branch_id, menu_id) {
-  return doc(
-    db,
-    'menus', franchise_id,
-    'branches', branch_id,
-    'menus', menu_id,
-  );
+  return db.collection('menus').doc(franchise_id)
+    .collection('branches').doc(branch_id)
+    .collection('menus').doc(menu_id);
 }
 
 function dishesCol(franchise_id, branch_id, menu_id) {
-  return collection(
-    db,
-    'menus', franchise_id,
-    'branches', branch_id,
-    'menus', menu_id,
-    'dishes',
-  );
+  return db.collection('menus').doc(franchise_id)
+    .collection('branches').doc(branch_id)
+    .collection('menus').doc(menu_id)
+    .collection('dishes');
 }
 
 // ── GET ────────────────────────────────────────────────────────────────────
@@ -66,8 +58,8 @@ export async function GET(request, { params }) {
 
     // Fetch menu doc + dishes in parallel (2 reads total instead of N+1)
     const [menuSnap, dishesSnap] = await Promise.all([
-      getDoc(menuDocRef(franchise_id, branch_id, menu_id)),
-      getDocs(dishesCol(franchise_id, branch_id, menu_id)),
+      menuDocRef(franchise_id, branch_id, menu_id).get(),
+      dishesCol(franchise_id, branch_id, menu_id).get(),
     ]);
 
     if (!menuSnap.exists()) {
@@ -153,7 +145,7 @@ export async function PUT(request, { params }) {
     const ref = menuDocRef(franchise_id, branch_id, menu_id);
 
     // Check existence
-    const snap = await getDoc(ref);
+    const snap = await ref.get();
     if (!snap.exists()) {
       return NextResponse.json(
         { success: false, error: 'Menu not found' },
@@ -162,7 +154,7 @@ export async function PUT(request, { params }) {
     }
 
     // Build update payload — only include fields that were provided
-    const updates = { updated_at: serverTimestamp() };
+    const updates = { updated_at: db.FieldValue.serverTimestamp() };
     if (menu_name      !== undefined) updates.menu_name       = menu_name;
     if (category       !== undefined) updates.category        = category;
     if (price_per_plate !== undefined) updates.price_per_plate = Number(price_per_plate);
@@ -184,14 +176,14 @@ export async function PUT(request, { params }) {
       );
     }
 
-    await updateDoc(ref, updates);
+    await ref.update(updates);
 
     // If courses array provided → replace dishes sub-collection
     if (Array.isArray(courses)) {
       const dishCol     = dishesCol(franchise_id, branch_id, menu_id);
-      const existingSnap = await getDocs(dishCol);
+      const existingSnap = await dishCol.get();
 
-      const batch = writeBatch(db);
+      const batch = db.batch();
 
       // Delete existing dishes
       existingSnap.docs.forEach(d => batch.delete(d.ref));
@@ -203,7 +195,7 @@ export async function PUT(request, { params }) {
       for (const courseObj of courses) {
         const { course, items = [] } = courseObj;
         for (const itemName of items.filter(Boolean)) {
-          const newDishRef = doc(dishCol);
+          const newDishRef = dishCol.doc();
           batch.set(newDishRef, {
             dish_name:   itemName.trim(),
             category:    normalizeCourseToCategory(course),
@@ -213,8 +205,8 @@ export async function PUT(request, { params }) {
             ingredients: [],
             is_signature: false,
             status:      'available',
-            created_at:  serverTimestamp(),
-            updated_at:  serverTimestamp(),
+            created_at:  db.FieldValue.serverTimestamp(),
+            updated_at:  db.FieldValue.serverTimestamp(),
           });
         }
       }
@@ -260,7 +252,7 @@ export async function DELETE(request, { params }) {
     const dishCol  = dishesCol(franchise_id, branch_id, menu_id);
 
     // Check existence
-    const snap = await getDoc(ref);
+    const snap = await ref.get();
     if (!snap.exists()) {
       return NextResponse.json(
         { success: false, error: 'Menu not found' },
@@ -269,15 +261,15 @@ export async function DELETE(request, { params }) {
     }
 
     // Delete all dishes first (Firestore doesn't cascade-delete sub-collections)
-    const dishSnap = await getDocs(dishCol);
+    const dishSnap = await dishCol.get();
     if (dishSnap.size > 0) {
-      const batch = writeBatch(db);
+      const batch = db.batch();
       dishSnap.docs.forEach(d => batch.delete(d.ref));
       await batch.commit();
     }
 
     // Delete the menu document
-    await deleteDoc(ref);
+    await ref.delete();
 
     // Invalidate caches
     cache.del(detailKey(franchise_id, branch_id, menu_id));

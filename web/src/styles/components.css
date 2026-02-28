@@ -361,24 +361,37 @@
 
 /* ── SIDEBAR ─────────────────────────────────── */
 .sidebar {
-  width: 260px; min-height: 100vh;
+  width: 260px;
+  height: 100vh;
   background: var(--color-bg-card);
   border-right: 1px solid var(--color-border);
   padding: var(--space-6) var(--space-4);
-  display: flex; flex-direction: column; gap: var(--space-1);
-  position: fixed; left: 0; top: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: fixed;
+  left: 0;
+  top: 0;
   overflow-y: auto;
-  z-index: 1100;
+  overflow-x: hidden;
+  z-index: 100;
   scrollbar-width: thin;
   scrollbar-color: #999 transparent;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s ease;
-  box-shadow: none;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease;
+}
+.sidebar.sidebar-closed {
+  width: 0;
+  padding: 0;
+  border-right: none;
+  overflow: hidden;
+  opacity: 0;
 }
 .sidebar.sidebar-open {
-  transform: translateX(0);
-  box-shadow: 8px 0 40px rgba(0,0,0,0.18);
+  width: 260px;
+  opacity: 1;
 }
 .sidebar::-webkit-scrollbar {
   width: 10px;
@@ -757,17 +770,163 @@
 /* ── DASHBOARD MAIN ─────────────────────────── */
 .dashboard-main {
   flex: 1;
-  margin-left: 0;
   padding: 32px;
   background: var(--color-bg);
-  width: 100%;
   box-sizing: border-box;
   min-height: 100vh;
-  transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  padding-left: 292px; /* 260px sidebar + 32px gap */
+  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 260px;
+  overflow-x: hidden;
 }
 .dashboard-main.sidebar-closed {
-  padding-left: 32px;
+  margin-left: 0;
+}
+
+/* ── KPI ROW ────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* ── DATATABLE RESPONSIVE ────────────────────── */
+.desktop-table-wrap {
+  display: block;
+}
+.mobile-card-list {
+  display: none;
+}
+.mobile-card-item {
+  position: relative;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.mobile-card-item:last-child {
+  border-bottom: none;
+}
+.mobile-card-item:hover {
+  background: var(--color-primary-ghost);
+}
+@media (max-width: 768px) {
+  .desktop-table-wrap {
+    display: none;
+  }
+  .mobile-card-list {
+    display: block;
+  }
+}
+
+/* ── DASHBOARD PAGE HEADER ──────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-text-h);
+  margin-bottom: 4px;
+}
+.page-header p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+.page-header-left {
+  flex: 1;
+  min-width: 200px;
+}
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+/* ── FORM CARD & LAYOUT ─────────────────────── */
+.form-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+}
+.form-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-span-2 {
+  grid-column: span 2;
+}
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-body);
+}
+.form-hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-span-2 {
+    grid-column: span 1;
+  }
+  .page-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ── DASHBOARD BTN GHOST (light-bg scoped fix) ── */
+.dashboard-main .btn-ghost {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--color-border);
+  color: var(--color-text-body);
+  backdrop-filter: none;
+}
+.dashboard-main .btn-ghost:hover {
+  background: var(--color-primary-ghost);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* ── MOBILE TOPBAR ──────────────────────────── */
@@ -781,10 +940,41 @@
   padding: 0 16px;
 }
 
-/* desktop: show toggle button */
+/* DESKTOP: Sidebar stays fixed */
 @media (min-width: 769px) {
+  /* Sidebar visible as side panel on desktop */
+  .sidebar {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    width: 260px !important;
+    height: 100vh !important;
+    transform: none !important;
+    opacity: 1 !important;
+    margin-left: 0 !important;
+    z-index: 100 !important;
+  }
+  .sidebar.sidebar-open,
+  .sidebar.sidebar-closed {
+    width: 260px !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  
+  /* Ensure main content has proper margin on desktop */
+  .dashboard-main {
+    margin-left: 260px !important;
+  }
+  
   .sidebar-desktop-toggle {
-    display: flex;
+    display: none;
+  }
+  .sidebar-backdrop {
+    display: none !important;
+  }
+  
+  .mobile-topbar {
+    display: none !important;
   }
 }
 
@@ -816,10 +1006,10 @@
   .dashboard-main {
     margin-left: 0 !important;
     padding: 72px 16px 24px !important;
-    padding-left: 16px !important;
+    width: 100% !important;
   }
   .dashboard-main.sidebar-closed {
-    padding-left: 16px !important;
+    margin-left: 0 !important;
   }
 
   /* Mobile topbar */
@@ -827,15 +1017,44 @@
     display: flex !important;
   }
 
-  /* Hide desktop toggle on mobile */
+  /* Show toggle on mobile */
   .sidebar-desktop-toggle {
-    display: none !important;
+    display: flex !important;
   }
 
-  /* Sidebar width on mobile */
+  /* Sidebar: drawer behavior on mobile */
   .sidebar {
+    position: fixed !important;
+    left: 0; top: 0; bottom: 0;
     width: 280px !important;
+    height: 100vh !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1100 !important;
+    box-shadow: none;
+    padding: var(--space-4) var(--space-3) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
+    margin-left: 0 !important;
+    border-right: 1px solid var(--color-border);
+    opacity: 1 !important;
+  }
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 8px 0 40px rgba(0,0,0,0.25);
+  }
+  .sidebar.sidebar-closed {
+    width: 280px !important;
+    opacity: 1 !important;
+    transform: translateX(-100%);
+  }
+  .sidebar-backdrop.active {
+    display: block !important;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1050;
+    backdrop-filter: blur(2px);
   }
 
   /* Login page — stack vertically */
