@@ -5,12 +5,22 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'www.prasadfooddivine.com',
+        port: '',
+        pathname: '/images/**',
       },
       {
-        protocol: 'http',
-        hostname: '**',
+        protocol: 'https', 
+        hostname: 'prasadfooddivine.com',
+        port: '',
+        pathname: '/images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 
