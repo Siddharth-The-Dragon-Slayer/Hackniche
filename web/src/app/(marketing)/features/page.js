@@ -32,7 +32,7 @@ export default function FeaturesPage() {
             Every feature your banquet business needs
           </h1>
           <p style={{ fontSize: 18, color: 'var(--color-text-muted)', maxWidth: 600, margin: '0 auto', lineHeight: 1.7 }}>
-            From lead capture to final payment, BanquetOS covers every aspect of venue management.
+            From lead capture to final payment, BanquetEase covers every aspect of venue management.
           </p>
         </motion.div>
       </section>

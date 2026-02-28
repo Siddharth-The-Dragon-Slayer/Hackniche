@@ -64,7 +64,7 @@ export default function ContactPage() {
               {/* Card */}
               <div className="card" style={{ padding: 28 }}>
                 <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 8 }}>Schedule a Demo</h4>
-                <p style={{ fontSize: 14, color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>See BanquetOS in action with a personalized walkthrough tailored to your venue.</p>
+                <p style={{ fontSize: 14, color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>See BanquetEase in action with a personalized walkthrough tailored to your venue.</p>
                 <button className="btn btn-outline btn-sm">Book a Call</button>
               </div>
             </motion.div>

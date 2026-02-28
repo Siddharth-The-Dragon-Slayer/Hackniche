@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { UserPlus, AlertCircle, Eye, EyeOff } from 'lucide-react';
@@ -41,8 +42,10 @@ export default function SignupPage() {
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 20%, rgba(232,184,75,0.15) 0%, transparent 50%)', pointerEvents: 'none' }} />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{ textAlign: 'center', zIndex: 1 }}>
-          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(232,184,75,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36, fontWeight: 700, color: '#E8B84B', border: '2px solid rgba(232,184,75,0.4)' }}>B</div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 700, marginBottom: 12 }}>BanquetOS</h1>
+          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(232,184,75,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', overflow: 'hidden', border: '2px solid rgba(232,184,75,0.4)' }}>
+            <Image src="/BanquetEase.png" alt="BanquetEase Logo" width={68} height={68} style={{ objectFit: 'contain' }} priority />
+          </div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 700, marginBottom: 12 }}>BanquetEase</h1>
           <p style={{ fontSize: 16, opacity: 0.8, lineHeight: 1.6, maxWidth: 360, margin: '0 auto' }}>Create your customer account to browse venues, track your bookings, and leave reviews.</p>
         </motion.div>
       </div>

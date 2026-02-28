@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }) {
         >
           <Menu size={24} />
         </button>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text-h)' }}>BanquetOS</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text-h)' }}>BanquetEase</span>
         <div style={{ width: 40 }} />
       </div>
 

@@ -27,7 +27,7 @@ export default function AboutPage() {
             Built for banquets, by banquet people
           </h1>
           <p style={{ fontSize: 18, color: 'var(--color-text-muted)', maxWidth: 600, margin: '0 auto', lineHeight: 1.7 }}>
-            BanquetOS was born from real experience managing banquet operations. We understand the chaos and built the solution.
+            BanquetEase was born from real experience managing banquet operations. We understand the chaos and built the solution.
           </p>
         </motion.div>
       </section>
@@ -38,13 +38,13 @@ export default function AboutPage() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 16, textAlign: 'center' }}>Our Story</h2>
             <p style={{ fontSize: 16, color: 'var(--color-text-body)', lineHeight: 1.8, marginBottom: 16 }}>
-              BanquetOS started when our founders realized that even the most successful banquet businesses were running on spreadsheets, WhatsApp groups, and paper registers. Leads were falling through cracks, halls were getting double-booked, and revenue insights were practically nonexistent.
+              BanquetEase started when our founders realized that even the most successful banquet businesses were running on spreadsheets, WhatsApp groups, and paper registers. Leads were falling through cracks, halls were getting double-booked, and revenue insights were practically nonexistent.
             </p>
             <p style={{ fontSize: 16, color: 'var(--color-text-body)', lineHeight: 1.8, marginBottom: 16 }}>
               We partnered with Prasad Food Divine — one of Hyderabad&apos;s most respected banquet venues — to build the platform from the ground up. Every feature was validated with real operations, real staff, and real events.
             </p>
             <p style={{ fontSize: 16, color: 'var(--color-text-body)', lineHeight: 1.8 }}>
-              Today, BanquetOS powers multiple franchises and branches, managing thousands of leads and hundreds of events every month. And we&apos;re just getting started.
+              Today, BanquetEase powers multiple franchises and branches, managing thousands of leads and hundreds of events every month. And we&apos;re just getting started.
             </p>
           </motion.div>
         </div>

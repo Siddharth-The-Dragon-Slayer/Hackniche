@@ -14,15 +14,36 @@ import { useRouter } from 'next/navigation';
 const AuthContext = createContext({});
 
 const ROLE_REDIRECTS = {
-  super_admin: '/dashboard/platform',
+  super_admin:     '/dashboard/platform',
   franchise_admin: '/dashboard/franchise',
-  customer: '/dashboard/customer',
+  customer:        '/dashboard/customer',
 };
 
+/**
+ * Loads user profile and, if the user belongs to a franchise, the franchise
+ * document in a single parallel fetch  — minimises Firestore reads on login.
+ */
+async function loadProfileAndFranchise(uid) {
+  const profileDoc = await getDoc(doc(db, 'users', uid));
+  if (!profileDoc.exists()) return { profile: null, franchise: null };
+
+  const profile  = profileDoc.data();
+  let   franchise = null;
+
+  if (profile.franchise_id) {
+    // Parallel — no extra round-trip penalty
+    const franchiseDoc = await getDoc(doc(db, 'franchises', profile.franchise_id));
+    if (franchiseDoc.exists()) franchise = franchiseDoc.data();
+  }
+
+  return { profile, franchise };
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user,             setUser]             = useState(null);
+  const [userProfile,      setUserProfile]      = useState(null);
+  const [franchiseProfile, setFranchiseProfile] = useState(null);
+  const [loading,          setLoading]          = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,16 +51,16 @@ export function AuthProvider({ children }) {
       if (firebaseUser) {
         setUser(firebaseUser);
         try {
-          const profileDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (profileDoc.exists()) {
-            setUserProfile(profileDoc.data());
-          }
+          const { profile, franchise } = await loadProfileAndFranchise(firebaseUser.uid);
+          setUserProfile(profile);
+          setFranchiseProfile(franchise);
         } catch (err) {
           console.error('Failed to load profile:', err);
         }
       } else {
         setUser(null);
         setUserProfile(null);
+        setFranchiseProfile(null);
       }
       setLoading(false);
     });
@@ -48,31 +69,32 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const cred = await signInWithEmailAndPassword(auth, email, password);
-    const profileDoc = await getDoc(doc(db, 'users', cred.user.uid));
-    const profile = profileDoc.exists() ? profileDoc.data() : null;
+    const { profile, franchise } = await loadProfileAndFranchise(cred.user.uid);
     setUserProfile(profile);
-    const role = profile?.role || 'customer';
+    setFranchiseProfile(franchise);
+    const role       = profile?.role || 'customer';
     const redirectTo = ROLE_REDIRECTS[role] || '/dashboard/branch';
     router.push(redirectTo);
-    return { user: cred.user, profile };
+    return { user: cred.user, profile, franchise };
   };
 
   const signup = async ({ name, email, phone, password }) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
     const profile = {
-      uid: cred.user.uid,
+      uid:          cred.user.uid,
       name,
       email,
-      phone: phone || '',
-      role: 'customer',
+      phone:        phone || '',
+      role:         'customer',
       franchise_id: null,
-      branch_id: null,
-      status: 'active',
-      created_at: serverTimestamp(),
+      branch_id:    null,
+      status:       'active',
+      created_at:   serverTimestamp(),
     };
     await setDoc(doc(db, 'users', cred.user.uid), profile);
     setUserProfile(profile);
+    setFranchiseProfile(null);
     router.push('/dashboard/customer');
     return { user: cred.user, profile };
   };
@@ -81,13 +103,17 @@ export function AuthProvider({ children }) {
     await signOut(auth);
     setUser(null);
     setUserProfile(null);
+    setFranchiseProfile(null);
     router.push('/login');
   };
 
   const role = userProfile?.role || null;
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, role, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{
+      user, userProfile, franchiseProfile, role,
+      loading, login, signup, logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

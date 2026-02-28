@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Facebook, Youtube, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 
@@ -13,9 +14,11 @@ export default function Footer() {
                 width: 36, height: 36, borderRadius: '50%',
                 background: 'var(--gradient-btn)', display: 'flex',
                 alignItems: 'center', justifyContent: 'center',
-                fontSize: 18, fontWeight: 700, color: 'var(--color-text-on-gold)',
-              }}>B</div>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: '#fff' }}>BanquetOS</span>
+                overflow: 'hidden', flexShrink: 0,
+              }}>
+                <Image src="/BanquetEase.png" alt="BanquetEase" width={36} height={36} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+              </div>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: '#fff' }}>BanquetEase</span>
             </div>
             <p style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.75, marginBottom: 20 }}>
               Multi-franchise banquet management platform. Streamline leads, bookings, events, and billing.

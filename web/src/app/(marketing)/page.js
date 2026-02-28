@@ -77,7 +77,7 @@ function ProblemSolution() {
             <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 24, padding: 32, boxShadow: 'var(--shadow-hover)' }}>
               <div className="badge badge-green" style={{ marginBottom: 16 }}>The Solution</div>
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 12 }}>One platform, every operation.</h3>
-              <p style={{ fontSize: 15, color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: 20 }}>BanquetOS unifies your entire business — from first enquiry to final payment — in a single, beautiful dashboard.</p>
+              <p style={{ fontSize: 15, color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: 20 }}>BanquetEase unifies your entire business — from first enquiry to final payment — in a single, beautiful dashboard.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['AI-powered lead scoring', 'Real-time hall availability', 'Automated inventory alerts', 'One-click PDF invoices', 'Live performance analytics'].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 15, color: 'var(--color-text-body)' }}>
@@ -229,7 +229,7 @@ function BonusFeatures() {
 // Section 9: Testimonials
 function Testimonials() {
   const testimonials = [
-    { name: 'Prasad Rao', role: 'Owner, Prasad Food Divine', text: 'BanquetOS transformed our operations. We went from spreadsheets to a fully digital system in weeks. Revenue tracking alone saved us lakhs.', rating: 5 },
+    { name: 'Prasad Rao', role: 'Owner, Prasad Food Divine', text: 'BanquetEase transformed our operations. We went from spreadsheets to a fully digital system in weeks. Revenue tracking alone saved us lakhs.', rating: 5 },
     { name: 'Arjun Reddy', role: 'Branch Manager', text: 'The lead management and AI scoring features are incredible. Our conversion rate improved by 30% in the first quarter.', rating: 5 },
     { name: 'Sneha Gupta', role: 'Branch Manager, Kukatpally', text: 'The calendar and booking system prevents double-bookings completely. Our clients love the decor package selection feature.', rating: 5 },
   ];
@@ -302,7 +302,7 @@ function CTABanner() {
       <div className="texture-grain" style={{ position: 'absolute', inset: 0 }} />
       <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, color: '#fff', marginBottom: 16, fontStyle: 'italic' }}>Ready to transform your banquet business?</h2>
-        <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>Join hundreds of venues already using BanquetOS to streamline operations and grow revenue.</p>
+        <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>Join hundreds of venues already using BanquetEase to streamline operations and grow revenue.</p>
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/login" className="btn btn-primary btn-lg" style={{ textDecoration: 'none' }}>Get Started Free <ArrowRight size={16} /></Link>
           <Link href="/contact" className="btn btn-ghost btn-lg" style={{ textDecoration: 'none' }}>Schedule a Demo</Link>

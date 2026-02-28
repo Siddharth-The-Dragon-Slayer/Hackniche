@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/hooks/use-theme';
@@ -10,11 +11,16 @@ import { LogOut, X } from 'lucide-react';
 export default function Sidebar({ mobileOpen, onClose }) {
   const pathname = usePathname();
   const { theme, toggleTheme, isDark } = useTheme();
-  const { user, userProfile, role, logout } = useAuth();
+  const { user, userProfile, franchiseProfile, role, logout } = useAuth();
 
-  const currentRole = role || 'branch_manager';
-  const items = sidebarMenus[currentRole] || sidebarMenus.branch_manager;
-  const displayName = userProfile?.name || user?.displayName || 'User';
+  const currentRole  = role || 'branch_manager';
+  const items        = sidebarMenus[currentRole] || sidebarMenus.branch_manager;
+  const displayName  = userProfile?.name || user?.displayName || 'User';
+
+  // Franchise users see their franchise's logo/name; everyone else sees BanquetEase
+  const isFranchiseUser = !!userProfile?.franchise_id;
+  const logoSrc   = (isFranchiseUser && franchiseProfile?.logo_url) ? franchiseProfile.logo_url : '/BanquetEase.png';
+  const brandName = (isFranchiseUser && franchiseProfile?.name)    ? franchiseProfile.name    : 'BanquetEase';
 
   return (
     <>
@@ -35,12 +41,14 @@ export default function Sidebar({ mobileOpen, onClose }) {
             width: 32, height: 32, borderRadius: '50%',
             background: 'var(--gradient-btn)', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 700, color: 'var(--color-text-on-gold)',
-          }}>B</div>
+            overflow: 'hidden', flexShrink: 0,
+          }}>
+            <Image src={logoSrc} alt={brandName} width={32} height={32} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+          </div>
           <span style={{
             fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700,
             color: 'var(--color-text-h)', letterSpacing: '-0.3px',
-          }}>BanquetOS</span>
+          }}>{brandName}</span>
         </Link>
 
         {/* User Info */}

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -8,7 +9,12 @@ import { useAuth } from '@/contexts/auth-context';
 
 export default function Navbar() {
   const { theme, toggleTheme, isDark } = useTheme();
-  const { user, userProfile, role, logout } = useAuth();
+  const { user, userProfile, franchiseProfile, role, logout } = useAuth();
+
+  // Use franchise logo when a franchise/branch user is logged in
+  const isFranchiseUser = !!userProfile?.franchise_id;
+  const logoSrc    = (isFranchiseUser && franchiseProfile?.logo_url) ? franchiseProfile.logo_url : '/BanquetEase.png';
+  const brandName  = (isFranchiseUser && franchiseProfile?.name)    ? franchiseProfile.name    : 'BanquetEase';
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -53,12 +59,14 @@ export default function Navbar() {
             width: 36, height: 36, borderRadius: '50%',
             background: 'var(--gradient-btn)', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, fontWeight: 700, color: 'var(--color-text-on-gold)',
-          }}>B</div>
+            overflow: 'hidden', flexShrink: 0,
+          }}>
+            <Image src={logoSrc} alt={brandName} width={36} height={36} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+          </div>
           <span style={{
             fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700,
             color: 'var(--color-text-h)', letterSpacing: '-0.5px',
-          }}>BanquetOS</span>
+          }}>{brandName}</span>
         </Link>
 
         {/* Desktop Nav */}
