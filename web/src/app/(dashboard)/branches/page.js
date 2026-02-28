@@ -17,12 +17,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { db } from "@/lib/firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "@/contexts/auth-context";
 import { useBranches, useHalls } from "@/hooks/use-branches";
 import {
@@ -128,7 +123,11 @@ function BranchFormModal({
       } else {
         await apiFetch("/api/branches", {
           method: "POST",
-          body: JSON.stringify({ ...payload, franchise_id: franchiseId, franchise_name: franchiseName }),
+          body: JSON.stringify({
+            ...payload,
+            franchise_id: franchiseId,
+            franchise_name: franchiseName,
+          }),
         });
         invalidateCache(cacheKeys.branches(franchiseId));
         invalidateCache(cacheKeys.allBranches());
@@ -1041,7 +1040,11 @@ export default function BranchesPage() {
       : `${userProfile?.franchise_name || "Franchise"} Branches`;
 
   const canManage = ["super_admin", "franchise_admin"].includes(role);
-  const canManageHalls = ["super_admin", "franchise_admin", "branch_manager"].includes(role);
+  const canManageHalls = [
+    "super_admin",
+    "franchise_admin",
+    "branch_manager",
+  ].includes(role);
 
   const handleSaved = () => {
     if (userProfile?.franchise_id) {

@@ -16,12 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { db } from "@/lib/firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "@/contexts/auth-context";
 import { useBranches } from "@/hooks/use-branches";
 import {
@@ -31,6 +26,8 @@ import {
   invalidateCache,
 } from "@/lib/firestore-cache";
 import { apiFetch } from "@/lib/api-client";
+import { calculateDynamicPrice, formatINR } from "@/lib/dynamic-pricing";
+import Link from "next/link";
 
 // ── Skeleton loader ───────────────────────────────────────────────
 function HallCardSkeleton() {
@@ -90,7 +87,10 @@ function HallFormModal({ hall, branch, onClose, onSaved }) {
         base_price: Number(form.base_price) || 0,
         price_per_plate: Number(form.price_per_plate) || 450,
         features: form.features
-          ? form.features.split(",").map((s) => s.trim()).filter(Boolean)
+          ? form.features
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
           : [],
         status: form.status,
         branch_id: branch.id,
@@ -437,7 +437,12 @@ function HallCard({ hall, onEdit, canManage }) {
         <button
           className="btn btn-ghost btn-sm"
           onClick={() => onEdit(hall)}
-          style={{ position: "absolute", top: 12, right: 12, padding: "4px 6px" }}
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            padding: "4px 6px",
+          }}
           title="Edit Hall"
         >
           <Pencil size={13} />
@@ -520,13 +525,26 @@ function HallCard({ hall, onEdit, canManage }) {
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <BadgeDollarSign size={11} style={{ color: "var(--color-primary)" }} />
+          <BadgeDollarSign
+            size={11}
+            style={{ color: "var(--color-primary)" }}
+          />
           <span>
             <strong>Plate:</strong> ₹{hall.price_per_plate || "—"}
           </span>
         </div>
-        <div style={{ gridColumn: "span 2", display: "flex", alignItems: "center", gap: 5 }}>
-          <BadgeDollarSign size={11} style={{ color: "var(--color-text-muted)" }} />
+        <div
+          style={{
+            gridColumn: "span 2",
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+          }}
+        >
+          <BadgeDollarSign
+            size={11}
+            style={{ color: "var(--color-text-muted)" }}
+          />
           <span>
             <strong>Base:</strong> ₹{(hall.base_price || 0).toLocaleString()}
           </span>
@@ -552,6 +570,56 @@ function HallCard({ hall, onEdit, canManage }) {
       >
         {hall.status}
       </span>
+
+      {/* Dynamic Price Preview */}
+      {(hall.base_price > 0 || hall.price_per_plate > 0) && (
+        <DynamicPricePreview hall={hall} />
+      )}
+    </div>
+  );
+}
+
+// ── Dynamic Price Preview (quick snapshot for a Saturday 45 days out) ─────────
+function DynamicPricePreview({ hall }) {
+  const preview = useMemo(() => {
+    const eventDate = new Date();
+    eventDate.setDate(eventDate.getDate() + 45);
+    // Move to next Saturday for a "peak-day" example
+    const dayOfWeek = eventDate.getDay();
+    eventDate.setDate(eventDate.getDate() + ((6 - dayOfWeek + 7) % 7));
+    return calculateDynamicPrice({
+      baseHallRent:      hall.base_price      || 0,
+      basePricePerPlate: hall.price_per_plate || 0,
+      guestCount:        0,
+      eventDate,
+      bookingDate:       new Date(),
+      occupancyPercent:  60,
+    });
+  }, [hall.base_price, hall.price_per_plate]);
+
+  const higher = preview.dynamicPrice > preview.basePrice;
+
+  return (
+    <div style={{
+      borderTop: "1px solid var(--color-border)",
+      paddingTop: 10,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }}>
+      <div>
+        <div style={{ fontSize: 10, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 2 }}>DYNAMIC PRICE (Sat · 45d · 60%)</div>
+        <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "var(--font-mono)", color: higher ? "#c0392b" : "#27ae60" }}>
+          {formatINR(preview.dynamicPrice)}
+        </div>
+        <div style={{ fontSize: 10, color: "var(--color-text-muted)" }}>{preview.combinedMultiplier}× multiplier</div>
+      </div>
+      <Link
+        href="/dynamic-pricing"
+        style={{ fontSize: 11, color: "var(--color-primary)", textDecoration: "none", fontWeight: 600 }}
+      >
+        Calculator →
+      </Link>
     </div>
   );
 }
@@ -571,8 +639,7 @@ export default function HallsPage() {
   const isBranchManager = role === "branch_manager";
   const isFranchiseAdmin = role === "franchise_admin";
   const isSuperAdmin = role === "super_admin";
-  const canManage =
-    isBranchManager || isFranchiseAdmin || isSuperAdmin;
+  const canManage = isBranchManager || isFranchiseAdmin || isSuperAdmin;
 
   // For branch_manager: fixed to their branch; others: pick from list
   const effectiveBranchId = isBranchManager
@@ -735,6 +802,14 @@ export default function HallsPage() {
           >
             <RefreshCw size={14} />
           </button>
+          <Link
+            href="/dynamic-pricing"
+            className="btn btn-ghost btn-sm"
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 4, fontSize: 12 }}
+            title="Dynamic Pricing Calculator"
+          >
+            ₹ Pricing Calc
+          </Link>
           {canManage && activeBranch?.id && (
             <button
               className="btn btn-primary btn-sm"

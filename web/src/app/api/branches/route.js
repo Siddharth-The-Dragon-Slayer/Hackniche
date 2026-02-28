@@ -8,7 +8,8 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export async function GET(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const db = getAdminDb();
   let q = db.collection("branches");
@@ -26,25 +27,34 @@ export async function GET(request) {
     .map((d) => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
-  return NextResponse.json({ branches }, {
-    headers: { "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    { branches },
+    {
+      headers: { "Cache-Control": "no-store" },
+    },
+  );
 }
 
 export async function POST(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!["super_admin", "franchise_admin"].includes(user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   let body;
-  try { body = await request.json(); } catch {
+  try {
+    body = await request.json();
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   if (!body.name?.trim()) {
-    return NextResponse.json({ error: "Branch name is required" }, { status: 422 });
+    return NextResponse.json(
+      { error: "Branch name is required" },
+      { status: 422 },
+    );
   }
 
   const db = getAdminDb();
@@ -57,7 +67,8 @@ export async function POST(request) {
     phone: body.phone || "",
     timings: body.timings || "11:00 AM – 11:30 PM",
     maps_url: body.maps_url || null,
-    google_rating: body.google_rating != null ? Number(body.google_rating) : null,
+    google_rating:
+      body.google_rating != null ? Number(body.google_rating) : null,
     review_count: body.review_count != null ? Number(body.review_count) : null,
     cost_for_two: body.cost_for_two != null ? Number(body.cost_for_two) : null,
     status: body.status || "active",

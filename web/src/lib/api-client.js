@@ -27,7 +27,9 @@ export async function apiFetch(url, options = {}) {
     try {
       const body = await res.json();
       message = body.error || message;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     throw new Error(message);
   }
   return res.json();

@@ -10,7 +10,8 @@ const CAN_MANAGE = ["super_admin", "franchise_admin", "branch_manager"];
 
 export async function GET(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
   const branch_id = searchParams.get("branch_id");
@@ -29,7 +30,10 @@ export async function GET(request) {
     // Franchise admin: verify the branch belongs to their franchise
     if (user.role === "franchise_admin") {
       const branchSnap = await db.collection("branches").doc(branch_id).get();
-      if (branchSnap.exists && branchSnap.data().franchise_id !== user.franchise_id) {
+      if (
+        branchSnap.exists &&
+        branchSnap.data().franchise_id !== user.franchise_id
+      ) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
     }
@@ -44,31 +48,44 @@ export async function GET(request) {
     .map((d) => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
-  return NextResponse.json({ halls }, {
-    headers: { "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    { halls },
+    {
+      headers: { "Cache-Control": "no-store" },
+    },
+  );
 }
 
 export async function POST(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!CAN_MANAGE.includes(user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   let body;
-  try { body = await request.json(); } catch {
+  try {
+    body = await request.json();
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   if (!body.name?.trim()) {
-    return NextResponse.json({ error: "Hall name is required" }, { status: 422 });
+    return NextResponse.json(
+      { error: "Hall name is required" },
+      { status: 422 },
+    );
   }
 
   // Determine branch_id: branch_manager is locked to theirs
-  const branch_id = user.role === "branch_manager" ? user.branch_id : body.branch_id;
+  const branch_id =
+    user.role === "branch_manager" ? user.branch_id : body.branch_id;
   if (!branch_id) {
-    return NextResponse.json({ error: "branch_id is required" }, { status: 422 });
+    return NextResponse.json(
+      { error: "branch_id is required" },
+      { status: 422 },
+    );
   }
 
   // Resolve branch details for denormalisation
@@ -80,7 +97,10 @@ export async function POST(request) {
   const branch = branchSnap.data();
 
   // Franchise admin scope check
-  if (user.role === "franchise_admin" && branch.franchise_id !== user.franchise_id) {
+  if (
+    user.role === "franchise_admin" &&
+    branch.franchise_id !== user.franchise_id
+  ) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -93,7 +113,10 @@ export async function POST(request) {
     price_per_plate: Number(body.price_per_plate) || 450,
     features: Array.isArray(body.features)
       ? body.features
-      : (body.features || "").split(",").map((s) => s.trim()).filter(Boolean),
+      : (body.features || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
     status: body.status || "active",
     branch_id,
     branch_name: branch.name || "",
