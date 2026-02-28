@@ -62,10 +62,34 @@ function StepBar({ step }) {
               {done ? <Check size={13} /> : s.icon}
             </div>
             <span className={`ws-label ${current ? "ws-label-active" : ""}`}>
+              {s.label}
+            </span>
+            {i < STEPS.length - 1 && <div className="ws-line" />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main CreateLead component ────────────────────────────────────
+export default function CreateLead() {
+  const router = useRouter();
+  const { userProfile } = useAuth();
+  const isCustomer = userProfile?.role === 'customer';
+  const isSalesExec = ['branch_manager', 'franchise_admin', 'super_admin'].includes(userProfile?.role);
+  const franchise_id = FRANCHISE_ID_DEFAULT;
+
+  const [step, setStep] = useState(1);
+
+  // ─ Step 1 state: customer details
+  const [form, setForm] = useState({
+    customer_name: "",
     phone: "",
     email: "",
     event_type: "Wedding",
     budget_range: "",
+  });
 
   // ─ Step 2 state: venue
   const [branches, setBranches] = useState([]);
@@ -84,29 +108,22 @@ function StepBar({ step }) {
   // ─ Step 3 state: decoration
   const [decorPackages, setDecorPackages] = useState([]);
   const [decorLoading, setDecorLoading] = useState(false);
-  const [selectedDecor, setSelectedDecor] = useState(null); // full pkg object or null
+  const [selectedDecor, setSelectedDecor] = useState(null);
 
   // ─ Step 4 state: menus
   const [menus, setMenus] = useState([]);
   const [menusLoading, setMenusLoading] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState(null); // full menu object or null
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
   // ─ Submit state
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const [usersInBranch, setUsersInBranch] = useState([]); // For sales exec assignment
+  const [usersInBranch, setUsersInBranch] = useState([]);
 
-  const [form, setForm] = useState({
-    customer_name: '', phone: '', email: '',
-    event_type: 'Wedding', event_date: '',
-    expected_guest_count: '', 
-    // Sales exec only fields
-    budget_range: '',
-    branch_id: '', hall_id: '', hall_name: '',
-    assigned_to_uid: '', assigned_to_name: '',
-  });
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const setVenueField = (k, v) => setVenue(p => ({ ...p, [k]: v }));
+  const effectiveBranchId = isCustomer ? venue.branch_id : userProfile?.branch_id;
 
   // Sync userProfile into form once it loads (avoids async race on initial render)
   useEffect(() => {
