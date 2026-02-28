@@ -3,17 +3,65 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 const CATEGORIES = ['Catering', 'Decoration', 'Photography', 'Music & DJ', 'Lighting', 'Flowers', 'Security', 'Transport', 'Tenting', 'Other'];
 
 export default function CreateVendorPage() {
   const router = useRouter();
+  const { userProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
     name: '', category: '', contactName: '', phone: '', email: '', website: '',
     address: '', city: '', gstNumber: '', panNumber: '', bankAccount: '', bankIfsc: '', bankName: '',
     rateType: 'Fixed', baseRate: '', notes: '', branchIds: [],
   });
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = 'Vendor name is required';
+    if (!form.category) newErrors.category = 'Category is required';
+    if (!form.phone.trim()) newErrors.phone = 'Phone is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    try {
+      const franchiseId = userProfile?.franchise_id || 'pfd';
+      
+      const vendorData = {
+        ...form,
+        franchise_id: franchiseId,
+      };
+      
+      const response = await fetch('/api/kitchen-vendor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(vendorData),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        router.push('/vendors');
+      } else {
+        alert(`Failed to add vendor: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error adding vendor:', error);
+      alert(`An error occurred: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -34,6 +82,7 @@ export default function CreateVendorPage() {
             <div>
               <label className="form-label">Vendor / Company Name *</label>
               <input className="input" placeholder="e.g. Krishna Caterers" value={form.name} onChange={e => set('name', e.target.value)} />
+              {errors.name && <span style={{color: 'red', fontSize: 12}}>{errors.name}</span>}
             </div>
             <div>
               <label className="form-label">Category *</label>
@@ -41,6 +90,7 @@ export default function CreateVendorPage() {
                 <option value="">Select category</option>
                 {CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
+              {errors.category && <span style={{color: 'red', fontSize: 12}}>{errors.category}</span>}
             </div>
             <div>
               <label className="form-label">Primary Contact Name</label>
@@ -49,6 +99,7 @@ export default function CreateVendorPage() {
             <div>
               <label className="form-label">Phone *</label>
               <input className="input" type="tel" placeholder="+91-XXXXXXXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} />
+              {errors.phone && <span style={{color: 'red', fontSize: 12}}>{errors.phone}</span>}
             </div>
             <div>
               <label className="form-label">Email</label>
@@ -115,8 +166,8 @@ export default function CreateVendorPage() {
 
         <div className="form-actions">
           <Link href="/vendors" className="btn btn-ghost">Cancel</Link>
-          <button type="button" className="btn btn-primary" onClick={() => router.push('/vendors')}>
-            <Save size={16} /> Save Vendor
+          <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+            <Save size={16} /> {loading ? 'Saving...' : 'Save Vendor'}
           </button>
         </div>
       </form>
