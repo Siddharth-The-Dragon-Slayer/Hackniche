@@ -1,0 +1,506 @@
+{
+  "id": "banquetease-engagement-v1",
+  "comment": "BanquetEase Engagement Invitation - Soft Pink, Champagne & Blush",
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "variables": {
+    "partner1": "Aisha Khan",
+    "partner2": "Rohan Verma",
+    "eventDate": "Saturday, July 11, 2026",
+    "eventTime": "5:00 PM",
+    "venueName": "The ITC Windsor",
+    "venueAddress": "25, Golf Course Road, Bengaluru – 560052",
+    "hostFamily1": "The Khan Family",
+    "hostFamily2": "The Verma Family",
+    "rsvpContact": "+91 98765 43210",
+    "rsvpDate": "July 1, 2026",
+    "voiceScene1": "Love found its perfect match. A new chapter begins!",
+    "voiceScene2": "Two hearts from two wonderful families, now joined as one.",
+    "voiceScene3": "Celebrate the beginning of their forever with us.",
+    "voiceScene4": "We'd be honoured to have you join us on this joyous occasion."
+  },
+  "scenes": [
+    {
+      "id": "eng-scene-1",
+      "comment": "Opening - Blush & Champagne Shimmer",
+      "elements": [
+        {
+          "id": "eng-bg-1",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(160deg, #2a0a14 0%, #5c1a2e 40%, #8b2245 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-shimmer",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "radial-gradient(ellipse at 50% 50%, rgba(255,180,190,0.15) 0%, transparent 65%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-ring-circle",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "40%",
+              "top": "-60%",
+              "width": "20vw",
+              "height": "20vw",
+              "animate": {
+                "duration": "900",
+                "easing": "easeOutBounce",
+                "top": "5%"
+              },
+              "background": "transparent",
+              "border-radius": "50%",
+              "border-width": "0.8vw",
+              "border-color": "#F5C3C3"
+            }
+          },
+          "comment": "Ring symbol"
+        },
+        {
+          "id": "eng-ring-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "43.5%",
+              "top": "-60%",
+              "width": "13vw",
+              "height": "13vw",
+              "animate": {
+                "duration": "900",
+                "easing": "easeOutBounce",
+                "top": "7.5%"
+              },
+              "background": "transparent",
+              "border-radius": "50%",
+              "border-width": "0.4vw",
+              "border-color": "#FFD700"
+            }
+          },
+          "comment": "Inner gold ring"
+        },
+        {
+          "id": "eng-we-are",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#F5C3C3",
+            "letter-spacing": "0.8vw"
+          },
+          "position": "center-center",
+          "y": -100,
+          "width": 1600,
+          "text": "💍  WE ARE ENGAGED  💍",
+          "start": 1.5
+        },
+        {
+          "id": "eng-names",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{partner1}}<br>&amp;<br>{{partner2}}",
+              "font-family": "Playfair Display",
+              "font-size": "10vw",
+              "color": "#FFD8DD",
+              "font-style": "italic"
+            }
+          },
+          "start": 1.2,
+          "duration": 5,
+          "fade-out": 0.5
+        },
+        {
+          "id": "eng-voice-1",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene1}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    },
+    {
+      "id": "eng-scene-2",
+      "comment": "Families Banner - Pink",
+      "elements": [
+        {
+          "id": "eng-bg-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(160deg, #ffe8e8 0%, #ffd0d8 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-families-label",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#8b2245",
+            "letter-spacing": "0.3vw"
+          },
+          "position": "center-center",
+          "y": -260,
+          "width": 1600,
+          "text": "With the blessings of",
+          "start": 0.3
+        },
+        {
+          "id": "eng-family1",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{hostFamily1}}",
+              "font-family": "Playfair Display",
+              "font-size": "7vw",
+              "color": "#5c1a2e",
+              "font-style": "italic"
+            }
+          },
+          "start": 0.6,
+          "y": -120,
+          "duration": 5
+        },
+        {
+          "id": "eng-ampersand",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "4vw",
+            "font-family": "Playfair Display",
+            "color": "#c06080"
+          },
+          "position": "center-center",
+          "y": 90,
+          "width": 200,
+          "text": "&",
+          "start": 1.5
+        },
+        {
+          "id": "eng-family2",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{hostFamily2}}",
+              "font-family": "Playfair Display",
+              "font-size": "7vw",
+              "color": "#5c1a2e",
+              "font-style": "italic"
+            }
+          },
+          "start": 1.8,
+          "y": 100,
+          "duration": 5
+        },
+        {
+          "id": "eng-audiogram-2",
+          "type": "audiogram",
+          "x": 0,
+          "y": 980,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#c06080",
+          "amplitude": 6
+        },
+        {
+          "id": "eng-voice-2",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene2}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    },
+    {
+      "id": "eng-scene-3",
+      "comment": "Event Details - Deep Maroon",
+      "elements": [
+        {
+          "id": "eng-bg-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(160deg, #1a0008 0%, #3d0018 60%, #6b0030 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "eng-card",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "120%",
+              "top": "8%",
+              "width": "78%",
+              "height": "80%",
+              "animate": {
+                "duration": "900",
+                "easing": "easeOutCubic",
+                "left": "11%"
+              },
+              "background": "rgba(255,255,255,0.06)",
+              "border-width": "0.2vw",
+              "border-color": "#F5C3C3",
+              "border-radius": "1.2vw"
+            }
+          }
+        },
+        {
+          "id": "eng-celebration",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#F5C3C3"
+          },
+          "position": "custom",
+          "x": 220,
+          "y": 150,
+          "width": 1500,
+          "text": "Engagement Celebration",
+          "start": 1.0
+        },
+        {
+          "id": "eng-date-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "custom",
+          "x": 220,
+          "y": 270,
+          "width": 1500,
+          "text": "📅  {{eventDate}}",
+          "start": 1.5
+        },
+        {
+          "id": "eng-time-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "custom",
+          "x": 220,
+          "y": 380,
+          "width": 1500,
+          "text": "⏰  {{eventTime}} onwards",
+          "start": 1.9
+        },
+        {
+          "id": "eng-venue-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "custom",
+          "x": 220,
+          "y": 490,
+          "width": 1500,
+          "text": "📍  {{venueName}}",
+          "start": 2.3
+        },
+        {
+          "id": "eng-addr-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#c06080"
+          },
+          "position": "custom",
+          "x": 270,
+          "y": 570,
+          "width": 1500,
+          "text": "{{venueAddress}}",
+          "start": 2.6
+        },
+        {
+          "id": "eng-audiogram-3",
+          "type": "audiogram",
+          "x": 0,
+          "y": 1000,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#F5C3C3",
+          "amplitude": 7
+        },
+        {
+          "id": "eng-voice-3",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene3}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 6
+    },
+    {
+      "id": "eng-scene-4",
+      "comment": "RSVP & Closing",
+      "elements": [
+        {
+          "id": "eng-bg-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(135deg, #F5C3C3 0%, #D4737A 50%, #A33050 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-rsvp-headline",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "JOIN OUR<br>JOY!",
+              "font-family": "Playfair Display",
+              "font-size": "12vw",
+              "color": "#1a0008",
+              "font-style": "italic"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-rsvp-by",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.2vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#1a0008"
+          },
+          "position": "custom",
+          "x": 0,
+          "y": 650,
+          "width": 1920,
+          "text": "Kindly RSVP by  {{rsvpDate}}",
+          "start": 1.5
+        },
+        {
+          "id": "eng-contact-btn",
+          "type": "component",
+          "component": "advanced/050",
+          "settings": {
+            "button": {
+              "background": "#1a0008",
+              "padding": "0 8vw",
+              "text": "📞  {{rsvpContact}}",
+              "font-size": "4vw",
+              "font-family": "Lato",
+              "color": "#F5C3C3",
+              "border-radius": "5vw"
+            }
+          },
+          "x": 0,
+          "y": 740,
+          "width": 1920,
+          "height": 400,
+          "start": 2.5,
+          "extra-time": 2
+        },
+        {
+          "id": "eng-audiogram-4",
+          "type": "audiogram",
+          "x": 0,
+          "y": 1000,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#1a0008",
+          "amplitude": 10
+        },
+        {
+          "id": "eng-voice-4",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene4}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    }
+  ],
+  "elements": [
+    {
+      "id": "eng-bg-music",
+      "type": "audio",
+      "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.12
+    }
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "id": "banquetease-corporate-v1",
+  "comment": "BanquetEase Corporate Event Invitation - Dark Navy & Electric Blue",
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "variables": {
+    "eventTitle": "Annual Leadership Summit 2026",
+    "companyName": "Infosys Technologies",
+    "eventDate": "Thursday, June 18, 2026",
+    "eventTime": "9:00 AM – 6:00 PM",
+    "venueName": "The Leela Ambience Convention Hotel",
+    "venueAddress": "Ambience Island, NH-8, Gurugram, Haryana",
+    "speakerName": "Mr. Salil Parekh",
+    "theme": "Innovation Beyond Boundaries",
+    "registrationLink": "events.infosys.com/summit2026",
+    "contactEmail": "events@infosys.com",
+    "voiceScene1": "An invitation to lead, inspire, and innovate.",
+    "voiceScene2": "Join the brightest minds shaping the future of technology.",
+    "voiceScene3": "An exclusive gathering of leaders and visionaries.",
+    "voiceScene4": "Reserve your seat now. Seats are limited."
+  },
+  "scenes": [
+    {
+      "id": "corp-scene-1",
+      "comment": "Opening - Dark Professional Reveal",
+      "elements": [
+        {
+          "id": "corp-bg-1",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(160deg, #020818 0%, #041638 50%, #0a2a6e 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "corp-grid-overlay",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(0,150,255,0.05) 80px), repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(0,150,255,0.05) 80px)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "corp-accent-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-100%",
+              "top": "48%",
+              "width": "100%",
+              "height": "0.3vw",
+              "animate": {
+                "duration": "1200",
+                "easing": "easeOutCubic",
+                "left": "0%"
+              },
+              "background": "linear-gradient(90deg, #0080ff, #00d4ff, transparent)"
+            }
+          }
+        },
+        {
+          "id": "corp-company",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#4da6ff",
+            "letter-spacing": "0.8vw"
+          },
+          "position": "center-center",
+          "y": -240,
+          "width": 1800,
+          "text": "{{companyName}}  PRESENTS",
+          "start": 0.5
+        },
+        {
+          "id": "corp-event-title",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{eventTitle}}",
+              "font-family": "Anton",
+              "font-size": "7.5vw",
+              "color": "#ffffff"
+            }
+          },
+          "start": 0.8,
+          "duration": 5,
+          "fade-out": 0.5
+        },
+        {
+          "id": "corp-theme-tag",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#00d4ff"
+          },
+          "position": "center-center",
+          "y": 280,
+          "width": 1800,
+          "text": "Theme: \"{{theme}}\"",
+          "start": 2.5
+        },
+        {
+          "id": "corp-voice-1",
+          "type": "voice",
+          "voice": "en-US-TonyNeural",
+          "text": "{{voiceScene1}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    },
+    {
+      "id": "corp-scene-2",
+      "comment": "Keynote Speaker Spotlight",
+      "elements": [
+        {
+          "id": "corp-bg-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(135deg, #041638 0%, #0a1f5c 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "corp-speaker-label",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#4da6ff",
+            "letter-spacing": "0.5vw"
+          },
+          "position": "center-center",
+          "y": -220,
+          "width": 1600,
+          "text": "KEYNOTE  SPEAKER",
+          "start": 0.3
+        },
+        {
+          "id": "corp-speaker-name",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{speakerName}}",
+              "font-family": "Playfair Display",
+              "font-size": "9vw",
+              "color": "#ffffff",
+              "font-style": "italic"
+            }
+          },
+          "start": 0.6,
+          "duration": 5,
+          "fade-out": 0.5
+        },
+        {
+          "id": "corp-audiogram-2",
+          "type": "audiogram",
+          "x": 0,
+          "y": 980,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#0080ff",
+          "amplitude": 10
+        },
+        {
+          "id": "corp-voice-2",
+          "type": "voice",
+          "voice": "en-US-TonyNeural",
+          "text": "{{voiceScene2}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    },
+    {
+      "id": "corp-scene-3",
+      "comment": "Event Details",
+      "elements": [
+        {
+          "id": "corp-bg-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(180deg, #020818 0%, #041638 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "corp-blue-border-left",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "8%",
+              "top": "5%",
+              "width": "0.4vw",
+              "height": "90%",
+              "background": "linear-gradient(180deg, transparent, #0080ff, transparent)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "corp-details-heading",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "4vw",
+            "font-family": "Anton",
+            "color": "#4da6ff",
+            "letter-spacing": "0.3vw"
+          },
+          "position": "custom",
+          "x": 200,
+          "y": 120,
+          "width": 1600,
+          "text": "EVENT DETAILS",
+          "start": 0.5
+        },
+        {
+          "id": "corp-date-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#e8f4ff"
+          },
+          "position": "custom",
+          "x": 200,
+          "y": 240,
+          "width": 1600,
+          "text": "📅  {{eventDate}}",
+          "start": 1.0
+        },
+        {
+          "id": "corp-time-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#e8f4ff"
+          },
+          "position": "custom",
+          "x": 200,
+          "y": 350,
+          "width": 1600,
+          "text": "⏰  {{eventTime}}",
+          "start": 1.4
+        },
+        {
+          "id": "corp-venue-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#e8f4ff"
+          },
+          "position": "custom",
+          "x": 200,
+          "y": 460,
+          "width": 1600,
+          "text": "📍  {{venueName}}",
+          "start": 1.8
+        },
+        {
+          "id": "corp-addr-d",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#7ab8e8"
+          },
+          "position": "custom",
+          "x": 250,
+          "y": 540,
+          "width": 1600,
+          "text": "{{venueAddress}}",
+          "start": 2.1
+        },
+        {
+          "id": "corp-register-label",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "color": "#00d4ff"
+          },
+          "position": "custom",
+          "x": 200,
+          "y": 680,
+          "width": 1600,
+          "text": "🌐  {{registrationLink}}",
+          "start": 2.8
+        },
+        {
+          "id": "corp-audiogram-3",
+          "type": "audiogram",
+          "x": 0,
+          "y": 1000,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#0080ff",
+          "amplitude": 7
+        },
+        {
+          "id": "corp-voice-3",
+          "type": "voice",
+          "voice": "en-US-TonyNeural",
+          "text": "{{voiceScene3}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 6
+    },
+    {
+      "id": "corp-scene-4",
+      "comment": "Registration CTA",
+      "elements": [
+        {
+          "id": "corp-bg-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(135deg, #0055cc 0%, #003399 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "corp-cta-headline",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "REGISTER<br>NOW",
+              "font-family": "Anton",
+              "font-size": "14vw",
+              "color": "#ffffff"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "corp-email-btn",
+          "type": "component",
+          "component": "advanced/050",
+          "settings": {
+            "button": {
+              "background": "#00d4ff",
+              "padding": "0 6vw",
+              "text": "✉  {{contactEmail}}",
+              "font-size": "3.5vw",
+              "font-family": "Lato",
+              "color": "#020818",
+              "border-radius": "5vw"
+            }
+          },
+          "x": 0,
+          "y": 700,
+          "width": 1920,
+          "height": 400,
+          "start": 1.5,
+          "extra-time": 2
+        },
+        {
+          "id": "corp-audiogram-4",
+          "type": "audiogram",
+          "x": 0,
+          "y": 1000,
+          "width": 1920,
+          "height": 80,
+          "position": "custom",
+          "color": "#00d4ff",
+          "amplitude": 12
+        },
+        {
+          "id": "corp-voice-4",
+          "type": "voice",
+          "voice": "en-US-TonyNeural",
+          "text": "{{voiceScene4}}",
+          "start": 0.5
+        }
+      ],
+      "duration": 5
+    }
+  ],
+  "elements": [
+    {
+      "id": "corp-bg-music",
+      "type": "audio",
+      "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.1
+    }
+  ]
+}
