@@ -172,9 +172,13 @@ export async function PUT(request, { params }) {
         status_history: admin.firestore.FieldValue.arrayUnion(histEntry('visited', puid, `Visit logged — ${hall_name || ''}`)),
         updated_at: now,
       });
+      // Build metadata without undefined values
+      const metadata = {};
+      if (hall_id) metadata.hall_id = hall_id;
+      if (customer_rating) metadata.customer_rating = customer_rating;
       act(adminDb, batch, lead_id, franchise_id, branch_id, 'visit_completed',
         `Property visit completed — ${hall_name || 'hall'}. Rating: ${customer_rating || 'N/A'}`,
-        puid, pname, { hall_id, customer_rating });
+        puid, pname, Object.keys(metadata).length > 0 ? metadata : null);
       branchStat(adminDb, batch, branch_id, current.status, 'visited', now);
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
       return NextResponse.json({ success: true, message: 'Property visit logged → Visited' });

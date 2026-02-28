@@ -131,7 +131,7 @@ export default function LeadDetailPage(){
   const [vendors,setVendors]     = useState([]);
 
   /* ── Dialog form states ── */
-  const [visitForm,setVisitForm]               = useState({visit_date:'',hall_name:'',notes:'',customer_rating:'',visited_by:''});
+  const [visitForm,setVisitForm]               = useState({visit_date:'',hall_id:'',hall_name:'',notes:'',customer_rating:'',visited_by:''});
   const [tastingSchForm,setTastingSchForm]      = useState({tasting_date:'',menu_options_to_present:'',notes:''});
   const [tastingDoneForm,setTastingDoneForm]    = useState({dishes_sampled:'',customer_feedback:'',preferred_menu:'',kitchen_manager:''});
   const [menuForm,setMenuForm]                  = useState({menu_name:'',per_plate_cost:'',expected_plates:'',hall_rent:'',decor_estimate:'',valid_till:''});
@@ -189,7 +189,7 @@ export default function LeadDetailPage(){
     const l=lead;
     switch(dialog){
       case 'log_visit':
-        setVisitForm({visit_date:now,hall_name:l.hall_name||'',notes:'',customer_rating:'',visited_by:uName});
+        setVisitForm({visit_date:now,hall_id:l.hall_id||'',hall_name:l.hall_name||'',notes:'',customer_rating:'',visited_by:uName});
         break;
       case 'schedule_tasting':
         setTastingSchForm({tasting_date:'',menu_options_to_present:'',notes:''});
@@ -569,7 +569,7 @@ export default function LeadDetailPage(){
       ══════════════════════════════════════════ */}
 
       {dialog==='log_visit'&&<Dlg title="Log Property Visit" onClose={closeDialog}>
-        <FG><Fld l="Visit Date *"><input className="input" type="datetime-local" value={visitForm.visit_date} onChange={e=>setVisitForm(p=>({...p,visit_date:e.target.value}))}/></Fld><Fld l="Hall Visited">{halls.length>0?<select className="input" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value}))}><option value="">Select hall…</option>{halls.map(h=><option key={h.id} value={h.name}>{h.name}{h.capacity_seating?` — Cap: ${h.capacity_seating}`:''}</option>)}</select>:<input className="input" placeholder="Hall name" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value}))}/>}</Fld><Fld l="Visited By">{staffList.length>0?<select className="input" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')})</option>)}</select>:<input className="input" placeholder="Name" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}/>}</Fld><Fld l="Interest (1-5)"><input className="input" type="number" min={1} max={5} value={visitForm.customer_rating} onChange={e=>setVisitForm(p=>({...p,customer_rating:e.target.value}))}/></Fld><Fld l="Notes" s><textarea className="input" rows={2} value={visitForm.notes} onChange={e=>setVisitForm(p=>({...p,notes:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
+        <FG><Fld l="Visit Date *"><input className="input" type="datetime-local" value={visitForm.visit_date} onChange={e=>setVisitForm(p=>({...p,visit_date:e.target.value}))}/></Fld><Fld l="Hall Visited">{halls.length>0?<select className="input" value={visitForm.hall_id} onChange={e=>{const h=halls.find(x=>x.id===e.target.value);setVisitForm(p=>({...p,hall_id:e.target.value,hall_name:h?.name||''}));}}><option value="">Select hall…</option>{halls.map(h=><option key={h.id} value={h.id}>{h.name}{h.capacity_seating?` — Cap: ${h.capacity_seating}`:''}</option>)}</select>:<input className="input" placeholder="Hall name" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value,hall_id:''}))}/>}</Fld><Fld l="Visited By">{staffList.length>0?<select className="input" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')})</option>)}</select>:<input className="input" placeholder="Name" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}/>}</Fld><Fld l="Interest (1-5)"><input className="input" type="number" min={1} max={5} value={visitForm.customer_rating} onChange={e=>setVisitForm(p=>({...p,customer_rating:e.target.value}))}/></Fld><Fld l="Notes" s><textarea className="input" rows={2} value={visitForm.notes} onChange={e=>setVisitForm(p=>({...p,notes:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
         <DA saving={saving} onCancel={closeDialog} onOk={handleLogVisit} ok="Mark Visited"/>
       </Dlg>}
 
