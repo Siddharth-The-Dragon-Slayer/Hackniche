@@ -46,7 +46,7 @@ export default function LoginPage() {
     { label: "Ops Staff", email: "pranavpoledu@gmail.com" },
     { label: "Kitchen Manager", email: "shravanirasam0212@gmail.com" },
     { label: "Accountant", email: "2023.manas.patil@ves.ac.in" },
-    // { label: "Franchise Admin 2", email: "manaspatil281@gmail.com" },
+    { label: "Customer", email: "projects@codinggurus.in" },
   ];
 
   return (

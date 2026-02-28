@@ -179,6 +179,7 @@ export const sidebarMenus = {
   franchise_admin: [
     { icon: '⬡', label: 'Franchise Dashboard', href: '/dashboard/franchise' },
     { icon: '🏪', label: 'Branches', href: '/branches' },
+    { icon: '�️', label: 'Halls', href: '/halls' },
     { icon: '🎯', label: 'Leads', href: '/leads' },
     { icon: '📋', label: 'Bookings', href: '/bookings' },
     { icon: '👥', label: 'Staff', href: '/staff' },
@@ -191,6 +192,7 @@ export const sidebarMenus = {
   ],
   branch_manager: [
     { icon: '⬡', label: 'Branch Dashboard', href: '/dashboard/branch' },
+    { icon: '🏟️', label: 'Halls', href: '/halls' },
     { icon: '🎯', label: 'Leads', href: '/leads' },
     { icon: '📋', label: 'Bookings', href: '/bookings' },
     { icon: '🎉', label: 'Events', href: '/events' },

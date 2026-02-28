@@ -1,22 +1,25 @@
-'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
-import { auth, db } from '@/lib/firebase';
+"use client";
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth, db } from "@/lib/firebase";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   updateProfile,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext({});
 
 const ROLE_REDIRECTS = {
-  super_admin:     '/dashboard/platform',
-  franchise_admin: '/dashboard/franchise',
-  customer:        '/dashboard/customer',
+  super_admin: "/dashboard/platform",
+  franchise_admin: "/dashboard/franchise",
+  customer: "/dashboard/customer",
 };
 
 /**
@@ -24,15 +27,17 @@ const ROLE_REDIRECTS = {
  * document in a single parallel fetch  — minimises Firestore reads on login.
  */
 async function loadProfileAndFranchise(uid) {
-  const profileDoc = await getDoc(doc(db, 'users', uid));
+  const profileDoc = await getDoc(doc(db, "users", uid));
   if (!profileDoc.exists()) return { profile: null, franchise: null };
 
-  const profile  = profileDoc.data();
-  let   franchise = null;
+  const profile = profileDoc.data();
+  let franchise = null;
 
   if (profile.franchise_id) {
     // Parallel — no extra round-trip penalty
-    const franchiseDoc = await getDoc(doc(db, 'franchises', profile.franchise_id));
+    const franchiseDoc = await getDoc(
+      doc(db, "franchises", profile.franchise_id),
+    );
     if (franchiseDoc.exists()) franchise = franchiseDoc.data();
   }
 
@@ -40,10 +45,10 @@ async function loadProfileAndFranchise(uid) {
 }
 
 export function AuthProvider({ children }) {
-  const [user,             setUser]             = useState(null);
-  const [userProfile,      setUserProfile]      = useState(null);
+  const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [franchiseProfile, setFranchiseProfile] = useState(null);
-  const [loading,          setLoading]          = useState(true);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,11 +56,13 @@ export function AuthProvider({ children }) {
       if (firebaseUser) {
         setUser(firebaseUser);
         try {
-          const { profile, franchise } = await loadProfileAndFranchise(firebaseUser.uid);
+          const { profile, franchise } = await loadProfileAndFranchise(
+            firebaseUser.uid,
+          );
           setUserProfile(profile);
           setFranchiseProfile(franchise);
         } catch (err) {
-          console.error('Failed to load profile:', err);
+          console.error("Failed to load profile:", err);
         }
       } else {
         setUser(null);
@@ -72,8 +79,8 @@ export function AuthProvider({ children }) {
     const { profile, franchise } = await loadProfileAndFranchise(cred.user.uid);
     setUserProfile(profile);
     setFranchiseProfile(franchise);
-    const role       = profile?.role || 'customer';
-    const redirectTo = ROLE_REDIRECTS[role] || '/dashboard/branch';
+    const role = profile?.role || "customer";
+    const redirectTo = ROLE_REDIRECTS[role] || "/dashboard/branch";
     router.push(redirectTo);
     return { user: cred.user, profile, franchise };
   };
@@ -82,20 +89,20 @@ export function AuthProvider({ children }) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
     const profile = {
-      uid:          cred.user.uid,
+      uid: cred.user.uid,
       name,
       email,
-      phone:        phone || '',
-      role:         'customer',
+      phone: phone || "",
+      role: "customer",
       franchise_id: null,
-      branch_id:    null,
-      status:       'active',
-      created_at:   serverTimestamp(),
+      branch_id: null,
+      status: "active",
+      created_at: serverTimestamp(),
     };
-    await setDoc(doc(db, 'users', cred.user.uid), profile);
+    await setDoc(doc(db, "users", cred.user.uid), profile);
     setUserProfile(profile);
     setFranchiseProfile(null);
-    router.push('/dashboard/customer');
+    router.push("/dashboard/customer");
     return { user: cred.user, profile };
   };
 
@@ -104,16 +111,57 @@ export function AuthProvider({ children }) {
     setUser(null);
     setUserProfile(null);
     setFranchiseProfile(null);
-    router.push('/login');
+    router.push("/login");
+  };
+
+  /**
+   * Re-authenticates the user then updates their password.
+   * @param {string} currentPassword
+   * @param {string} newPassword
+   */
+  const changePassword = async (currentPassword, newPassword) => {
+    if (!user?.email) throw new Error("No authenticated user");
+    const credential = EmailAuthProvider.credential(
+      user.email,
+      currentPassword,
+    );
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+  };
+
+  /**
+   * Refreshes the franchise profile from Firestore.
+   * Call after updating franchise settings to sync the sidebar logo/name.
+   */
+  const refreshFranchiseProfile = async () => {
+    if (!userProfile?.franchise_id) return;
+    try {
+      const franchiseDoc = await getDoc(
+        doc(db, "franchises", userProfile.franchise_id),
+      );
+      if (franchiseDoc.exists()) setFranchiseProfile(franchiseDoc.data());
+    } catch (err) {
+      console.error("refreshFranchiseProfile:", err);
+    }
   };
 
   const role = userProfile?.role || null;
 
   return (
-    <AuthContext.Provider value={{
-      user, userProfile, franchiseProfile, role,
-      loading, login, signup, logout,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        userProfile,
+        franchiseProfile,
+        role,
+        loading,
+        login,
+        signup,
+        logout,
+        changePassword,
+        refreshFranchiseProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
