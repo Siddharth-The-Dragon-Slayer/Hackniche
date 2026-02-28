@@ -7,7 +7,7 @@ export default function MarketingLayout({ children }) {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main style={{ overflowX: 'hidden', width: '100%' }}>{children}</main>
       <Footer />
       <BackToTop />
     </>

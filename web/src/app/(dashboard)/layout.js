@@ -7,7 +7,7 @@ import { Menu } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function DashboardLayout({ children }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -21,10 +21,12 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <Sidebar sidebarOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Mobile topbar */}
       <div className="mobile-topbar">
         <button
-          onClick={() => setMobileOpen(true)}
+          onClick={() => setSidebarOpen(true)}
           aria-label="Open menu"
           style={{ background: "none", border: "none", padding: 8 }}
         >
@@ -41,7 +43,21 @@ export default function DashboardLayout({ children }) {
         </span>
         <div style={{ width: 40 }} />
       </div>
-      <main className="dashboard-main">{children}</main>
+
+      {/* Desktop toggle button — visible only when sidebar is closed */}
+      {!sidebarOpen && (
+        <button
+          className="sidebar-desktop-toggle"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+        >
+          <Menu size={20} />
+        </button>
+      )}
+
+      <main className={`dashboard-main${sidebarOpen ? "" : " sidebar-closed"}`}>
+        {children}
+      </main>
       <BackToTop />
     </div>
   );

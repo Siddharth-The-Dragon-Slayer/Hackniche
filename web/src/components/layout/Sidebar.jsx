@@ -218,7 +218,7 @@ function ChangePwdModal({ onClose }) {
   );
 }
 
-export default function Sidebar({ mobileOpen, onClose }) {
+export default function Sidebar({ sidebarOpen, onClose }) {
   const pathname = usePathname();
   const { theme, toggleTheme, isDark } = useTheme();
   const { user, userProfile, franchiseProfile, role, logout } = useAuth();
@@ -242,16 +242,16 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile Backdrop */}
-      {mobileOpen && <div className="sidebar-backdrop" onClick={onClose} />}
+      {/* Backdrop — shown on all screen sizes when open */}
+      {sidebarOpen && <div className="sidebar-backdrop active" onClick={onClose} />}
 
       {/* Change Password Modal */}
       {showChangePwd && (
         <ChangePwdModal onClose={() => setShowChangePwd(false)} />
       )}
 
-      <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
-        {/* Close button (mobile only) */}
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        {/* Close button — always visible */}
         <button
           className="sidebar-close-btn"
           onClick={onClose}
@@ -368,7 +368,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
             flexDirection: "column",
             gap: 2,
             overflowY: "auto",
-            paddingRight: 2,
+            overflowX: "hidden",
+            paddingRight: 8,
+            paddingBottom: 16,
           }}
         >
           {items.map((item) => {
@@ -389,15 +391,24 @@ export default function Sidebar({ mobileOpen, onClose }) {
           })}
         </div>
 
-        {/* Bottom Controls */}
+        {/* Bottom Controls — Sticky */}
         <div
           style={{
             borderTop: "1px solid var(--color-border)",
-            paddingTop: 12,
-            marginTop: 12,
+            paddingTop: 14,
+            paddingBottom: 8,
+            paddingLeft: 4,
+            paddingRight: 8,
+            marginTop: 0,
+            marginLeft: -8,
+            marginRight: -4,
             display: "flex",
             flexDirection: "column",
-            gap: 6,
+            gap: 8,
+            position: "sticky",
+            bottom: 0,
+            background: "var(--color-bg-card)",
+            zIndex: 101,
           }}
         >
           <button
