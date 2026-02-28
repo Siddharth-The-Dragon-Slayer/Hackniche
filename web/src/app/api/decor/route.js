@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, setDoc, query, where, orderBy } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+
+const db = getAdminDb();
 
 // GET /api/decor - Fetch all decor packages for franchise
 export async function GET(request) {
@@ -8,13 +9,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const franchiseId = searchParams.get('franchise_id') || 'pfd';
     
-    const decorRef = collection(db, 'decor');
-    const q = query(
-      decorRef, 
-      where('franchise_id', '==', franchiseId)
-    );
-    
-    const snapshot = await getDocs(q);
+    const snapshot = await db.collection('decor')
+      .where('franchise_id', '==', franchiseId)
+      .get();
     const decorData = [];
     
     snapshot.forEach((doc) => {
@@ -53,9 +50,9 @@ export async function POST(request) {
     const { franchise_id = 'pfd', ...decorData } = body;
     
     // Generate next decor ID for this franchise
-    const decorRef = collection(db, 'decor');
-    const q = query(decorRef, where('franchise_id', '==', franchise_id));
-    const snapshot = await getDocs(q);
+    const snapshot = await db.collection('decor')
+      .where('franchise_id', '==', franchise_id)
+      .get();
     
     // Find the highest existing number
     let maxNum = 0;
@@ -83,7 +80,7 @@ export async function POST(request) {
     };
     
     // Save with custom document ID
-    await setDoc(doc(db, 'decor', nextId), newDecor);
+    await db.collection('decor').doc(nextId).set(newDecor);
     
     return NextResponse.json({
       success: true,

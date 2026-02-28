@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BackToTop from "@/components/layout/BackToTop";
 import { Menu } from "lucide-react";
@@ -10,11 +10,36 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (loading) return;
     if (!user) router.replace("/login");
   }, [user, loading, router]);
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        setSidebarOpen(false);
+      }
+    }
+  }, [pathname]);
+
+  // Set initial sidebar state based on screen size
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        const isMobile = window.innerWidth <= 768;
+        setSidebarOpen(!isMobile);
+      };
+      
+      handleResize(); // Call once on mount
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   if (loading) return null;
   if (!user) return null;

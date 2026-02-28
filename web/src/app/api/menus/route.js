@@ -14,11 +14,9 @@
  *   branch_manager  → own franchise + own branch only
  */
 
-import { db } from '@/lib/firebase';
-import {
-  collection, doc, getDocs, addDoc, serverTimestamp,
-  query, orderBy, writeBatch,
-} from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+
+const db = getAdminDb();
 import { NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 
@@ -30,31 +28,22 @@ const MENU_TTL = 300; // 5 minutes
 
 /** Firestore reference to the menus collection for a specific branch */
 function branchMenusCol(franchise_id, branch_id) {
-  return collection(
-    db,
-    'menus', franchise_id,
-    'branches', branch_id,
-    'menus',
-  );
+  return db.collection('menus').doc(franchise_id)
+    .collection('branches').doc(branch_id)
+    .collection('menus');
 }
 
 function menuDocRef(franchise_id, branch_id, menu_id) {
-  return doc(
-    db,
-    'menus', franchise_id,
-    'branches', branch_id,
-    'menus', menu_id,
-  );
+  return db.collection('menus').doc(franchise_id)
+    .collection('branches').doc(branch_id)
+    .collection('menus').doc(menu_id);
 }
 
 function dishesCol(franchise_id, branch_id, menu_id) {
-  return collection(
-    db,
-    'menus', franchise_id,
-    'branches', branch_id,
-    'menus', menu_id,
-    'dishes',
-  );
+  return db.collection('menus').doc(franchise_id)
+    .collection('branches').doc(branch_id)
+    .collection('menus').doc(menu_id)
+    .collection('dishes');
 }
 
 // ── GET ────────────────────────────────────────────────────────────────────
@@ -81,7 +70,7 @@ export async function GET(request) {
     }
 
     const col  = branchMenusCol(franchise_id, branch_id);
-    const snap = await getDocs(query(col, orderBy('created_at', 'desc')));
+    const snap = await col.orderBy('created_at', 'desc').get();
 
     let menus = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
@@ -169,22 +158,24 @@ export async function POST(request) {
       isJain,
       total_items,
       status,
-      created_at:      serverTimestamp(),
-      updated_at:      serverTimestamp(),
+      created_at:      db.FieldValue.serverTimestamp(),
+      updated_at:      db.FieldValue.serverTimestamp(),
     };
 
     const col     = branchMenusCol(franchise_id, branch_id);
-    const menuRef = await addDoc(col, menuData);
+    const newDocRef = col.doc();
+    await newDocRef.set(menuData);
+    const menuRef = newDocRef;
 
     // 2. Write each course item as a dish in the dishes sub-collection
     if (courses.length > 0) {
-      const batch = writeBatch(db);
+      const batch = db.batch();
       const dishCol = dishesCol(franchise_id, branch_id, menuRef.id);
 
       for (const courseObj of courses) {
         const { course, items = [] } = courseObj;
         for (const itemName of items.filter(Boolean)) {
-          const dishRef = doc(dishCol);
+          const dishRef = dishCol.doc();
           batch.set(dishRef, {
             dish_name:  itemName.trim(),
             category:   normalizeCourseToCategory(course),
@@ -194,8 +185,8 @@ export async function POST(request) {
             ingredients: [],
             is_signature: false,
             status:     'available',
-            created_at: serverTimestamp(),
-            updated_at: serverTimestamp(),
+            created_at: db.FieldValue.serverTimestamp(),
+            updated_at: db.FieldValue.serverTimestamp(),
           });
         }
       }
