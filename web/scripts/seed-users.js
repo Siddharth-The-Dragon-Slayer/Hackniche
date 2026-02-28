@@ -675,6 +675,23 @@ const realUsers = [
 ];
 
 // ─────────────────────────────────────────────
+//  DEV / DEMO ACCOUNTS   password: Admin@123
+//  Quick-switch logins for every role in dev/testing
+// ─────────────────────────────────────────────
+
+const devUsers = [
+  { email: "admin@banquetease.com",     password: DEV_PASSWORD, displayName: "Super Admin (Dev)",      role: "super_admin",      franchise_id: null,        franchise_name: null,                 branch_id: null,    branch_name: null,         phone: "+91-1000000001" },
+  { email: "franchise@banquetease.com", password: DEV_PASSWORD, displayName: "Franchise Admin (Dev)",  role: "franchise_admin",  franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: null,    branch_name: null,         phone: "+91-1000000002" },
+  { email: "manager@banquetease.com",   password: DEV_PASSWORD, displayName: "Branch Manager (Dev)",   role: "branch_manager",   franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000003" },
+  { email: "sales@banquetease.com",     password: DEV_PASSWORD, displayName: "Sales Executive (Dev)",  role: "sales_executive",  franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000004" },
+  { email: "kitchen@banquetease.com",   password: DEV_PASSWORD, displayName: "Kitchen Manager (Dev)",  role: "kitchen_manager",  franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000005" },
+  { email: "accounts@banquetease.com",  password: DEV_PASSWORD, displayName: "Accountant (Dev)",       role: "accountant",       franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000006" },
+  { email: "ops@banquetease.com",       password: DEV_PASSWORD, displayName: "Operations Staff (Dev)", role: "operations_staff", franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000007" },
+  { email: "reception@banquetease.com", password: DEV_PASSWORD, displayName: "Receptionist (Dev)",     role: "receptionist",     franchise_id: FRANCHISE_ID, franchise_name: "Prasad Food Divine", branch_id: "pfd_b1", branch_name: "Kalyan West", phone: "+91-1000000008" },
+  { email: "customer@banquetease.com",  password: DEV_PASSWORD, displayName: "Customer (Dev)",         role: "customer",         franchise_id: null,        franchise_name: null,                 branch_id: null,    branch_name: null,         phone: "+91-1000000009" },
+];
+
+// ─────────────────────────────────────────────
 //  HELPERS
 // ─────────────────────────────────────────────
 

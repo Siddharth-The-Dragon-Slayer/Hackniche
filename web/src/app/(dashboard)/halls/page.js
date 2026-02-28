@@ -21,10 +21,6 @@ import {
   query,
   where,
   getDocs,
-  doc,
-  addDoc,
-  updateDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { useAuth } from "@/contexts/auth-context";
 import { useBranches } from "@/hooks/use-branches";
@@ -34,6 +30,7 @@ import {
   cacheKeys,
   invalidateCache,
 } from "@/lib/firestore-cache";
+import { apiFetch } from "@/lib/api-client";
 
 // ── Skeleton loader ───────────────────────────────────────────────
 function HallCardSkeleton() {
@@ -93,25 +90,21 @@ function HallFormModal({ hall, branch, onClose, onSaved }) {
         base_price: Number(form.base_price) || 0,
         price_per_plate: Number(form.price_per_plate) || 450,
         features: form.features
-          ? form.features
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
+          ? form.features.split(",").map((s) => s.trim()).filter(Boolean)
           : [],
         status: form.status,
         branch_id: branch.id,
-        branch_name: branch.name,
-        franchise_id: branch.franchise_id,
-        franchise_name: branch.franchise_name,
-        updated_at: serverTimestamp(),
       };
       if (isEdit) {
-        await updateDoc(doc(db, "halls", hall.id), payload);
+        await apiFetch(`/api/halls/${hall.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
         invalidateCache(cacheKeys.halls(branch.id));
       } else {
-        await addDoc(collection(db, "halls"), {
-          ...payload,
-          created_at: serverTimestamp(),
+        await apiFetch("/api/halls", {
+          method: "POST",
+          body: JSON.stringify({ ...payload, branch_id: branch.id }),
         });
         invalidateCache(cacheKeys.halls(branch.id));
         invalidateCache(`hall_counts_${branch.franchise_id}`);

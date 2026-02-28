@@ -22,10 +22,6 @@ import {
   query,
   where,
   getDocs,
-  doc,
-  addDoc,
-  updateDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { useAuth } from "@/contexts/auth-context";
 import { useBranches, useHalls } from "@/hooks/use-branches";
@@ -35,6 +31,7 @@ import {
   cacheKeys,
   invalidateCache,
 } from "@/lib/firestore-cache";
+import { apiFetch } from "@/lib/api-client";
 
 function SkeletonRow() {
   return (
@@ -119,21 +116,20 @@ function BranchFormModal({
         cost_for_two: form.cost_for_two ? Number(form.cost_for_two) : null,
         status: form.status,
         type: form.type,
-        updated_at: serverTimestamp(),
       };
 
       if (isEdit) {
-        await updateDoc(doc(db, "branches", branch.id), payload);
+        await apiFetch(`/api/branches/${branch.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
         invalidateCache(cacheKeys.branches(franchiseId));
         invalidateCache(cacheKeys.allBranches());
       } else {
-        const newDoc = {
-          ...payload,
-          franchise_id: franchiseId,
-          franchise_name: franchiseName,
-          created_at: serverTimestamp(),
-        };
-        await addDoc(collection(db, "branches"), newDoc);
+        await apiFetch("/api/branches", {
+          method: "POST",
+          body: JSON.stringify({ ...payload, franchise_id: franchiseId, franchise_name: franchiseName }),
+        });
         invalidateCache(cacheKeys.branches(franchiseId));
         invalidateCache(cacheKeys.allBranches());
         invalidateCache(`hall_counts_${franchiseId}`);
@@ -708,18 +704,17 @@ function HallFormModal({ hall, branch, onClose, onSaved }) {
           : [],
         status: form.status,
         branch_id: hall.branch_id,
-        branch_name: hall.branch_name,
-        franchise_id: hall.franchise_id,
-        franchise_name: hall.franchise_name,
-        updated_at: serverTimestamp(),
       };
       if (isEdit) {
-        await updateDoc(doc(db, "halls", hall.id), payload);
+        await apiFetch(`/api/halls/${hall.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
         invalidateCache(cacheKeys.halls(hall.branch_id));
       } else {
-        await addDoc(collection(db, "halls"), {
-          ...payload,
-          created_at: serverTimestamp(),
+        await apiFetch("/api/halls", {
+          method: "POST",
+          body: JSON.stringify(payload),
         });
         invalidateCache(cacheKeys.halls(hall.branch_id));
       }
