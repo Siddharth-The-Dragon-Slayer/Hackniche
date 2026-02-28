@@ -98,3 +98,77 @@
   outline-offset: 3px;
   border-radius: var(--radius-md);
 }
+
+/* ── DECOR PAGE ENHANCEMENTS ─────────────── */
+@keyframes cardHover3D {
+  from { transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px); }
+  to   { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(20px); }
+}
+
+@keyframes imageZoom {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1.08); }
+}
+
+@keyframes quickActionSlide {
+  from { transform: translateY(-10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes priceTagFloat {
+  0%,100% { transform: translateY(0px) scale(1); }
+  50%     { transform: translateY(-2px) scale(1.02); }
+}
+
+@keyframes modelSpinner {
+  0%   { transform: rotate(0deg); border-color: var(--color-border) var(--color-primary) var(--color-border) var(--color-border); }
+  25%  { border-color: var(--color-border) var(--color-border) var(--color-primary) var(--color-border); }
+  50%  { border-color: var(--color-border) var(--color-border) var(--color-border) var(--color-primary); }
+  75%  { border-color: var(--color-primary) var(--color-border) var(--color-border) var(--color-border); }
+  100% { transform: rotate(360deg); border-color: var(--color-border) var(--color-primary) var(--color-border) var(--color-border); }
+}
+
+/* ── LABEL SMALL UTILITY ────────────────── */
+.label-small {
+  fontSize: 10;
+  color: var(--color-text-muted);
+  marginBottom: 5;
+  textTransform: uppercase;
+  letterSpacing: 0.8px;
+  fontWeight: 600;
+}
+
+/* ── ENHANCED CARD TRANSITIONS ───────────── */
+.decor-card {
+  transition: 
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    border-color 0.3s ease;
+}
+
+.decor-card:hover .card-image {
+  transform: scale(1.08);
+}
+
+.decor-card .card-image {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.decor-card .quick-actions {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.decor-card:hover .quick-actions {
+  animation: quickActionSlide 0.3s ease forwards;
+}
+
+/* ── MODEL VIEWER ENHANCEMENTS ───────────── */
+model-viewer {
+  --progress-bar-color: var(--color-primary);
+  --progress-bar-height: 4px;
+  --progress-bar-background-color: var(--color-border);
+}
+
+model-viewer::part(default-progress-bar) {
+  border-radius: var(--radius-sm);
+}

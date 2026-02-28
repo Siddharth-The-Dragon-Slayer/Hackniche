@@ -223,6 +223,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
   const { theme, toggleTheme, isDark } = useTheme();
   const { user, userProfile, franchiseProfile, role, logout } = useAuth();
   const [showChangePwd, setShowChangePwd] = useState(false);
+ 
 
   const currentRole = role || "branch_manager";
   const items = sidebarMenus[currentRole] || sidebarMenus.branch_manager;
