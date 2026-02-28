@@ -17,7 +17,8 @@ const CAN_CREATE = [...CAN_MANAGE_FULL, "sales_executive"];
 function generateCode(prefix = "BQE") {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 6; i++)
+    code += chars[Math.floor(Math.random() * chars.length)];
   return `${prefix}-${code}`;
 }
 
@@ -25,7 +26,8 @@ function generateCode(prefix = "BQE") {
 
 export async function GET(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
   const branch_id = searchParams.get("branch_id");
@@ -62,38 +64,52 @@ export async function GET(request) {
     updated_at: d.data().updated_at?.toDate?.()?.toISOString?.() || null,
   }));
 
-  return NextResponse.json({ offers }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(
+    { offers },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 
 // ── POST ────────────────────────────────────────────────────────────────────
 
 export async function POST(request) {
   const user = await verifyRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!CAN_CREATE.includes(user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   let body;
-  try { body = await request.json(); }
-  catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
   if (!body.title?.trim()) {
     return NextResponse.json({ error: "Title is required" }, { status: 422 });
   }
   if (!body.valid_to) {
-    return NextResponse.json({ error: "Expiry date is required" }, { status: 422 });
+    return NextResponse.json(
+      { error: "Expiry date is required" },
+      { status: 422 },
+    );
   }
 
   const db = getAdminDb();
 
   // Resolve branch_id
-  const branch_id = user.role === "branch_manager" || user.role === "sales_executive"
-    ? user.branch_id
-    : body.branch_id;
+  const branch_id =
+    user.role === "branch_manager" || user.role === "sales_executive"
+      ? user.branch_id
+      : body.branch_id;
 
   if (!branch_id) {
-    return NextResponse.json({ error: "branch_id is required" }, { status: 422 });
+    return NextResponse.json(
+      { error: "branch_id is required" },
+      { status: 422 },
+    );
   }
 
   const branchSnap = await db.collection("branches").doc(branch_id).get();
@@ -102,7 +118,10 @@ export async function POST(request) {
   }
   const branch = branchSnap.data();
 
-  if (user.role === "franchise_admin" && branch.franchise_id !== user.franchise_id) {
+  if (
+    user.role === "franchise_admin" &&
+    branch.franchise_id !== user.franchise_id
+  ) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -114,7 +133,8 @@ export async function POST(request) {
   if (!code) code = generateCode("BQE");
 
   // Check code uniqueness within branch
-  const existingSnap = await db.collection("offers")
+  const existingSnap = await db
+    .collection("offers")
     .where("branch_id", "==", branch_id)
     .where("code", "==", code)
     .limit(1)
@@ -136,10 +156,10 @@ export async function POST(request) {
     badge: body.badge || "",
     badge_color: body.badge_color || "green",
     terms: (body.terms || "").trim(),
-    active: isSalesExec ? true : (body.active !== false),
-    consumer_visible: isSalesExec ? false : (body.consumer_visible !== false),
-    single_use: isSalesExec ? true : (body.single_use === true),
-    max_uses: isSalesExec ? 1 : (Number(body.max_uses) || 0), // 0 = unlimited
+    active: isSalesExec ? true : body.active !== false,
+    consumer_visible: isSalesExec ? false : body.consumer_visible !== false,
+    single_use: isSalesExec ? true : body.single_use === true,
+    max_uses: isSalesExec ? 1 : Number(body.max_uses) || 0, // 0 = unlimited
     used_count: 0,
     branch_id,
     branch_name: branch.name || "",

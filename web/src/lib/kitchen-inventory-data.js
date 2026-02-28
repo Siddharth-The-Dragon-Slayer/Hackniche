@@ -186,7 +186,9 @@ export const kitchenCategories = [
   { value: 'proteins', label: 'Proteins & Dairy', icon: '🥛' },
   { value: 'spices', label: 'Spices & Seasonings', icon: '🌶️' },
   { value: 'oils', label: 'Oils & Fats', icon: '🫒' },
-  { value: 'beverages', label: 'Beverages & Liquids', icon: '🥤' }
+  { value: 'beverages', label: 'Beverages & Liquids', icon: '🥤' },
+  { value: 'utensils', label: 'Kitchen Utensils', icon: '🥄' },
+  { value: 'equipment', label: 'Kitchen Equipment', icon: '🔧' }
 ];
 
 export const storageLocations = [

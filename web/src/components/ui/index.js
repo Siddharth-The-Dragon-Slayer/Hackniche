@@ -19,3 +19,4 @@ export { default as Tabs } from './Tabs';
 export { default as EmptyState } from './EmptyState';
 export { default as StatsCard } from './StatsCard';
 export { default as ResponsiveGrid } from './ResponsiveGrid';
+export { default as Preloader } from './Preloader';

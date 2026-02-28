@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -50,6 +50,7 @@ export default function Navbar() {
   return (
     <>
       <nav
+        className="site-nav"
         style={{
           position: "fixed",
           top: 0,
@@ -65,7 +66,7 @@ export default function Navbar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 32px",
+          padding: "0 clamp(16px, 5vw, 32px)",
         }}
       >
         <Link
@@ -101,10 +102,13 @@ export default function Navbar() {
           <span
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: 22,
+              fontSize: "clamp(16px, 4vw, 22px)",
               fontWeight: 700,
               color: "var(--color-text-h)",
               letterSpacing: "-0.5px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
             {brandName}
@@ -195,41 +199,46 @@ export default function Navbar() {
             />
           </button>
 
-          {user ? (
-            <>
-              <Link
-                href={dashboardHref}
-                className="btn btn-primary btn-sm"
-                style={{ textDecoration: "none" }}
-              >
-                Dashboard
-              </Link>
-              <button
-                onClick={logout}
-                className="btn btn-outline btn-sm"
-                style={{ fontSize: 12 }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="btn btn-primary btn-sm"
-                style={{ textDecoration: "none" }}
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="btn btn-outline btn-sm"
-                style={{ textDecoration: "none" }}
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
+          <div
+            className="nav-auth-btns"
+            style={{ display: "flex", gap: 12, alignItems: "center" }}
+          >
+            {user ? (
+              <>
+                <Link
+                  href={dashboardHref}
+                  className="btn btn-primary btn-sm"
+                  style={{ textDecoration: "none" }}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={logout}
+                  className="btn btn-outline btn-sm"
+                  style={{ fontSize: 12 }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="btn btn-primary btn-sm"
+                  style={{ textDecoration: "none" }}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="btn btn-outline btn-sm"
+                  style={{ textDecoration: "none" }}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
 
           {/* Mobile hamburger */}
           <button
@@ -248,6 +257,26 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile Drawer Backdrop */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              zIndex: 1000,
+              backdropFilter: "blur(2px)",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
@@ -261,17 +290,50 @@ export default function Navbar() {
               top: 0,
               right: 0,
               bottom: 0,
-              width: "80%",
-              maxWidth: 320,
+              width: "min(85vw, 320px)",
               background: "var(--color-bg-card)",
               zIndex: 1001,
-              padding: "80px 32px 32px",
+              padding: "16px clamp(16px, 5vw, 32px) 32px",
               boxShadow: "var(--shadow-modal)",
               display: "flex",
               flexDirection: "column",
               gap: 24,
+              overflowY: "auto",
             }}
           >
+            {/* Mobile sidebar close button */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: "var(--color-primary-ghost)",
+                border: "1px solid var(--color-border)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--color-primary)",
+                transition: "all 0.2s ease",
+                zIndex: 10,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "var(--color-primary)";
+                e.target.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "var(--color-primary-ghost)";
+                e.target.style.color = "var(--color-primary)";
+              }}
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+
             {navLinks.map((link) => (
               <Link
                 key={link.href}
