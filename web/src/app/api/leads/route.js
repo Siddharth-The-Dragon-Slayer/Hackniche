@@ -21,11 +21,8 @@
  *   customer        → own leads only (by customer_uid)
  */
 
-import { db } from '@/lib/firebase';
-import {
-  collection, addDoc, getDocs,
-  query, where, serverTimestamp,
-} from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+import admin from 'firebase-admin';
 import { NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 
@@ -34,9 +31,14 @@ const listKey  = (fid, bid)        => `leads:${fid}:${bid}:list`;
 const statusKey = (fid, bid, status) => `leads:${fid}:${bid}:${status}`;
 const LEAD_TTL = 120; // 2 minutes — leads change frequently
 
-/** Firestore reference to the top-level leads collection */
-function leadsCol() {
-  return collection(db, 'leads');
+function serializeLead(d) {
+  const data = d.data();
+  return {
+    id: d.id,
+    ...data,
+    created_at: data.created_at?.toDate?.()?.toISOString() ?? null,
+    updated_at: data.updated_at?.toDate?.()?.toISOString() ?? null,
+  };
 }
 
 // ── GET ────────────────────────────────────────────────────────────────────
@@ -48,23 +50,18 @@ export async function GET(request) {
     const status       = searchParams.get('status') || null;
     const customer_uid = searchParams.get('customer_uid') || null;
 
+    const adminDb = getAdminDb();
+
     // ── Customer mode: query by customer_uid ──────────────────────────────
     if (customer_uid) {
       const cKey = `leads:customer:${customer_uid}`;
       const cached = cache.get(cKey);
       if (cached) return NextResponse.json({ ...cached, cached: true });
 
-      const snap = await getDocs(
-        query(leadsCol(), where('customer_uid', '==', customer_uid))
-      );
-      const leads = snap.docs.map(d => {
-        const data = d.data();
-        return {
-          id: d.id, ...data,
-          created_at: data.created_at?.toDate?.()?.toISOString() ?? null,
-          updated_at: data.updated_at?.toDate?.()?.toISOString() ?? null,
-        };
-      });
+      const snap = await adminDb.collection('leads')
+        .where('customer_uid', '==', customer_uid)
+        .get();
+      const leads = snap.docs.map(serializeLead);
       leads.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
       const payload = { leads, total: leads.length, customer_uid };
       cache.set(cKey, payload, LEAD_TTL);
@@ -80,19 +77,12 @@ export async function GET(request) {
     const cached = cache.get(cKey);
     if (cached) return NextResponse.json({ ...cached, cached: true });
 
-    // Query only by branch_id (single-field index, always works without composite index).
-    // Filter franchise_id + status client-side to avoid any composite-index requirement.
-    const snap = await getDocs(query(leadsCol(), where('branch_id', '==', branch_id)));
+    // Query only by branch_id (single-field index). Filter franchise_id + status in JS.
+    const snap = await adminDb.collection('leads')
+      .where('branch_id', '==', branch_id)
+      .get();
 
-    let leads = snap.docs.map(d => {
-      const data = d.data();
-      return {
-        id: d.id,
-        ...data,
-        created_at: data.created_at?.toDate?.()?.toISOString() ?? null,
-        updated_at: data.updated_at?.toDate?.()?.toISOString() ?? null,
-      };
-    });
+    let leads = snap.docs.map(serializeLead);
 
     // Client-side filters
     leads = leads.filter(l => l.franchise_id === franchise_id);
@@ -143,7 +133,7 @@ export async function POST(request) {
       return NextResponse.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 });
     }
 
-    const now = serverTimestamp();
+    const now = admin.firestore.FieldValue.serverTimestamp();
     const leadData = {
       franchise_id,
       branch_id,
@@ -187,7 +177,8 @@ export async function POST(request) {
       updated_at: now,
     };
 
-    const docRef = await addDoc(leadsCol(), leadData);
+    const adminDb = getAdminDb();
+    const docRef = await adminDb.collection('leads').add(leadData);
 
     // Invalidate list cache
     cache.del(listKey(franchise_id, branch_id));

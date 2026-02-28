@@ -1,6 +1,6 @@
 ﻿'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import { motion } from 'framer-motion';
@@ -11,22 +11,22 @@ import {
   MessageSquare, Plus, Save,
 } from 'lucide-react';
 
-// â”€â”€ STATUS CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── STATUS CONFIG ────────────────────────────────────────────────────────
 const PIPELINE_STAGES = [
-  { key: 'new',                   label: 'New Lead',              icon: 'ðŸ“ž', desc: 'Lead captured' },
-  { key: 'visited',               label: 'Property Visit',        icon: 'ðŸ›ï¸', desc: 'Site visit done' },
-  { key: 'tasting_scheduled',     label: 'Tasting Scheduled',     icon: 'ðŸ½ï¸', desc: 'Food tasting scheduled' },
-  { key: 'tasting_done',          label: 'Tasting Done',          icon: 'âœ…', desc: 'Tasting completed' },
-  { key: 'menu_selected',         label: 'Menu Selected',         icon: 'ðŸ“‹', desc: 'Menu finalized' },
-  { key: 'advance_paid',          label: 'Advance Paid',          icon: 'ðŸ’°', desc: '30-50% advanced received' },
-  { key: 'decoration_scheduled',  label: 'DÃ©cor Scheduled',       icon: 'ðŸŽ¨', desc: 'Vendor/dÃ©cor finalized' },
-  { key: 'paid',                  label: 'Full Payment Done',     icon: 'âœ…', desc: 'Remaining amount received' },
-  { key: 'in_progress',           label: 'Event In Progress',     icon: 'ðŸŽ‰', desc: 'Event happening now' },
-  { key: 'completed',             label: 'Event Completed',       icon: 'ðŸ†', desc: 'Event finished successfully' },
-  { key: 'settlement_pending',    label: 'Settlement Pending',    icon: 'ðŸ§¾', desc: 'Final bill settlement' },
-  { key: 'settlement_complete',   label: 'Settlement Complete',   icon: 'âœ”ï¸', desc: 'All dues cleared' },
-  { key: 'feedback_pending',      label: 'Feedback Pending',      icon: 'â­', desc: 'Collect customer review' },
-  { key: 'closed',                label: 'Closed',                icon: 'ðŸ”’', desc: 'Lead closed' },
+  { key: 'new',                   label: 'New Lead',              icon: '📞', desc: 'Lead captured' },
+  { key: 'visited',               label: 'Property Visit',        icon: '🏛️', desc: 'Site visit done' },
+  { key: 'tasting_scheduled',     label: 'Tasting Scheduled',     icon: '🍽️', desc: 'Food tasting scheduled' },
+  { key: 'tasting_done',          label: 'Tasting Done',          icon: '✅', desc: 'Tasting completed' },
+  { key: 'menu_selected',         label: 'Menu Selected',         icon: '📋', desc: 'Menu finalized' },
+  { key: 'advance_paid',          label: 'Advance Paid',          icon: '💰', desc: '30-50% advanced received' },
+  { key: 'decoration_scheduled',  label: 'Décor Scheduled',       icon: '🎨', desc: 'Vendor/décor finalized' },
+  { key: 'paid',                  label: 'Full Payment Done',     icon: '✅', desc: 'Remaining amount received' },
+  { key: 'in_progress',           label: 'Event In Progress',     icon: '🎉', desc: 'Event happening now' },
+  { key: 'completed',             label: 'Event Completed',       icon: '🏆', desc: 'Event finished successfully' },
+  { key: 'settlement_pending',    label: 'Settlement Pending',    icon: '🧾', desc: 'Final bill settlement' },
+  { key: 'settlement_complete',   label: 'Settlement Complete',   icon: '✔️', desc: 'All dues cleared' },
+  { key: 'feedback_pending',      label: 'Feedback Pending',      icon: '⭐', desc: 'Collect customer review' },
+  { key: 'closed',                label: 'Closed',                icon: '🔒', desc: 'Lead closed' },
 ];
 
 const STATUS_STYLE = {
@@ -49,7 +49,7 @@ const STATUS_STYLE = {
 
 const STAGE_ORDER = PIPELINE_STAGES.map(s => s.key);
 
-// Role â†’ which stages they can update
+// Role → which stages they can update
 const ROLE_STAGE_ACCESS = {
   receptionist:    ['follow_ups'],
   sales_executive: ['new','visited','tasting_scheduled','tasting_done','menu_selected','follow_ups'],
@@ -65,15 +65,15 @@ function canUpdateStage(role, stageKey) {
   return allowed.includes(stageKey) || allowed.includes('follow_ups');
 }
 
-// â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sub-components ────────────────────────────────────────────────────────
 
 function InfoRow({ label, value, href }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:2, padding:'10px 0', borderBottom:'1px solid var(--color-border)' }}>
       <span style={{ fontSize:11, fontWeight:600, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'0.05em' }}>{label}</span>
       {href
-        ? <a href={href} style={{ fontSize:14, color:'var(--color-primary)' }}>{value || 'â€”'}</a>
-        : <span style={{ fontSize:14, color:'var(--color-text-body)' }}>{value || 'â€”'}</span>
+        ? <a href={href} style={{ fontSize:14, color:'var(--color-primary)' }}>{value || '—'}</a>
+        : <span style={{ fontSize:14, color:'var(--color-text-body)' }}>{value || '—'}</span>
       }
     </div>
   );
@@ -99,7 +99,7 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
         width:'100%', display:'flex', alignItems:'center', gap:12,
         padding:'12px 16px', background:'var(--color-surface)', border:'none', cursor:'pointer', textAlign:'left',
       }}>
-        <span style={{ fontSize:18, lineHeight:1 }}>{isCurrentOrPast ? (isCurrent ? 'ðŸ”µ' : 'âœ…') : 'âšª'}</span>
+        <span style={{ fontSize:18, lineHeight:1 }}>{isCurrentOrPast ? (isCurrent ? '🔵' : '✅') : '⚪'}</span>
         <div style={{ flex:1 }}>
           <div style={{ fontWeight:700, fontSize:13, color:'var(--color-text-h)' }}>{stage.label}</div>
           <div style={{ fontSize:11, color:'var(--color-text-muted)' }}>{stage.desc}</div>
@@ -128,7 +128,7 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
             </div>
           )}
 
-          {/* Stage forms â€” only show if canEdit */}
+          {/* Stage forms — only show if canEdit */}
           {canEdit && (
             <div style={{ paddingTop:12 }}>
               {stage.key === 'visited' && (
@@ -157,19 +157,19 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
               {stage.key === 'menu_selected' && (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   <div className="form-field"><label className="form-label">Finalized Menu ID</label><input className="input" placeholder="pfd_menu_veg_premium" value={form.finalized_menu_id||''} onChange={e=>setF('finalized_menu_id',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Price Per Plate (â‚¹)</label><input className="input" type="number" value={form.price_per_plate||''} onChange={e=>setF('price_per_plate',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Price Per Plate (₹)</label><input className="input" type="number" value={form.price_per_plate||''} onChange={e=>setF('price_per_plate',e.target.value)}/></div>
                   <div className="form-field"><label className="form-label">Final Guest Count</label><input className="input" type="number" value={form.final_guest_count||''} onChange={e=>setF('final_guest_count',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Total Food Cost (â‚¹)</label><input className="input" type="number" value={form.total_food_cost||''} onChange={e=>setF('total_food_cost',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Total Food Cost (₹)</label><input className="input" type="number" value={form.total_food_cost||''} onChange={e=>setF('total_food_cost',e.target.value)}/></div>
                 </div>
               )}
               {stage.key === 'advance_paid' && (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                  <div className="form-field"><label className="form-label">Advance Amount (â‚¹)</label><input className="input" type="number" value={form.amount||''} onChange={e=>setF('amount',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Payment Mode</label><select className="input" value={form.payment_mode||''} onChange={e=>setF('payment_mode',e.target.value)}><option value="">Selectâ€¦</option>{['Cash','UPI','Bank Transfer','Cheque','Card'].map(m=><option key={m}>{m}</option>)}</select></div>
+                  <div className="form-field"><label className="form-label">Advance Amount (₹)</label><input className="input" type="number" value={form.amount||''} onChange={e=>setF('amount',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Payment Mode</label><select className="input" value={form.payment_mode||''} onChange={e=>setF('payment_mode',e.target.value)}><option value="">Select…</option>{['Cash','UPI','Bank Transfer','Cheque','Card'].map(m=><option key={m}>{m}</option>)}</select></div>
                   <div className="form-field"><label className="form-label">Reference / UTR</label><input className="input" placeholder="Transaction ref" value={form.payment_ref||''} onChange={e=>setF('payment_ref',e.target.value)}/></div>
                   <div className="form-field"><label className="form-label">Confirmed By</label><input className="input" value={form.confirmed_by||''} onChange={e=>setF('confirmed_by',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Hall Rent (â‚¹)</label><input className="input" type="number" value={form.hall_base_rent||''} onChange={e=>setF('hall_base_rent',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Total Quote (â‚¹)</label><input className="input" type="number" value={form.total_quote||''} onChange={e=>setF('total_quote',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Hall Rent (₹)</label><input className="input" type="number" value={form.hall_base_rent||''} onChange={e=>setF('hall_base_rent',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Total Quote (₹)</label><input className="input" type="number" value={form.total_quote||''} onChange={e=>setF('total_quote',e.target.value)}/></div>
                 </div>
               )}
               {stage.key === 'decoration_scheduled' && (
@@ -182,8 +182,8 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
               )}
               {stage.key === 'paid' && (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                  <div className="form-field"><label className="form-label">Remaining Amount (â‚¹)</label><input className="input" type="number" value={form.remaining_amount||''} onChange={e=>setF('remaining_amount',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Payment Mode</label><select className="input" value={form.payment_mode||''} onChange={e=>setF('payment_mode',e.target.value)}><option value="">Selectâ€¦</option>{['Cash','UPI','Bank Transfer','Cheque','Card'].map(m=><option key={m}>{m}</option>)}</select></div>
+                  <div className="form-field"><label className="form-label">Remaining Amount (₹)</label><input className="input" type="number" value={form.remaining_amount||''} onChange={e=>setF('remaining_amount',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Payment Mode</label><select className="input" value={form.payment_mode||''} onChange={e=>setF('payment_mode',e.target.value)}><option value="">Select…</option>{['Cash','UPI','Bank Transfer','Cheque','Card'].map(m=><option key={m}>{m}</option>)}</select></div>
                   <div className="form-field"><label className="form-label">Reference / UTR</label><input className="input" value={form.payment_ref||''} onChange={e=>setF('payment_ref',e.target.value)}/></div>
                   <div className="form-field"><label className="form-label">Paid By</label><input className="input" value={form.paid_by||''} onChange={e=>setF('paid_by',e.target.value)}/></div>
                 </div>
@@ -199,8 +199,8 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
               )}
               {stage.key === 'settlement_pending' && (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                  <div className="form-field"><label className="form-label">Extra Charges (â‚¹)</label><input className="input" type="number" value={form.extra_charges||''} onChange={e=>setF('extra_charges',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Refund Amount (â‚¹)</label><input className="input" type="number" value={form.refund_amount||''} onChange={e=>setF('refund_amount',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Extra Charges (₹)</label><input className="input" type="number" value={form.extra_charges||''} onChange={e=>setF('extra_charges',e.target.value)}/></div>
+                  <div className="form-field"><label className="form-label">Refund Amount (₹)</label><input className="input" type="number" value={form.refund_amount||''} onChange={e=>setF('refund_amount',e.target.value)}/></div>
                   <div className="form-field form-span-2"><label className="form-label">Damage Notes</label><textarea className="input" rows={2} value={form.damage_notes||''} onChange={e=>setF('damage_notes',e.target.value)} style={{resize:'vertical'}}/></div>
                 </div>
               )}
@@ -210,7 +210,7 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
               {stage.key === 'feedback_pending' && (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   <div className="form-field"><label className="form-label">Customer Rating (1-5)</label><input className="input" type="number" min="1" max="5" value={form.rating||''} onChange={e=>setF('rating',e.target.value)}/></div>
-                  <div className="form-field"><label className="form-label">Repeat Booking?</label><select className="input" value={form.repeat_booking||''} onChange={e=>setF('repeat_booking',e.target.value)}><option value="">Selectâ€¦</option><option value="true">Yes</option><option value="false">No</option></select></div>
+                  <div className="form-field"><label className="form-label">Repeat Booking?</label><select className="input" value={form.repeat_booking||''} onChange={e=>setF('repeat_booking',e.target.value)}><option value="">Select…</option><option value="true">Yes</option><option value="false">No</option></select></div>
                   <div className="form-field form-span-2"><label className="form-label">Review Text</label><textarea className="input" rows={3} value={form.review_text||''} onChange={e=>setF('review_text',e.target.value)} style={{resize:'vertical'}}/></div>
                 </div>
               )}
@@ -235,13 +235,15 @@ function StageCard({ stage, stageData, isCurrentOrPast, isCurrent, onSave, savin
   );
 }
 
-// â”€â”€ MAIN PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export default function LeadDetailPage({ params, searchParams }) {
-  const router = useRouter();
+// ── MAIN PAGE ──────────────────────────────────────────────────────────────
+export default function LeadDetailPage() {
+  const router       = useRouter();
+  const params       = useParams();
+  const searchParams = useSearchParams();
   const { userProfile } = useAuth();
-  const franchise_id = searchParams?.franchise_id || userProfile?.franchise_id || 'pfd';
-  const branch_id    = searchParams?.branch_id    || userProfile?.branch_id    || 'pfd_b1';
-  const role         = userProfile?.role          || 'guest';
+  const franchise_id = searchParams?.get('franchise_id') || userProfile?.franchise_id || 'pfd';
+  const branch_id    = searchParams?.get('branch_id')    || userProfile?.branch_id    || 'pfd_b1';
+  const role         = userProfile?.role                 || 'guest';
 
   const [lead, setLead]       = useState(null);
   const [loading, setLoading] = useState(true);
@@ -255,22 +257,24 @@ export default function LeadDetailPage({ params, searchParams }) {
   const [fuForm, setFuForm] = useState({ date:'', type:'Call', notes:'' });
 
   const fetchLead = useCallback(async () => {
+    const leadId = params?.id;
+    if (!leadId) return;
     setLoading(true); setError(null);
     try {
-      const res  = await fetch(`/api/leads/${params.id}?franchise_id=${franchise_id}&branch_id=${branch_id}`);
+      const res  = await fetch(`/api/leads/${leadId}?franchise_id=${franchise_id}&branch_id=${branch_id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Not found');
       setLead(data.lead);
     } catch (e) { setError(e.message); }
     finally { setLoading(false); }
-  }, [params.id, franchise_id, branch_id]);
+  }, [params?.id, franchise_id, branch_id]);
 
   useEffect(() => { fetchLead(); }, [fetchLead]);
 
   async function updateLead(updates) {
     setSaving(true); setSaveMsg(null);
     try {
-      const res = await fetch(`/api/leads/${params.id}`, {
+      const res = await fetch(`/api/leads/${params?.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ franchise_id, branch_id, ...updates }),
@@ -327,7 +331,7 @@ export default function LeadDetailPage({ params, searchParams }) {
   async function handleDelete() {
     if (!confirm(`Delete lead for ${lead?.customer_name}? This is permanent.`)) return;
     setSaving(true);
-    await fetch(`/api/leads/${params.id}`, {
+    await fetch(`/api/leads/${params?.id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ franchise_id, branch_id }),
@@ -338,7 +342,7 @@ export default function LeadDetailPage({ params, searchParams }) {
   if (loading) {
     return (
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:300, gap:12, color:'var(--color-text-muted)' }}>
-        <Loader2 size={24} style={{ animation:'spin 1s linear infinite' }} /> Loading leadâ€¦
+        <Loader2 size={24} style={{ animation:'spin 1s linear infinite' }} /> Loading lead…
       </div>
     );
   }
@@ -350,7 +354,7 @@ export default function LeadDetailPage({ params, searchParams }) {
         <p style={{ fontSize:15, fontWeight:600 }}>{error}</p>
         <div style={{ display:'flex', gap:8, justifyContent:'center', marginTop:16 }}>
           <button className="btn btn-ghost" onClick={fetchLead}>Retry</button>
-          <Link href="/leads" className="btn btn-primary" style={{ textDecoration:'none' }}>â† Back to Leads</Link>
+          <Link href="/leads" className="btn btn-primary" style={{ textDecoration:'none' }}>← Back to Leads</Link>
         </div>
       </div>
     );
@@ -389,7 +393,7 @@ export default function LeadDetailPage({ params, searchParams }) {
           </Link>
           <h1>{l.customer_name}</h1>
           <p style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', fontSize:14, color:'var(--color-text-muted)' }}>
-            ðŸŽ‰ {l.event_type} &bull; <Calendar size={13} /> {l.event_date || 'â€”'} &bull; <Users size={13} /> {l.expected_guest_count} guests
+            🎉 {l.event_type} &bull; <Calendar size={13} /> {l.event_date || '—'} &bull; <Users size={13} /> {l.expected_guest_count} guests
             <span style={{ background:st.bg, color:st.color, borderRadius:20, padding:'2px 10px', fontSize:11, fontWeight:700 }}>
               {PIPELINE_STAGES.find(s=>s.key===l.status)?.label || l.status}
             </span>
@@ -425,8 +429,8 @@ export default function LeadDetailPage({ params, searchParams }) {
       <motion.div variants={fadeUp} className="kpi-row" style={{ marginBottom:24 }}>
         {[
           { label:'Phone', val:l.phone, icon:<Phone size={16}/> },
-          { label:'Hall', val:l.hall_name||'â€”', icon:<Building2 size={16}/> },
-          { label:'Budget', val:l.budget_range ? `â‚¹${l.budget_range}` : 'â€”', icon:null },
+          { label:'Hall', val:l.hall_name||'—', icon:<Building2 size={16}/> },
+          { label:'Budget', val:l.budget_range ? `₹${l.budget_range}` : '—', icon:null },
           { label:'Assigned To', val:l.assigned_to_name||'Unassigned', icon:null },
         ].map(k => (
           <div key={k.label} className="card" style={{ padding:'14px 18px' }}>
@@ -455,7 +459,7 @@ export default function LeadDetailPage({ params, searchParams }) {
         ))}
       </motion.div>
 
-      {/* â”€â”€ OVERVIEW TAB â”€â”€ */}
+      {/* ── OVERVIEW TAB ── */}
       {tab === 'overview' && (
         <motion.div initial="hidden" animate="visible" variants={{ hidden:{}, visible:{ transition:{ staggerChildren:0.08 } } }} style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:24, alignItems:'start' }}>
           <motion.div variants={fadeUp} className="card" style={{ padding:24 }}>
@@ -466,17 +470,17 @@ export default function LeadDetailPage({ params, searchParams }) {
             <InfoRow label="Event Type"    value={l.event_type} />
             <InfoRow label="Event Date"    value={l.event_date} />
             <InfoRow label="Expected Guests" value={l.expected_guest_count} />
-            <InfoRow label="Budget Range"  value={l.budget_range ? `â‚¹${l.budget_range}` : null} />
+            <InfoRow label="Budget Range"  value={l.budget_range ? `₹${l.budget_range}` : null} />
             <InfoRow label="Hall"          value={l.hall_name || l.hall_id} />
             <InfoRow label="Assigned To"   value={l.assigned_to_name} />
-            <InfoRow label="Created"       value={l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN') : 'â€”'} />
+            <InfoRow label="Created"       value={l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN') : '—'} />
           </motion.div>
 
           <motion.div variants={fadeUp} style={{ display:'flex', flexDirection:'column', gap:12 }}>
             <div className="card" style={{ padding:20 }}>
               <div className="form-section-title" style={{ marginBottom:12 }}>Current Stage</div>
               <div style={{ textAlign:'center', padding:'16px 0' }}>
-                <div style={{ fontSize:32, marginBottom:8 }}>{PIPELINE_STAGES.find(s=>s.key===l.status)?.icon || 'ðŸ“Œ'}</div>
+                <div style={{ fontSize:32, marginBottom:8 }}>{PIPELINE_STAGES.find(s=>s.key===l.status)?.icon || '📌'}</div>
                 <span style={{ background:st.bg, color:st.color, borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700 }}>
                   {PIPELINE_STAGES.find(s=>s.key===l.status)?.label || l.status}
                 </span>
@@ -499,6 +503,11 @@ export default function LeadDetailPage({ params, searchParams }) {
                 <button className="btn btn-ghost btn-sm" style={{ justifyContent:'flex-start' }} onClick={() => setTab('pipeline')}>
                   <CheckCircle2 size={14} /> Advance Stage
                 </button>
+                {['sales_executive','branch_manager','franchise_admin','super_admin'].includes(role) && (
+                  <Link href={`/leads/${params?.id}/complete?franchise_id=${franchise_id}&branch_id=${branch_id}`} className="btn btn-primary btn-sm" style={{ textDecoration:'none', justifyContent:'flex-start' }}>
+                    <Save size={14} /> Edit Lead Details
+                  </Link>
+                )}
                 <Link href={`/leads/create`} className="btn btn-ghost btn-sm" style={{ textDecoration:'none', justifyContent:'flex-start' }}>
                   <Plus size={14} /> New Lead
                 </Link>
@@ -508,7 +517,7 @@ export default function LeadDetailPage({ params, searchParams }) {
         </motion.div>
       )}
 
-      {/* â”€â”€ PIPELINE TAB â”€â”€ */}
+      {/* ── PIPELINE TAB ── */}
       {tab === 'pipeline' && (
         <motion.div initial="hidden" animate="visible" variants={{ hidden:{}, visible:{ transition:{ staggerChildren:0.04 } } }}>
           <motion.div variants={fadeUp} style={{ marginBottom:12, display:'flex', gap:8, alignItems:'center' }}>
@@ -536,7 +545,7 @@ export default function LeadDetailPage({ params, searchParams }) {
         </motion.div>
       )}
 
-      {/* â”€â”€ FOLLOW-UPS TAB â”€â”€ */}
+      {/* ── FOLLOW-UPS TAB ── */}
       {tab === 'follow-ups' && (
         <motion.div initial="hidden" animate="visible" variants={{ hidden:{}, visible:{ transition:{ staggerChildren:0.06 } } }}>
           <motion.div variants={fadeUp} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
@@ -596,8 +605,8 @@ export default function LeadDetailPage({ params, searchParams }) {
                     <tr key={f.id || i} style={{ borderTop:'1px solid var(--color-border)', fontSize:14 }}>
                       <td style={{ padding:'12px 16px', whiteSpace:'nowrap', color:'var(--color-text-body)' }}>{f.date}</td>
                       <td style={{ padding:'12px 16px' }}><span style={{ background:'#e0e7ff', color:'#4338ca', borderRadius:20, padding:'2px 8px', fontSize:11, fontWeight:700 }}>{f.type}</span></td>
-                      <td style={{ padding:'12px 16px', color:'var(--color-text-muted)', fontSize:13 }}>{f.notes || 'â€”'}</td>
-                      <td style={{ padding:'12px 16px', color:'var(--color-text-muted)', fontSize:12 }}>{f.logged_by || 'â€”'}</td>
+                      <td style={{ padding:'12px 16px', color:'var(--color-text-muted)', fontSize:13 }}>{f.notes || '—'}</td>
+                      <td style={{ padding:'12px 16px', color:'var(--color-text-muted)', fontSize:12 }}>{f.logged_by || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -608,4 +617,4 @@ export default function LeadDetailPage({ params, searchParams }) {
       )}
     </motion.div>
   );
-}
+}
