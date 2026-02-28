@@ -1,0 +1,251 @@
+// Mock data for all BMS pages — realistic demo data
+
+export const platformStats = {
+  totalFranchises: 3,
+  totalBranches: 8,
+  totalRevenueMTD: 2840000,
+  totalRevenueYTD: 18200000,
+  totalBookingsMTD: 42,
+  globalConversionRate: 18.2,
+  totalOutstandingDues: 415000,
+};
+
+export const franchiseData = [
+  { id: 'f1', name: 'Prasad Food Divine', code: 'PFD', city: 'Hyderabad', admin: 'Prasad Rao', branches: 3, revenue: 2840000, status: 'Active' },
+  { id: 'f2', name: 'Royal Banquets', code: 'RB', city: 'Pune', admin: 'Vikram Shah', branches: 2, revenue: 1650000, status: 'Active' },
+  { id: 'f3', name: 'Grand Celebrations', code: 'GC', city: 'Bangalore', admin: 'Meera Nair', branches: 3, revenue: 1980000, status: 'Active' },
+];
+
+export const branchData = [
+  { id: 'b1', name: 'Banjara Hills Branch', franchise: 'Prasad Food Divine', city: 'Hyderabad', halls: 2, bookingsMTD: 24, revenue: 1200000, occupancy: 78, manager: 'Arjun Reddy', status: 'Active' },
+  { id: 'b2', name: 'Kukatpally Branch', franchise: 'Prasad Food Divine', city: 'Hyderabad', halls: 2, bookingsMTD: 12, revenue: 840000, occupancy: 62, manager: 'Sneha Gupta', status: 'Active' },
+  { id: 'b3', name: 'Madhapur Branch', franchise: 'Prasad Food Divine', city: 'Hyderabad', halls: 3, bookingsMTD: 6, revenue: 800000, occupancy: 55, manager: 'Rohit Kumar', status: 'Active' },
+];
+
+export const hallData = [
+  { id: 'h1', name: 'Grand Ballroom', code: 'GB-01', type: 'Indoor', capacity: 500, basePrice: 150000, branch: 'Banjara Hills', status: 'Active' },
+  { id: 'h2', name: 'Open Air Lawn', code: 'OAL-01', type: 'Outdoor', capacity: 800, basePrice: 120000, branch: 'Banjara Hills', status: 'Active' },
+  { id: 'h3', name: 'Royal Hall', code: 'RH-01', type: 'Indoor', capacity: 300, basePrice: 100000, branch: 'Kukatpally', status: 'Active' },
+  { id: 'h4', name: 'Rooftop Terrace', code: 'RT-01', type: 'Rooftop', capacity: 150, basePrice: 75000, branch: 'Kukatpally', status: 'Active' },
+];
+
+export const leadData = [
+  { id: 'L001', client: 'Rajesh Kumar', phone: '+91-9876543210', eventType: 'Wedding', preferredDate: '2026-04-15', guests: 500, source: 'Instagram', status: 'Hot', aiScore: 78, assignedTo: 'Kavya Singh', created: '2026-02-20' },
+  { id: 'L002', client: 'Priya Sharma', phone: '+91-9876543211', eventType: 'Reception', preferredDate: '2026-05-10', guests: 300, source: 'Referral (Client)', status: 'Warm', aiScore: 62, assignedTo: 'Anil Verma', created: '2026-02-22' },
+  { id: 'L003', client: 'Amit Patel', phone: '+91-9876543212', eventType: 'Corporate', preferredDate: '2026-03-25', guests: 150, source: 'Google Ads', status: 'New', aiScore: 45, assignedTo: 'Kavya Singh', created: '2026-02-25' },
+  { id: 'L004', client: 'Sunita Devi', phone: '+91-9876543213', eventType: 'Birthday', preferredDate: '2026-04-02', guests: 100, source: 'Walk-in', status: 'Contacted', aiScore: 55, assignedTo: 'Anil Verma', created: '2026-02-18' },
+  { id: 'L005', client: 'Vikram Reddy', phone: '+91-9876543214', eventType: 'Engagement', preferredDate: '2026-06-20', guests: 250, source: 'WeddingWire', status: 'Site Visit Scheduled', aiScore: 68, assignedTo: 'Kavya Singh', created: '2026-02-15' },
+  { id: 'L006', client: 'Deepa Nair', phone: '+91-9876543215', eventType: 'Wedding', preferredDate: '2026-05-05', guests: 400, source: 'Facebook', status: 'Proposal Sent', aiScore: 72, assignedTo: 'Anil Verma', created: '2026-02-10' },
+  { id: 'L007', client: 'Ravi Shankar', phone: '+91-9876543216', eventType: 'Anniversary', preferredDate: '2026-04-28', guests: 200, source: 'Referral (Vendor)', status: 'Negotiation', aiScore: 80, assignedTo: 'Kavya Singh', created: '2026-02-05' },
+  { id: 'L008', client: 'Meena Kumari', phone: '+91-9876543217', eventType: 'Sangeet', preferredDate: '2026-03-30', guests: 350, source: 'JustDial', status: 'Converted', aiScore: 92, assignedTo: 'Anil Verma', created: '2026-01-28' },
+];
+
+export const bookingData = [
+  { id: 'BK001', client: 'Rajesh Kumar', eventType: 'Wedding', hall: 'Grand Ballroom', date: '2026-04-15', guests: 500, total: 495000, advance: 150000, balance: 345000, status: 'Confirmed' },
+  { id: 'BK002', client: 'Priya Sharma', eventType: 'Reception', hall: 'Open Air Lawn', date: '2026-05-10', guests: 300, total: 280000, advance: 84000, balance: 196000, status: 'Confirmed' },
+  { id: 'BK003', client: 'Meena Kumari', eventType: 'Sangeet', hall: 'Royal Hall', date: '2026-03-30', guests: 200, total: 185000, advance: 55500, balance: 129500, status: 'Tentative' },
+  { id: 'BK004', client: 'Arun Mehta', eventType: 'Corporate', hall: 'Rooftop Terrace', date: '2026-03-15', guests: 100, total: 120000, advance: 60000, balance: 60000, status: 'Confirmed' },
+  { id: 'BK005', client: 'Sridevi Iyer', eventType: 'Wedding', hall: 'Grand Ballroom', date: '2026-02-20', guests: 450, total: 520000, advance: 520000, balance: 0, status: 'Completed' },
+];
+
+export const eventData = [
+  { id: 'EV001', name: 'Kumar Wedding', hall: 'Grand Ballroom', date: '2026-04-15', guests: 500, checklistDone: 7, checklistTotal: 10, staff: 5, status: 'Upcoming' },
+  { id: 'EV002', name: 'Sharma Reception', hall: 'Open Air Lawn', date: '2026-05-10', guests: 300, checklistDone: 3, checklistTotal: 8, staff: 4, status: 'Upcoming' },
+  { id: 'EV003', name: 'Mehta Corp Event', hall: 'Rooftop Terrace', date: '2026-03-15', guests: 100, checklistDone: 6, checklistTotal: 6, staff: 3, status: 'Upcoming' },
+  { id: 'EV004', name: 'Iyer Wedding', hall: 'Grand Ballroom', date: '2026-02-20', guests: 450, checklistDone: 12, checklistTotal: 12, staff: 6, status: 'Completed' },
+];
+
+export const invoiceData = [
+  { id: 'INV-PFD-2026-0042', bookingId: 'BK001', client: 'Rajesh Kumar', eventDate: '2026-04-15', subtotal: 450000, tax: 45000, total: 495000, paid: 150000, due: 345000, status: 'Partial' },
+  { id: 'INV-PFD-2026-0041', bookingId: 'BK002', client: 'Priya Sharma', eventDate: '2026-05-10', subtotal: 254545, tax: 25455, total: 280000, paid: 84000, due: 196000, status: 'Partial' },
+  { id: 'INV-PFD-2026-0040', bookingId: 'BK005', client: 'Sridevi Iyer', eventDate: '2026-02-20', subtotal: 472727, tax: 47273, total: 520000, paid: 520000, due: 0, status: 'Paid' },
+];
+
+export const paymentData = [
+  { id: 'PAY001', bookingId: 'BK001', client: 'Rajesh Kumar', amount: 150000, date: '2026-02-20', mode: 'UPI', reference: 'UPI-XXXX-1234', collectedBy: 'Arjun Reddy' },
+  { id: 'PAY002', bookingId: 'BK002', client: 'Priya Sharma', amount: 84000, date: '2026-02-22', mode: 'Bank Transfer', reference: 'NEFT-5678', collectedBy: 'Arjun Reddy' },
+  { id: 'PAY003', bookingId: 'BK005', client: 'Sridevi Iyer', amount: 260000, date: '2026-01-15', mode: 'Cheque', reference: 'CHQ-9012', collectedBy: 'Sneha Gupta' },
+  { id: 'PAY004', bookingId: 'BK005', client: 'Sridevi Iyer', amount: 260000, date: '2026-02-15', mode: 'Cash', reference: '-', collectedBy: 'Arjun Reddy' },
+];
+
+export const inventoryData = [
+  { id: 'RM001', name: 'Basmati Rice', category: 'Raw Material', unit: 'Kg', currentStock: 45, minStock: 100, pricePerUnit: 85, stockValue: 3825, status: 'Low Stock' },
+  { id: 'RM002', name: 'Cooking Oil', category: 'Raw Material', unit: 'Litre', currentStock: 200, minStock: 50, pricePerUnit: 120, stockValue: 24000, status: 'In Stock' },
+  { id: 'RM003', name: 'Sugar', category: 'Raw Material', unit: 'Kg', currentStock: 30, minStock: 80, pricePerUnit: 45, stockValue: 1350, status: 'Low Stock' },
+  { id: 'RM004', name: 'Flour (Maida)', category: 'Raw Material', unit: 'Kg', currentStock: 150, minStock: 100, pricePerUnit: 38, stockValue: 5700, status: 'In Stock' },
+  { id: 'RM005', name: 'Paneer', category: 'Raw Material', unit: 'Kg', currentStock: 25, minStock: 20, pricePerUnit: 320, stockValue: 8000, status: 'In Stock' },
+];
+
+export const vendorData = [
+  { id: 'V001', name: 'Star Decorators', type: 'Decoration', contact: 'Sunil Kumar', phone: '+91-9000000050', rate: 25000, rating: 4.5, status: 'Active' },
+  { id: 'V002', name: 'Capture Moments', type: 'Photography', contact: 'Ravi Photography', phone: '+91-9000000051', rate: 35000, rating: 4.8, status: 'Active' },
+  { id: 'V003', name: 'Sound Masters', type: 'AV & Sound', contact: 'Kiran AV', phone: '+91-9000000052', rate: 15000, rating: 4.2, status: 'Active' },
+  { id: 'V004', name: 'Fresh Grains Supplier', type: 'Catering', contact: 'Lakshmi Foods', phone: '+91-9000000053', rate: 0, rating: 4.0, status: 'Active' },
+];
+
+export const menuData = [
+  { id: 'M001', name: 'Veg Premium Package', type: 'Veg', pricePerPlate: 850, minPlates: 100, applicableTo: 'All Branches', status: 'Active' },
+  { id: 'M002', name: 'Non-Veg Royal Package', type: 'Non-Veg', pricePerPlate: 1200, minPlates: 100, applicableTo: 'All Branches', status: 'Active' },
+  { id: 'M003', name: 'Mixed Deluxe Package', type: 'Mixed', pricePerPlate: 1050, minPlates: 150, applicableTo: 'Banjara Hills', status: 'Active' },
+  { id: 'M004', name: 'Jain Special Package', type: 'Jain', pricePerPlate: 900, minPlates: 50, applicableTo: 'All Branches', status: 'Active' },
+];
+
+export const decorData = [
+  { id: 'D001', name: 'Royal Floral — Premium', theme: 'Royal', price: 45000, suitableFor: ['Wedding', 'Reception'], status: 'Active' },
+  { id: 'D002', name: 'Minimalist Elegance', theme: 'Minimalist', price: 25000, suitableFor: ['Corporate', 'Birthday'], status: 'Active' },
+  { id: 'D003', name: 'Garden Paradise', theme: 'Garden', price: 55000, suitableFor: ['Wedding', 'Engagement'], status: 'Active' },
+  { id: 'D004', name: 'Traditional Grand', theme: 'Traditional', price: 60000, suitableFor: ['Wedding', 'Sangeet'], status: 'Active' },
+];
+
+export const staffData = [
+  { id: 'S001', name: 'Arjun Reddy', role: 'Branch Manager', branch: 'Banjara Hills', email: 'arjun@pfd.com', type: 'Permanent', status: 'Active', joined: '2024-01-15' },
+  { id: 'S002', name: 'Kavya Singh', role: 'Sales Executive', branch: 'Banjara Hills', email: 'kavya@pfd.com', type: 'Permanent', status: 'Active', joined: '2024-03-10' },
+  { id: 'S003', name: 'Anil Verma', role: 'Sales Executive', branch: 'Banjara Hills', email: 'anil@pfd.com', type: 'Permanent', status: 'Active', joined: '2024-06-01' },
+  { id: 'S004', name: 'Raju Cook', role: 'Kitchen Manager', branch: 'Banjara Hills', email: 'raju@pfd.com', type: 'Permanent', status: 'Active', joined: '2024-02-20' },
+  { id: 'S005', name: 'Vijay Kumar', role: 'Operations Staff', branch: 'Banjara Hills', email: 'vijay@pfd.com', type: 'Permanent', status: 'Active', joined: '2024-04-15' },
+  { id: 'S006', name: 'Priya Temp', role: 'Operations Staff', branch: 'Banjara Hills', email: 'priya.t@pfd.com', type: 'Temporary', status: 'Active', joined: '2026-02-27' },
+];
+
+export const reviewData = [
+  { id: 'R001', reviewer: 'Priya S.', rating: 5, event: 'Wedding', date: '2026-02-22', sentiment: 'Positive', text: 'Absolutely stunning venue! The staff went above and beyond. The food was incredible.', responded: true },
+  { id: 'R002', reviewer: 'Amit K.', rating: 4, event: 'Corporate', date: '2026-02-18', sentiment: 'Positive', text: 'Great setup for our annual meet. Good AV setup and catering.', responded: false },
+  { id: 'R003', reviewer: 'Sunita D.', rating: 3, event: 'Birthday', date: '2026-02-15', sentiment: 'Neutral', text: 'Decent experience but parking was an issue. Food quality was average.', responded: true },
+  { id: 'R004', reviewer: 'Ravi M.', rating: 5, event: 'Reception', date: '2026-02-10', sentiment: 'Positive', text: 'Best venue in Hyderabad! Would recommend to everyone.', responded: false },
+];
+
+export const pricingRules = [
+  { id: 'PR001', name: 'Diwali Festival Surcharge', type: 'Festival', startDate: '2026-10-28', endDate: '2026-11-03', multiplier: 1.5, halls: 'All', status: 'Active' },
+  { id: 'PR002', name: 'Peak Wedding Season', type: 'Peak Season', startDate: '2026-11-01', endDate: '2027-02-28', multiplier: 1.3, halls: 'All', status: 'Active' },
+  { id: 'PR003', name: 'Weekend Premium', type: 'Weekend', startDate: null, endDate: null, multiplier: 1.15, halls: 'All', status: 'Active' },
+  { id: 'PR004', name: 'Monsoon Discount', type: 'Off-Peak Discount', startDate: '2026-07-01', endDate: '2026-08-31', multiplier: 0.85, halls: 'All', status: 'Active' },
+];
+
+export const purchaseOrders = [
+  { id: 'PO-PFD-BH-2026-018', vendor: 'Fresh Grains Supplier', items: 3, totalAmount: 15500, status: 'Delivered', expectedDelivery: '2026-02-25', approvedBy: 'Arjun Reddy' },
+  { id: 'PO-PFD-BH-2026-019', vendor: 'Fresh Grains Supplier', items: 5, totalAmount: 28000, status: 'Sent', expectedDelivery: '2026-03-02', approvedBy: 'Arjun Reddy' },
+  { id: 'PO-PFD-BH-2026-020', vendor: 'Star Decorators', items: 2, totalAmount: 8000, status: 'Draft', expectedDelivery: '2026-03-10', approvedBy: '-' },
+];
+
+export const chartData = {
+  monthlyRevenue: [
+    { month: 'Sep', revenue: 1800000 }, { month: 'Oct', revenue: 2200000 },
+    { month: 'Nov', revenue: 2800000 }, { month: 'Dec', revenue: 3200000 },
+    { month: 'Jan', revenue: 2600000 }, { month: 'Feb', revenue: 2840000 },
+  ],
+  leadFunnel: [
+    { stage: 'New', count: 48 }, { stage: 'Contacted', count: 35 },
+    { stage: 'Site Visit', count: 22 }, { stage: 'Proposal', count: 18 },
+    { stage: 'Negotiation', count: 14 }, { stage: 'Hot', count: 10 },
+    { stage: 'Converted', count: 8 },
+  ],
+  branchRevenue: [
+    { branch: 'Banjara Hills', revenue: 1200000 },
+    { branch: 'Kukatpally', revenue: 840000 },
+    { branch: 'Madhapur', revenue: 800000 },
+  ],
+  occupancy: [
+    { hall: 'Grand Ballroom', occupancy: 82 },
+    { hall: 'Open Air Lawn', occupancy: 74 },
+    { hall: 'Royal Hall', occupancy: 68 },
+    { hall: 'Rooftop Terrace', occupancy: 55 },
+  ],
+};
+
+export const auditLogs = [
+  { id: 'AL001', user: 'Arjun Reddy', role: 'Branch Manager', action: 'booking.confirmed', entity: 'Booking BK001', date: '2026-02-20 10:30 AM' },
+  { id: 'AL002', user: 'Kavya Singh', role: 'Sales Executive', action: 'lead.status_changed', entity: 'Lead L001', date: '2026-02-20 09:15 AM' },
+  { id: 'AL003', user: 'Arjun Reddy', role: 'Branch Manager', action: 'payment.recorded', entity: 'Payment PAY001', date: '2026-02-20 11:00 AM' },
+  { id: 'AL004', user: 'Raju Cook', role: 'Kitchen Manager', action: 'inventory.restocked', entity: 'Basmati Rice', date: '2026-02-19 03:00 PM' },
+];
+
+export const calendarEvents = [
+  { id: 'c1', title: 'Kumar Wedding', hall: 'Grand Ballroom', date: '2026-04-15', status: 'confirmed', guests: 500 },
+  { id: 'c2', title: 'Sharma Reception', hall: 'Open Air Lawn', date: '2026-05-10', status: 'confirmed', guests: 300 },
+  { id: 'c3', title: 'Kumari Sangeet', hall: 'Royal Hall', date: '2026-03-30', status: 'tentative', guests: 200 },
+  { id: 'c4', title: 'Mehta Corp Event', hall: 'Rooftop Terrace', date: '2026-03-15', status: 'confirmed', guests: 100 },
+  { id: 'c5', title: 'Iyer Wedding', hall: 'Grand Ballroom', date: '2026-02-20', status: 'completed', guests: 450 },
+];
+
+export const sidebarMenus = {
+  super_admin: [
+    { icon: '⬡', label: 'Platform Dashboard', href: '/dashboard/platform' },
+    { icon: '🏢', label: 'Franchises', href: '/franchises' },
+    { icon: '🏪', label: 'Branches', href: '/branches' },
+    { icon: '👥', label: 'Users & Staff', href: '/users' },
+    { icon: '📊', label: 'Analytics', href: '/analytics' },
+    { icon: '🔍', label: 'Audit Logs', href: '/audit-logs' },
+    { icon: '⚙️', label: 'Global Settings', href: '/settings/global' },
+  ],
+  franchise_admin: [
+    { icon: '⬡', label: 'Franchise Dashboard', href: '/dashboard/franchise' },
+    { icon: '🏪', label: 'Branches', href: '/branches' },
+    { icon: '🎯', label: 'Leads', href: '/leads' },
+    { icon: '📋', label: 'Bookings', href: '/bookings' },
+    { icon: '👥', label: 'Staff', href: '/staff' },
+    { icon: '📦', label: 'Inventory', href: '/inventory' },
+    { icon: '🍽️', label: 'Menus', href: '/menus' },
+    { icon: '🤝', label: 'Vendors', href: '/vendors' },
+    { icon: '📊', label: 'Analytics', href: '/analytics' },
+    { icon: '💬', label: 'Reviews', href: '/reviews' },
+    { icon: '⚙️', label: 'Franchise Settings', href: '/settings/franchise' },
+  ],
+  branch_manager: [
+    { icon: '⬡', label: 'Branch Dashboard', href: '/dashboard/branch' },
+    { icon: '🎯', label: 'Leads', href: '/leads' },
+    { icon: '📋', label: 'Bookings', href: '/bookings' },
+    { icon: '🎉', label: 'Events', href: '/events' },
+    { icon: '📅', label: 'Calendar', href: '/calendar' },
+    { icon: '🍽️', label: 'Menus', href: '/menus' },
+    { icon: '🎨', label: 'Decor Packages', href: '/decor' },
+    { icon: '🤝', label: 'Vendors', href: '/vendors' },
+    { icon: '💰', label: 'Billing', href: '/billing' },
+    { icon: '💳', label: 'Payments', href: '/payments' },
+    { icon: '📦', label: 'Inventory', href: '/inventory' },
+    { icon: '🛒', label: 'Purchase Orders', href: '/purchase-orders' },
+    { icon: '👥', label: 'Staff', href: '/staff' },
+    { icon: '💲', label: 'Dynamic Pricing', href: '/dynamic-pricing' },
+    { icon: '📊', label: 'Analytics', href: '/analytics' },
+    { icon: '💬', label: 'Reviews', href: '/reviews' },
+    { icon: '⚙️', label: 'Branch Settings', href: '/settings/branch' },
+  ],
+  sales_executive: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/branch' },
+    { icon: '🎯', label: 'Leads', href: '/leads' },
+    { icon: '📋', label: 'Bookings', href: '/bookings' },
+    { icon: '🎉', label: 'Events', href: '/events' },
+    { icon: '📅', label: 'Calendar', href: '/calendar' },
+    { icon: '📊', label: 'Analytics', href: '/analytics' },
+  ],
+  kitchen_manager: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/branch' },
+    { icon: '🎉', label: 'Events', href: '/events' },
+    { icon: '🍽️', label: 'Menus', href: '/menus' },
+    { icon: '📦', label: 'Inventory', href: '/inventory' },
+    { icon: '🛒', label: 'Purchase Orders', href: '/purchase-orders' },
+    { icon: '🤝', label: 'Vendors', href: '/vendors' },
+  ],
+  accountant: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/branch' },
+    { icon: '📋', label: 'Bookings', href: '/bookings' },
+    { icon: '💰', label: 'Billing', href: '/billing' },
+    { icon: '💳', label: 'Payments', href: '/payments' },
+    { icon: '📊', label: 'Analytics', href: '/analytics' },
+  ],
+  operations_staff: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/branch' },
+    { icon: '🎉', label: 'Events', href: '/events' },
+    { icon: '🤝', label: 'Vendors', href: '/vendors' },
+    { icon: '🎨', label: 'Decor Packages', href: '/decor' },
+  ],
+  receptionist: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/branch' },
+    { icon: '🎯', label: 'Leads', href: '/leads' },
+  ],
+  customer: [
+    { icon: '⬡', label: 'Dashboard', href: '/dashboard/customer' },
+    { icon: '📋', label: 'My Bookings', href: '/bookings' },
+    { icon: '📅', label: 'Calendar', href: '/calendar' },
+    { icon: '🎨', label: 'Venues & Decor', href: '/decor' },
+    { icon: '💬', label: 'Reviews', href: '/reviews' },
+  ],
+};
