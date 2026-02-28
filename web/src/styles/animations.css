@@ -21,7 +21,7 @@
 
 /* ── DECORATIVE ───────────────────────────── */
 @keyframes drawLine { from{ width:0; } to{ width:100%; } }
-@keyframes shimmer { 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
+@keyframes shimmer  { 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
 @keyframes scrollBounce { 0%,100%{ transform:translateY(0); opacity:1; } 50%{ transform:translateY(10px); opacity:.4; } }
 @keyframes scanLine { from{ background-position:0 -100%; } to{ background-position:0 200%; } }
 
@@ -34,3 +34,67 @@
 
 /* ── TICKER ───────────────────────────────── */
 @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ── SKELETON SHIMMER ────────────────────── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* ── SKELETON UTILITY ───────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 0%,
+    rgba(255,255,255,0.12) 50%,
+    var(--color-border) 100%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ── PAGE TRANSITION ─────────────────────── */
+.page-enter {
+  animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── BOUNCE DOT LOADER ────────────────────── */
+@keyframes bounceDot {
+  0%, 80%, 100% { transform: scale(0); }
+  40%           { transform: scale(1); }
+}
+.bounce-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: bounceDot 1.4s ease-in-out infinite both;
+}
+.bounce-dot:nth-child(2) { animation-delay: 0.16s; }
+.bounce-dot:nth-child(3) { animation-delay: 0.32s; }
+
+/* ── GRADIENT TEXT ANIMATION ─────────────── */
+.animated-gradient-text {
+  background: linear-gradient(270deg, #E8B84B, #C9921A, #7B1C1C, #C9603A, #E8B84B);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 8s ease infinite;
+}
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+/* ── HOVER LIFT ──────────────────────────── */
+.hover-lift { transition: transform 0.25s cubic-bezier(0,0,0.2,1), box-shadow 0.25s cubic-bezier(0,0,0.2,1); }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+/* ── FOCUS RING ──────────────────────────── */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}

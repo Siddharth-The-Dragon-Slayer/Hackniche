@@ -4,32 +4,38 @@ import { Save } from 'lucide-react';
 export default function BranchSettingsPage() {
   return (
     <div>
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Branch Settings</h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Banjara Hills Branch — Configuration</p>
+      <div className="page-header" style={{ marginBottom: 32 }}>
+        <div className="page-header-left">
+          <h1>Branch Settings</h1>
+          <p>Banjara Hills Branch — Configuration</p>
+        </div>
       </div>
 
-      <div className="card" style={{ padding: 32, maxWidth: 800 }}>
+      <div className="card form-card">
         <form style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', borderBottom: '1px solid var(--color-border)', paddingBottom: 12 }}>Branch Information</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Branch Name</label><input className="input" defaultValue="Banjara Hills Branch" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Branch Code</label><input className="input" defaultValue="PFD-BH" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Address</label><input className="input" defaultValue="Road No. 12, Banjara Hills" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>City</label><input className="input" defaultValue="Hyderabad" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Contact Phone</label><input className="input" defaultValue="+91-40-12345678" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Contact Email</label><input className="input" defaultValue="bh@prasadfooddivine.com" /></div>
+          <div className="form-section-title">Branch Information</div>
+          <div className="form-grid">
+            <div><label className="form-label">Branch Name</label><input className="input" defaultValue="Banjara Hills Branch" /></div>
+            <div><label className="form-label">Branch Code</label><input className="input" defaultValue="PFD-BH" /></div>
+            <div><label className="form-label">Address</label><input className="input" defaultValue="Road No. 12, Banjara Hills" /></div>
+            <div><label className="form-label">City</label><input className="input" defaultValue="Hyderabad" /></div>
+            <div><label className="form-label">Contact Phone</label><input className="input" defaultValue="+91-40-12345678" /></div>
+            <div><label className="form-label">Contact Email</label><input className="input" defaultValue="bh@prasadfooddivine.com" /></div>
+            <div><label className="form-label">Opening Time</label><input className="input" type="time" defaultValue="08:00" /></div>
+            <div><label className="form-label">Closing Time</label><input className="input" type="time" defaultValue="22:00" /></div>
           </div>
 
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', borderBottom: '1px solid var(--color-border)', paddingBottom: 12 }}>Billing Details</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>GST Number</label><input className="input" defaultValue="36ABCDE9999F1Z5" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Default Tax %</label><input className="input" type="number" defaultValue="10" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Bank Account</label><input className="input" defaultValue="XXXXXXXX" /></div>
-            <div><label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>Bank IFSC</label><input className="input" defaultValue="HDFC0000001" /></div>
+          <div className="form-section-title">Billing Details</div>
+          <div className="form-grid">
+            <div><label className="form-label">GST Number</label><input className="input" defaultValue="36ABCDE9999F1Z5" /></div>
+            <div><label className="form-label">Default Tax %</label><input className="input" type="number" defaultValue="10" /></div>
+            <div><label className="form-label">Default Advance %</label><input className="input" type="number" defaultValue="30" /></div>
+            <div><label className="form-label">Bank Account</label><input className="input" defaultValue="XXXXXXXX" /></div>
+            <div><label className="form-label">Bank IFSC</label><input className="input" defaultValue="HDFC0000001" /></div>
+            <div><label className="form-label">Bank Name</label><input className="input" defaultValue="HDFC Bank" /></div>
           </div>
 
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', borderBottom: '1px solid var(--color-border)', paddingBottom: 12 }}>Notification Preferences</h3>
+          <div className="form-section-title">Notification Preferences</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {['New lead notifications', 'Booking confirmations', 'Payment receipts', 'Follow-up reminders', 'Low stock alerts'].map((n, i) => (
               <label key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: 'var(--color-text-body)', cursor: 'pointer' }}>
@@ -38,7 +44,9 @@ export default function BranchSettingsPage() {
             ))}
           </div>
 
-          <button type="button" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}><Save size={16} /> Save Settings</button>
+          <div className="form-actions">
+            <button type="button" className="btn btn-primary"><Save size={16} /> Save Settings</button>
+          </div>
         </form>
       </div>
     </div>

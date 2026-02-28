@@ -20,18 +20,20 @@ export default function BranchDashboard() {
   const hotLeads = leadData.filter(l => l.aiScore >= 70).slice(0, 3);
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Branch Dashboard</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 15, marginTop: 4 }}>Banjara Hills Branch — Welcome back, Arjun!</p>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      <motion.div variants={fadeUp} className="page-header" style={{ marginBottom: 32 }}>
+        <div className="page-header-left">
+          <h1>Branch Dashboard</h1>
+          <p>Banjara Hills Branch — Welcome back, Arjun!</p>
         </div>
-        <Link href="/leads/create" className="btn btn-primary" style={{ textDecoration: 'none' }}>
-          <Zap size={16} /> New Lead
-        </Link>
-      </div>
+        <div className="page-actions">
+          <Link href="/leads/create" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+            <Zap size={16} /> New Lead
+          </Link>
+        </div>
+      </motion.div>
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+      <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="kpi-row" style={{ marginBottom: 32 }}>
         {kpis.map((k, i) => (
           <motion.div key={i} custom={i} variants={fadeUp} className="kpi-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -44,7 +46,7 @@ export default function BranchDashboard() {
         ))}
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+      <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginBottom: 32 }}>
         <div className="card" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 20 }}>Revenue Trend</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -65,55 +67,52 @@ export default function BranchDashboard() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {hotLeads.map(l => (
-              <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 12, borderRadius: 12, background: 'var(--color-primary-ghost)' }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)' }}>{l.client}</div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{l.eventType} &middot; {l.guests} guests</div>
+              <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 12, borderRadius: 12, background: 'var(--color-primary-ghost)', gap: 8 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.client}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{l.eventType} · {l.guests} guests</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: l.aiScore >= 70 ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)' }}>{l.aiScore}</div>
-                </div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: l.aiScore >= 70 ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>{l.aiScore}</div>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        {/* Upcoming Events */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)' }}>Upcoming Events</h3>
             <Link href="/events" style={{ fontSize: 13, color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>View All →</Link>
           </div>
           {upcomingEvents.map(e => (
-            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)' }}>{e.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.hall} &middot; {e.guests} guests &middot; {e.date}</div>
+            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--color-border)', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.hall} · {e.guests} guests · {e.date}</div>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.checklistDone}/{e.checklistTotal} done</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', flexShrink: 0 }}>{e.checklistDone}/{e.checklistTotal} done</div>
             </div>
           ))}
         </div>
 
-        {/* Recent Bookings */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)' }}>Recent Bookings</h3>
             <Link href="/bookings" style={{ fontSize: 13, color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>View All →</Link>
           </div>
           {bookingData.slice(0, 3).map(b => (
-            <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)' }}>{b.client}</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{b.hall} &middot; {b.date}</div>
+            <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--color-border)', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.client}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{b.hall} · {b.date}</div>
               </div>
-              <span className={`badge ${b.status === 'Confirmed' ? 'badge-green' : 'badge-accent'}`}>{b.status}</span>
+              <span className={`badge ${b.status === 'Confirmed' ? 'badge-green' : 'badge-accent'}`} style={{ flexShrink: 0 }}>{b.status}</span>
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
+

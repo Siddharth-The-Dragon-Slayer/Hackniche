@@ -16,12 +16,12 @@ export default function ContactPage() {
 
       <section className="section">
         <div className="container" style={{ maxWidth: 1000 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Form */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 24 }}>Send us a message</h2>
               <form style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input className="input" placeholder="First Name" />
                   <input className="input" placeholder="Last Name" />
                 </div>

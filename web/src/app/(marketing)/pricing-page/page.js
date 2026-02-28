@@ -35,7 +35,7 @@ export default function PricingPage() {
 
       <section className="section">
         <div className="container" style={{ maxWidth: 1100 }}>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28 }}>
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-7">
             {plans.map((p, i) => (
               <motion.div key={i} custom={i} variants={fadeUp} className="card" style={{ padding: 36, display: 'flex', flexDirection: 'column', border: p.popular ? '2px solid var(--color-accent)' : undefined, position: 'relative' }}>
                 {p.popular && <div className="badge badge-accent" style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }}>Most Popular</div>}

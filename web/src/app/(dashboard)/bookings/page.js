@@ -1,59 +1,112 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { bookingData } from '@/lib/mock-data';
-import { Plus, Search, Filter, Download, CalendarDays } from 'lucide-react';
+import DataTable from '@/components/ui/DataTable';
+import Tabs from '@/components/ui/Tabs';
+import SearchRow from '@/components/ui/SearchRow';
+import Badge from '@/components/ui/Badge';
+import { staggerContainer, fadeUp } from '@/lib/motion-variants';
+import { Plus, Download, CalendarDays } from 'lucide-react';
 
-const statuses = ['All', 'Confirmed', 'Tentative', 'Completed', 'Cancelled'];
+const STATUSES = ['All', 'Confirmed', 'Tentative', 'Completed', 'Cancelled'];
+
+const STATUS_VARIANT = {
+  Confirmed: 'green',
+  Completed: 'primary',
+  Tentative: 'accent',
+  Cancelled: 'red',
+};
+
+const columns = [
+  { key: 'id',        label: 'ID',      render: v => <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{v}</span> },
+  { key: 'client',    label: 'Client',  render: v => <span style={{ fontWeight: 600, color: 'var(--color-text-h)' }}>{v}</span> },
+  { key: 'eventType', label: 'Event'  },
+  { key: 'hall',      label: 'Hall'   },
+  { key: 'date',      label: 'Date'   },
+  { key: 'guests',    label: 'Guests' },
+  { key: 'total',     label: 'Total',   render: v => <span style={{ fontFamily: 'var(--font-mono)' }}>₹{(v/1000).toFixed(0)}K</span> },
+  { key: 'balance',   label: 'Balance', render: (v) => <span style={{ fontFamily: 'var(--font-mono)', color: v > 0 ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>₹{(v/1000).toFixed(0)}K</span> },
+  { key: 'status',    label: 'Status',  render: v => <Badge variant={STATUS_VARIANT[v] || 'neutral'}>{v}</Badge> },
+];
 
 export default function BookingsPage() {
   const [activeTab, setActiveTab] = useState('All');
-  const filtered = activeTab === 'All' ? bookingData : bookingData.filter(b => b.status === activeTab);
+  const [search, setSearch] = useState('');
+
+  const filtered = bookingData
+    .filter(b => activeTab === 'All' || b.status === activeTab)
+    .filter(b => !search || b.client.toLowerCase().includes(search.toLowerCase()) || b.id.toLowerCase().includes(search.toLowerCase()));
+
+  const tabs = STATUSES.map(s => ({
+    key: s, label: s,
+    count: s === 'All' ? bookingData.length : bookingData.filter(b => b.status === s).length,
+  }));
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Bookings</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginTop: 4 }}>{bookingData.length} total bookings</p>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      {/* Page Header */}
+      <motion.div variants={fadeUp} className="page-header" style={{ marginBottom: 24 }}>
+        <div className="page-header-left">
+          <h1>Bookings</h1>
+          <p>{bookingData.length} total bookings</p>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/calendar" className="btn btn-outline btn-sm" style={{ textDecoration: 'none' }}><CalendarDays size={14} /> Calendar</Link>
+        <div className="page-actions">
+          <Link href="/calendar" className="btn btn-outline btn-sm" style={{ textDecoration: 'none' }}>
+            <CalendarDays size={14} /> Calendar
+          </Link>
           <button className="btn btn-outline btn-sm"><Download size={14} /> Export</button>
-          <Link href="/bookings/create" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}><Plus size={14} /> New Booking</Link>
+          <Link href="/bookings/create" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+            <Plus size={14} /> New Booking
+          </Link>
         </div>
-      </div>
+      </motion.div>
 
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-          <input className="input" placeholder="Search bookings..." style={{ paddingLeft: 40 }} />
-        </div>
-      </div>
+      {/* Search */}
+      <motion.div variants={fadeUp}>
+        <SearchRow
+          placeholder="Search bookings by client or ID..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ marginBottom: 0 }}
+        />
+      </motion.div>
 
-      <div className="tab-list">
-        {statuses.map(s => (
-          <div key={s} className={`tab-item ${activeTab === s ? 'active' : ''}`} onClick={() => setActiveTab(s)}>{s}</div>
-        ))}
-      </div>
+      {/* Tabs */}
+      <motion.div variants={fadeUp}>
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+      </motion.div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table className="data-table">
-          <thead><tr><th>ID</th><th>Client</th><th>Event</th><th>Hall</th><th>Date</th><th>Guests</th><th>Total</th><th>Balance</th><th>Status</th></tr></thead>
-          <tbody>
-            {filtered.map(b => (
-              <tr key={b.id}>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{b.id}</td>
-                <td style={{ fontWeight: 600, color: 'var(--color-text-h)' }}>{b.client}</td>
-                <td>{b.eventType}</td><td>{b.hall}</td><td>{b.date}</td><td>{b.guests}</td>
-                <td style={{ fontFamily: 'var(--font-mono)' }}>₹{(b.total/1000).toFixed(0)}K</td>
-                <td style={{ fontFamily: 'var(--font-mono)', color: b.balance > 0 ? 'var(--color-danger)' : 'var(--color-success)' }}>₹{(b.balance/1000).toFixed(0)}K</td>
-                <td><span className={`badge ${b.status === 'Confirmed' ? 'badge-green' : b.status === 'Completed' ? 'badge-primary' : 'badge-accent'}`}>{b.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      {/* Table (desktop) + Cards (mobile) */}
+      <motion.div variants={fadeUp}>
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyField="id"
+          emptyMessage="No bookings match your filter"
+          mobileRender={(row) => (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-h)' }}>{row.client}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+                    {row.eventType} · {row.hall}
+                  </div>
+                </div>
+                <Badge variant={STATUS_VARIANT[row.status] || 'neutral'}>{row.status}</Badge>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12, color: 'var(--color-text-muted)' }}>
+                <span>📅 {row.date}</span>
+                <span>👥 {row.guests} guests</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>₹{(row.total/1000).toFixed(0)}K</span>
+                {row.balance > 0 && <span style={{ color: 'var(--color-danger)', fontFamily: 'var(--font-mono)' }}>Due: ₹{(row.balance/1000).toFixed(0)}K</span>}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>{row.id}</div>
+            </div>
+          )}
+        />
+      </motion.div>
+    </motion.div>
   );
 }

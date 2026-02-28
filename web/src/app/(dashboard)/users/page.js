@@ -1,34 +1,56 @@
 'use client';
+import { motion } from 'framer-motion';
 import { staffData } from '@/lib/mock-data';
-import { Plus } from 'lucide-react';
+import DataTable from '@/components/ui/DataTable';
+import Badge from '@/components/ui/Badge';
+import { fadeUp, staggerContainer } from '@/lib/motion-variants';
+
+const ROLE_V = { platform_admin: 'red', franchise_owner: 'accent', branch_manager: 'primary', staff: 'neutral' };
+
+const columns = [
+  { key: 'name',   label: 'Name',   render: (v) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--gradient-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--color-text-on-gold)', flexShrink: 0 }}>{(v||'?')[0]}</div>
+      <span style={{ fontWeight: 600, color: 'var(--color-text-h)' }}>{v}</span>
+    </div>
+  )},
+  { key: 'email',  label: 'Email',  render: v => <span style={{ fontSize: 13 }}>{v}</span> },
+  { key: 'role',   label: 'Role',   render: v => <Badge variant={ROLE_V[v] || 'neutral'}>{v?.replace(/_/g, ' ')}</Badge> },
+  { key: 'branch', label: 'Branch' },
+  { key: 'status', label: 'Status', render: v => <Badge variant={v === 'Active' ? 'green' : 'neutral'}>{v}</Badge> },
+];
 
 export default function UsersPage() {
+  // Using staffData as user proxy since no userData export exists
+  const data = staffData || [];
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div><h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Users & Staff</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>{staffData.length} users across all branches</p></div>
-        <button className="btn btn-primary btn-sm"><Plus size={14} /> Add User</button>
-      </div>
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table className="data-table">
-          <thead><tr><th>User</th><th>Role</th><th>Branch</th><th>Email</th><th>Type</th><th>Status</th></tr></thead>
-          <tbody>
-            {staffData.map(s => (
-              <tr key={s.id}>
-                <td><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--gradient-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--color-text-on-gold)' }}>{s.name[0]}</div>
-                  <span style={{ fontWeight: 600, color: 'var(--color-text-h)' }}>{s.name}</span>
-                </div></td>
-                <td><span className="badge badge-primary">{s.role.replace(/_/g, ' ')}</span></td>
-                <td>{s.branch}</td><td style={{ fontSize: 13 }}>{s.email}</td>
-                <td><span className={`badge ${s.type === 'Temporary' ? 'badge-warning' : 'badge-neutral'}`}>{s.type}</span></td>
-                <td><span className="badge badge-green">{s.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      <motion.div variants={fadeUp} className="page-header" style={{ marginBottom: 24 }}>
+        <div className="page-header-left">
+          <h1>Users</h1>
+          <p>{data.length} registered users</p>
+        </div>
+      </motion.div>
+      <motion.div variants={fadeUp}>
+        <DataTable columns={columns} data={data} keyField="id" emptyMessage="No users found"
+          mobileRender={(row) => (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--gradient-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--color-text-on-gold)', flexShrink: 0 }}>{(row.name||'?')[0]}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-h)' }}>{row.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{row.email}</div>
+                </div>
+                <Badge variant={row.status === 'Active' ? 'green' : 'neutral'}>{row.status}</Badge>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <Badge variant={ROLE_V[row.role] || 'neutral'}>{row.role?.replace(/_/g, ' ')}</Badge>
+                {row.branch && <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{row.branch}</span>}
+              </div>
+            </div>
+          )}
+        />
+      </motion.div>
+    </motion.div>
   );
 }

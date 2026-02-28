@@ -54,7 +54,7 @@ export default function AboutPage() {
       <section className="section" style={{ background: 'var(--color-bg-alt)' }}>
         <div className="container">
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 40, textAlign: 'center' }}>Our Values</h2>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((v, i) => (
               <motion.div key={i} custom={i} variants={fadeUp} className="card" style={{ padding: 28, textAlign: 'center' }}>
                 <div className="card-icon" style={{ margin: '0 auto 16px' }}>{v.icon}</div>
@@ -70,7 +70,7 @@ export default function AboutPage() {
       <section className="section">
         <div className="container">
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 40, textAlign: 'center' }}>Meet the Team</h2>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {teamMembers.map((m, i) => (
               <motion.div key={i} custom={i} variants={fadeUp} className="card" style={{ padding: 28, textAlign: 'center' }}>
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--gradient-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, color: 'var(--color-text-on-gold)', margin: '0 auto 16px' }}>{m.name[0]}</div>

@@ -19,13 +19,18 @@ export default function PlatformDashboard() {
 
   return (
     <div>
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Platform Overview</h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 15, marginTop: 4 }}>Super Admin Dashboard — All franchises and branches</p>
+      <div className="page-header" style={{ marginBottom: 32 }}>
+        <div className="page-header-left">
+          <h1>Platform Overview</h1>
+          <p>Super Admin Dashboard — All franchises and branches</p>
+        </div>
+        <div className="page-actions">
+          <Link href="/franchises/create" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>+ Add Franchise</Link>
+        </div>
       </div>
 
       {/* KPIs */}
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 32 }}>
+      <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="kpi-row" style={{ marginBottom: 32 }}>
         {kpis.map((k, i) => (
           <motion.div key={i} custom={i} variants={fadeUp} className="kpi-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -39,7 +44,7 @@ export default function PlatformDashboard() {
       </motion.div>
 
       {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 32 }}>
+      <div className="card-grid-2" style={{ marginBottom: 32 }}>
         <div className="card" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 20 }}>Monthly Revenue Trend</h3>
           <ResponsiveContainer width="100%" height={280}>

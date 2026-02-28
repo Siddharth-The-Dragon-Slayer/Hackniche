@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { calendarEvents } from '@/lib/mock-data';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -27,12 +29,13 @@ export default function CalendarPage() {
   const statusColor = (s) => s === 'confirmed' ? 'var(--color-success)' : s === 'tentative' ? 'var(--color-warning)' : 'var(--color-text-muted)';
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--color-text-h)' }}>Calendar</h1>
         <Link href="/bookings/create" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}><Plus size={14} /> New Booking</Link>
-      </div>
+      </motion.div>
 
+      <motion.div variants={fadeUp}>
       <div className="card" style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <button onClick={prev} className="btn btn-outline btn-sm"><ChevronLeft size={16} /></button>
@@ -60,6 +63,7 @@ export default function CalendarPage() {
           ))}
         </div>
       </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

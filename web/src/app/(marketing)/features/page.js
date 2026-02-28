@@ -40,7 +40,7 @@ export default function FeaturesPage() {
       {/* Features List */}
       <section className="section">
         <div className="container">
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 32 }}>
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {allFeatures.map((f, i) => (
               <motion.div key={i} custom={i} variants={fadeUp} className="card" style={{ padding: 32, display: 'flex', gap: 20 }}>
                 <div className="card-icon" style={{ flexShrink: 0 }}>{f.icon}</div>
