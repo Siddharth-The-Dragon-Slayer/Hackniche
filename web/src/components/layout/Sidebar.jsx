@@ -225,9 +225,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
   const [showChangePwd, setShowChangePwd] = useState(false);
  
 
-  const currentRole = role || "branch_manager";
-  const items = sidebarMenus[currentRole] || sidebarMenus.branch_manager;
-  const displayName = userProfile?.name || user?.displayName || "User";
+  const currentRole  = role || userProfile?.role || 'customer';
+  const items        = sidebarMenus[currentRole] || sidebarMenus.customer;
+  const displayName  = userProfile?.name || user?.displayName || 'User';
 
   // Franchise users see their franchise's logo/name; everyone else sees BanquetEase
   const isFranchiseUser = !!userProfile?.franchise_id;

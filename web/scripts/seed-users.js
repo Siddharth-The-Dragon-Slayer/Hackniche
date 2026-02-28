@@ -659,6 +659,7 @@ const realUsers = [
     branch_name: null,
     phone: "+91-8520000008",
   },
+<<<<<<< Updated upstream
 
   // ── Customer ──────────────────────────────────────────────────
   {
@@ -673,6 +674,16 @@ const realUsers = [
     phone: "+91-0000000000",
   },
 ];
+=======
+];
+
+// ─────────────────────────────────────────────
+//  LEGACY DEMO ACCOUNTS   password: Admin@123
+//  (for quick role-switching during demo)
+// ─────────────────────────────────────────────
+
+
+>>>>>>> Stashed changes
 
 // ─────────────────────────────────────────────
 //  HELPERS

@@ -17,9 +17,12 @@ import { useRouter } from "next/navigation";
 const AuthContext = createContext({});
 
 const ROLE_REDIRECTS = {
-  super_admin: "/dashboard/platform",
-  franchise_admin: "/dashboard/franchise",
-  customer: "/dashboard/customer",
+  super_admin:     '/dashboard/platform',
+  franchise_admin: '/dashboard/franchise',
+  branch_manager:  '/dashboard/branch',
+  sales_executive: '/dashboard/sales_executive',
+  receptionist:    '/dashboard/receptionist',
+  customer:        '/dashboard/customer',
 };
 
 /**

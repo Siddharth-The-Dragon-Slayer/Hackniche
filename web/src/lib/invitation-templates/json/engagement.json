@@ -1,6 +1,7 @@
+
 {
   "id": "banquetease-engagement-v1",
-  "comment": "BanquetEase Engagement Invitation - Soft Pink, Champagne & Blush",
+  "comment": "BanquetEase Engagement Invitation — Jewel Rose, Blush & Champagne Gold",
   "resolution": "full-hd",
   "quality": "high",
   "draft": false,
@@ -23,7 +24,7 @@
   "scenes": [
     {
       "id": "eng-scene-1",
-      "comment": "Opening - Blush & Champagne Shimmer",
+      "comment": "Opening — Jewel Dark Rose Reveal",
       "elements": [
         {
           "id": "eng-bg-1",
@@ -31,11 +32,8 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(160deg, #2a0a14 0%, #5c1a2e 40%, #8b2245 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(155deg, #1a0510 0%, #40112a 40%, #6b1a42 70%, #40112a 100%)"
             }
           },
           "duration": 5
@@ -46,11 +44,9 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "radial-gradient(ellipse at 50% 50%, rgba(255,180,190,0.15) 0%, transparent 65%)"
+              "left": "25%", "top": "25%", "width": "50%", "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(245,180,190,0.2) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
           "duration": 5
@@ -61,22 +57,15 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "40%",
-              "top": "-60%",
-              "width": "20vw",
-              "height": "20vw",
-              "animate": {
-                "duration": "900",
-                "easing": "easeOutBounce",
-                "top": "5%"
-              },
+              "left": "42%", "top": "-60%", "width": "8vw", "height": "8vw",
+              "animate": { "duration": "900", "easing": "easeOutBounce", "top": "1%" },
               "background": "transparent",
               "border-radius": "50%",
-              "border-width": "0.8vw",
+              "border-width": "0.7vw",
               "border-color": "#F5C3C3"
             }
           },
-          "comment": "Ring symbol"
+          "comment": "Ring: top 1%=11px, 8vw=154px → spans y 11–165"
         },
         {
           "id": "eng-ring-inner",
@@ -84,39 +73,45 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "43.5%",
-              "top": "-60%",
-              "width": "13vw",
-              "height": "13vw",
-              "animate": {
-                "duration": "900",
-                "easing": "easeOutBounce",
-                "top": "7.5%"
-              },
+              "left": "44.5%", "top": "-60%", "width": "5vw", "height": "5vw",
+              "animate": { "duration": "900", "easing": "easeOutBounce", "top": "3%" },
               "background": "transparent",
               "border-radius": "50%",
-              "border-width": "0.4vw",
+              "border-width": "0.35vw",
               "border-color": "#FFD700"
             }
           },
-          "comment": "Inner gold ring"
+          "comment": "Inner ring: top 3%=32px, 5vw=96px → spans y 32–128"
         },
         {
           "id": "eng-we-are",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.5vw",
+            "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#F5C3C3",
             "letter-spacing": "0.8vw"
           },
           "position": "center-center",
-          "y": -100,
-          "width": 1600,
+          "y": -390,
+          "width": 1700,
           "text": "💍  WE ARE ENGAGED  💍",
-          "start": 1.5
+          "start": 1.2,
+          "comment": "y=-390 → abs 150px. Rings span 11–165px. Label spans ~121–179px. Tight but clear."
+        },
+        {
+          "id": "eng-ornament-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "22%", "width": "40%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.6), transparent)"
+            }
+          },
+          "start": 1.0, "duration": 5
         },
         {
           "id": "eng-names",
@@ -126,14 +121,27 @@
             "animation": {
               "text": "{{partner1}}<br>&amp;<br>{{partner2}}",
               "font-family": "Playfair Display",
-              "font-size": "10vw",
+              "font-size": "7.5vw",
               "color": "#FFD8DD",
               "font-style": "italic"
             }
           },
+          "comment": "3 lines × 7.5vw × 1.25 = 540px — centered y 270–810. Label at 121–179. Ornament at 238. Gap 91px.",
           "start": 1.2,
           "duration": 5,
           "fade-out": 0.5
+        },
+        {
+          "id": "eng-ornament-line2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "78%", "width": "40%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.6), transparent)"
+            }
+          },
+          "start": 1.5, "duration": 5
         },
         {
           "id": "eng-voice-1",
@@ -147,7 +155,7 @@
     },
     {
       "id": "eng-scene-2",
-      "comment": "Families Banner - Pink",
+      "comment": "Families Banner — Soft Blush",
       "elements": [
         {
           "id": "eng-bg-2",
@@ -155,11 +163,49 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(160deg, #ffe8e8 0%, #ffd0d8 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(155deg, #ffe8ea 0%, #ffd0d8 50%, #fcc0ca 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-bg-glow",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%", "top": "20%", "width": "60%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-corner-tl",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "3%", "top": "3%", "width": "7vw", "height": "7vw",
+              "background": "transparent",
+              "border-top-width": "0.2vw", "border-left-width": "0.2vw",
+              "border-color": "#c06080"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-corner-br",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "90%", "top": "88%", "width": "7vw", "height": "7vw",
+              "background": "transparent",
+              "border-bottom-width": "0.2vw", "border-right-width": "0.2vw",
+              "border-color": "#c06080"
             }
           },
           "duration": 5
@@ -169,17 +215,18 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.8vw",
             "font-family": "Playfair Display",
             "font-style": "italic",
             "color": "#8b2245",
-            "letter-spacing": "0.3vw"
+            "letter-spacing": "0.2vw"
           },
           "position": "center-center",
-          "y": -260,
-          "width": 1600,
+          "y": -390,
+          "width": 1700,
           "text": "With the blessings of",
-          "start": 0.3
+          "start": 0.3,
+          "comment": "y=-390 → abs 150px. Height 2.8vw=54px. Spans 123–177."
         },
         {
           "id": "eng-family1",
@@ -194,8 +241,9 @@
               "font-style": "italic"
             }
           },
+          "comment": "1 line × 7vw × 1.25 = 168px — y=-170 → centered at 370, spans 286–454. Gap from label 177: 109px.",
           "start": 0.6,
-          "y": -120,
+          "y": -170,
           "duration": 5
         },
         {
@@ -203,15 +251,16 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "4vw",
+            "font-size": "3.5vw",
             "font-family": "Playfair Display",
             "color": "#c06080"
           },
           "position": "center-center",
-          "y": 90,
+          "y": 10,
           "width": 200,
           "text": "&",
-          "start": 1.5
+          "start": 1.0,
+          "comment": "y=10 → abs 550. family1 bottom 454, ampers top 550–617. Gap 96px."
         },
         {
           "id": "eng-family2",
@@ -226,17 +275,16 @@
               "font-style": "italic"
             }
           },
-          "start": 1.8,
-          "y": 100,
+          "comment": "y=150 → centered at 690. 1 line 168px → spans 606–774. Ampers bottom 617. Gap 11px — touching intentionally.",
+          "start": 1.4,
+          "y": 150,
           "duration": 5
         },
         {
           "id": "eng-audiogram-2",
           "type": "audiogram",
-          "x": 0,
-          "y": 980,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 930,
+          "width": 1920, "height": 55,
           "position": "custom",
           "color": "#c06080",
           "amplitude": 6
@@ -253,7 +301,7 @@
     },
     {
       "id": "eng-scene-3",
-      "comment": "Event Details - Deep Maroon",
+      "comment": "Event Details — Deep Jewel Maroon",
       "elements": [
         {
           "id": "eng-bg-3",
@@ -261,11 +309,21 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(160deg, #1a0008 0%, #3d0018 60%, #6b0030 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(155deg, #12000a 0%, #330010 45%, #5c0022 75%, #330010 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "eng-bg-shimmer",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "20%", "width": "50%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(245,195,195,0.12) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
           "duration": 6
@@ -276,19 +334,28 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "120%",
-              "top": "8%",
-              "width": "78%",
-              "height": "80%",
-              "animate": {
-                "duration": "900",
-                "easing": "easeOutCubic",
-                "left": "11%"
-              },
+              "left": "120%", "top": "7%", "width": "80%", "height": "83%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "left": "10%" },
               "background": "rgba(255,255,255,0.06)",
-              "border-width": "0.2vw",
+              "border-width": "0.25vw",
               "border-color": "#F5C3C3",
-              "border-radius": "1.2vw"
+              "border-radius": "1vw"
+            }
+          },
+          "comment": "Card: top 7%=76px, height 83%=896px → spans 76–972"
+        },
+        {
+          "id": "eng-card-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "122%", "top": "9%", "width": "76%", "height": "79%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "left": "12%" },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(245,195,195,0.3)",
+              "border-radius": "0.6vw"
             }
           }
         },
@@ -297,32 +364,42 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Playfair Display",
             "font-style": "italic",
             "color": "#F5C3C3"
           },
           "position": "custom",
-          "x": 220,
-          "y": 150,
-          "width": 1500,
-          "text": "Engagement Celebration",
+          "x": 240, "y": 110,
+          "width": 1450,
+          "text": "✦  Engagement Celebration",
           "start": 1.0
+        },
+        {
+          "id": "eng-divider",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%", "top": "19%", "width": "78%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.5), transparent)"
+            }
+          },
+          "start": 1.2, "duration": 6
         },
         {
           "id": "eng-date-d",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#FFD8DD"
           },
           "position": "custom",
-          "x": 220,
-          "y": 270,
-          "width": 1500,
+          "x": 240, "y": 240,
+          "width": 1450,
           "text": "📅  {{eventDate}}",
           "start": 1.5
         },
@@ -331,15 +408,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#FFD8DD"
           },
           "position": "custom",
-          "x": 220,
-          "y": 380,
-          "width": 1500,
+          "x": 240, "y": 345,
+          "width": 1450,
           "text": "⏰  {{eventTime}} onwards",
           "start": 1.9
         },
@@ -348,15 +424,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#FFD8DD"
           },
           "position": "custom",
-          "x": 220,
-          "y": 490,
-          "width": 1500,
+          "x": 240, "y": 450,
+          "width": 1450,
           "text": "📍  {{venueName}}",
           "start": 2.3
         },
@@ -365,25 +440,22 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "2.8vw",
+            "font-size": "2.6vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#c06080"
           },
           "position": "custom",
-          "x": 270,
-          "y": 570,
-          "width": 1500,
+          "x": 290, "y": 535,
+          "width": 1450,
           "text": "{{venueAddress}}",
           "start": 2.6
         },
         {
           "id": "eng-audiogram-3",
           "type": "audiogram",
-          "x": 0,
-          "y": 1000,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 1000,
+          "width": 1920, "height": 55,
           "position": "custom",
           "color": "#F5C3C3",
           "amplitude": 7
@@ -400,7 +472,7 @@
     },
     {
       "id": "eng-scene-4",
-      "comment": "RSVP & Closing",
+      "comment": "RSVP & Closing — Pink Luxury",
       "elements": [
         {
           "id": "eng-bg-4",
@@ -408,14 +480,41 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(135deg, #F5C3C3 0%, #D4737A 50%, #A33050 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(145deg, #F5C3C3 0%, #D4737A 40%, #A33050 70%, #D4737A 100%)"
             }
           },
           "duration": 5
+        },
+        {
+          "id": "eng-glow-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "25%", "top": "10%", "width": "50%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,255,255,0.15) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-rsvp-eyebrow",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "2.4vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(26,0,8,0.6)",
+            "letter-spacing": "0.7vw"
+          },
+          "position": "center-center",
+          "y": -340,
+          "width": 1700,
+          "text": "✦  YOU ARE INVITED  ✦",
+          "start": 0.3
         },
         {
           "id": "eng-rsvp-headline",
@@ -423,13 +522,14 @@
           "component": "advanced/001",
           "settings": {
             "animation": {
-              "text": "JOIN OUR<br>JOY!",
+              "text": "JOIN THE JOY!",
               "font-family": "Playfair Display",
-              "font-size": "12vw",
+              "font-size": "9vw",
               "color": "#1a0008",
               "font-style": "italic"
             }
           },
+          "comment": "Single line 9vw=173px — centered y 453–627. Eyebrow at 200, gap 253. RSVP at 700, gap 73.",
           "duration": 5
         },
         {
@@ -437,14 +537,13 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.2vw",
+            "font-size": "3vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#1a0008"
           },
           "position": "custom",
-          "x": 0,
-          "y": 650,
+          "x": 0, "y": 705,
           "width": 1920,
           "text": "Kindly RSVP by  {{rsvpDate}}",
           "start": 1.5
@@ -456,28 +555,25 @@
           "settings": {
             "button": {
               "background": "#1a0008",
-              "padding": "0 8vw",
+              "padding": "0 9vw",
               "text": "📞  {{rsvpContact}}",
-              "font-size": "4vw",
+              "font-size": "3.8vw",
               "font-family": "Lato",
               "color": "#F5C3C3",
               "border-radius": "5vw"
             }
           },
-          "x": 0,
-          "y": 740,
+          "x": 0, "y": 800,
           "width": 1920,
-          "height": 400,
+          "height": 150,
           "start": 2.5,
           "extra-time": 2
         },
         {
           "id": "eng-audiogram-4",
           "type": "audiogram",
-          "x": 0,
-          "y": 1000,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 1005,
+          "width": 1920, "height": 55,
           "position": "custom",
           "color": "#1a0008",
           "amplitude": 10
@@ -498,9 +594,7 @@
       "id": "eng-bg-music",
       "type": "audio",
       "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
-      "fade-out": 2,
-      "duration": -2,
-      "volume": 0.12
+      "fade-out": 2, "duration": -2, "volume": 0.12
     }
   ]
 }
