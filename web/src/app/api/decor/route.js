@@ -58,16 +58,30 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { franchise_id = "pfd", ...decorData } = body;
+    const {
+      franchise_id = "pfd",
+      branch_id = "",
+      name = "",
+      theme = "Custom",
+      description = "",
+      status = "active",
+      base_price = 0,
+      items = [],
+      suitable_for = [],
+      image_urls = [],
+      created_by_uid = "",
+      created_by_name = "",
+      created_by_role = "",
+    } = body;
 
-    // Generate next decor ID for this franchise
+    // Generate next decor ID for this branch
     const decorRef = collection(db, "decor");
-    const q = query(decorRef, where("franchise_id", "==", franchise_id));
+    const q = query(decorRef, where("branch_id", "==", branch_id));
     const snapshot = await getDocs(q);
 
     // Find the highest existing number
     let maxNum = 0;
-    snap.forEach((d) => {
+    snapshot.forEach((d) => {
       const m = d.id.match(new RegExp(`^${branch_id}_d(\\d+)$`));
       if (m && parseInt(m[1]) > maxNum) maxNum = parseInt(m[1]);
     });
@@ -75,19 +89,21 @@ export async function POST(request) {
 
     const now = new Date().toISOString();
     const newDecor = {
-      ...rest,
+      name,
+      theme,
+      description,
+      status,
+      base_price: typeof base_price === "string" ? parseFloat(base_price) : base_price || 0,
+      items: Array.isArray(items) ? items : [],
+      suitable_for: Array.isArray(suitable_for) ? suitable_for : [],
+      image_urls: Array.isArray(image_urls) ? image_urls : [],
       franchise_id,
       branch_id,
+      created_by_uid,
+      created_by_name,
+      created_by_role,
       created_at: now,
       updated_at: now,
-      status: rest.status || "active",
-      base_price:
-        typeof rest.base_price === "string"
-          ? parseFloat(rest.base_price)
-          : rest.base_price || 0,
-      items: rest.items || [],
-      suitable_for: rest.suitable_for || [],
-      theme: rest.theme || "Custom",
     };
 
     // Save with custom document ID

@@ -1021,7 +1021,11 @@ export const sidebarMenus = {
     { icon: "⬡", label: "Dashboard", href: "/dashboard/decorator" },
     { icon: "🎨", label: "My Packages", href: "/decor" },
     { icon: "✏️", label: "Add Package", href: "/decor/create" },
-    { icon: "📋", label: "Upcoming Orders", href: "/dashboard/decorator#upcoming" },
+    {
+      icon: "📋",
+      label: "Upcoming Orders",
+      href: "/dashboard/decorator#upcoming",
+    },
     { icon: "🎉", label: "Events", href: "/events" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
   ],

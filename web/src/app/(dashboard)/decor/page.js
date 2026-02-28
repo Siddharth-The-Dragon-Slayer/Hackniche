@@ -185,25 +185,39 @@ function DecorCard({
           style={{
             display: "flex",
             alignItems: "flex-start",
-            gap: 12,
+            gap: 14,
             flex: 1,
             minWidth: 0,
           }}
         >
           <div
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 10,
+              width: 100,
+              height: 100,
+              borderRadius: 12,
               background: tc.bg,
               flexShrink: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 20,
+              fontSize: 28,
+              overflow: "hidden",
             }}
           >
-            🎨
+            {Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0 ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={pkg.image_urls[0]}
+                alt={pkg.name}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              "🎨"
+            )}
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div
@@ -236,6 +250,20 @@ function DecorCard({
               >
                 {pkg.theme || "Custom"}
               </span>
+              {Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0 && (
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: 10,
+                    background: "rgba(39,174,96,0.10)",
+                    color: "#27ae60",
+                  }}
+                >
+                  🖼 {pkg.image_urls.length}
+                </span>
+              )}
               {!isActive && (
                 <span
                   style={{
@@ -283,6 +311,39 @@ function DecorCard({
         </div>
       </div>
 
+      {/* Image Gallery */}
+      {Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0 && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
+            gap: 8,
+            borderTop: "1px solid var(--color-border)",
+            paddingTop: 12,
+          }}
+        >
+          {pkg.image_urls.map((imgUrl, idx) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={idx}
+              src={imgUrl}
+              alt={`${pkg.name} ${idx + 1}`}
+              style={{
+                width: "100%",
+                height: 90,
+                objectFit: "cover",
+                borderRadius: 8,
+                border: "1px solid var(--color-border)",
+                cursor: "pointer",
+                transition: "opacity .2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.opacity = "0.8")}
+              onMouseLeave={(e) => (e.target.style.opacity = "1")}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Description */}
       {pkg.description && (
         <p
@@ -291,6 +352,8 @@ function DecorCard({
             color: "var(--color-text-body)",
             lineHeight: 1.55,
             margin: 0,
+            paddingTop: 6,
+            borderTop: Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0 ? "1px solid var(--color-border)" : "none",
           }}
         >
           {pkg.description}
