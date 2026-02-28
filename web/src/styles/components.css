@@ -97,12 +97,12 @@
 .form-span-3 { grid-column: span 3; }
 
 /* ── KPI ROW ─────────────────────────────────── */
-.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
 
 /* ── CARD GRIDS ─────────────────────────────── */
-.card-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.card-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 28px; }
+.card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+.card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
 
 /* ── DETAIL VIEW ─────────────────────────────── */
 .detail-row { display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
