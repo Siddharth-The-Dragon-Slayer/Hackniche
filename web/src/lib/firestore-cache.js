@@ -82,4 +82,6 @@ export const cacheKeys = {
   offers: (branch_id) => `offers_branch_${branch_id}`,
   franchise: (franchise_id) => `franchise_${franchise_id}`,
   userProfile: (uid) => `profile_${uid}`,
+  decor: (branch_id) => `decor_branch_${branch_id}`,
+  menus: (branch_id) => `menus_branch_${branch_id}`,
 };

@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Plus,
   UserPlus,
@@ -25,6 +26,7 @@ const ROLE_COLORS = {
   sales_executive: "badge-primary",
   kitchen_manager: "badge-warning",
   accountant: "badge-warning",
+  decorator: "badge-green",
   operations_staff: "badge-neutral",
   receptionist: "badge-neutral",
 };
@@ -34,6 +36,7 @@ const ALL_ROLES = [
   "sales_executive",
   "kitchen_manager",
   "accountant",
+  "decorator",
   "operations_staff",
   "receptionist",
 ];
@@ -582,12 +585,30 @@ export default function StaffPage() {
           </button>
           {canManage && (
             <>
-              <button className="btn btn-outline btn-sm">
+              <Link
+                href="/staff/create?type=temporary"
+                className="btn btn-outline btn-sm"
+                style={{
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
                 <UserPlus size={14} /> Add Temp Staff
-              </button>
-              <button className="btn btn-primary btn-sm">
+              </Link>
+              <Link
+                href="/staff/create"
+                className="btn btn-primary btn-sm"
+                style={{
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
                 <Plus size={14} /> Add Staff
-              </button>
+              </Link>
             </>
           )}
         </div>

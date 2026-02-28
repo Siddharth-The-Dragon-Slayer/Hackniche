@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -12,6 +12,8 @@ import {
   Package,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { invalidateCache, cacheKeys } from "@/lib/firestore-cache";
 import ImageUpload from "@/components/shared/ImageUpload";
 
@@ -38,21 +40,23 @@ const EVENT_TYPES = [
   "Naming Ceremony",
   "Other",
 ];
-const CAN_CREATE = [
-  "decorator",
-  "branch_manager",
-  "franchise_admin",
-  "super_admin",
-];
+
+// branch_manager has view-only access to decor packages
+const CAN_EDIT = ["decorator", "franchise_admin", "super_admin"];
 const fmt = (n) => "\u20B9" + Number(n || 0).toLocaleString("en-IN");
 
-export default function CreateDecorPackagePage() {
+export default function EditDecorPackagePage() {
   const router = useRouter();
+  const { id } = useParams();
   const { userProfile, role } = useAuth();
 
   const branchId = userProfile?.branch_id || "";
   const franchiseId = userProfile?.franchise_id || "";
   const isDecorator = role === "decorator";
+
+  const [fetching, setFetching] = useState(true);
+  const [fetchErr, setFetchErr] = useState("");
+  const [original, setOriginal] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -68,10 +72,60 @@ export default function CreateDecorPackagePage() {
   const [saved, setSaved] = useState(false);
   const [saveErr, setSaveErr] = useState("");
 
+  // Redirect if role cannot edit
   useEffect(() => {
-    if (role && !CAN_CREATE.includes(role)) router.replace("/decor");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
+    if (role && !CAN_EDIT.includes(role)) router.replace("/decor");
+  }, [role]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load existing package
+  useEffect(() => {
+    if (!id) return;
+    (async () => {
+      setFetching(true);
+      setFetchErr("");
+      try {
+        const snap = await getDoc(doc(db, "decor", id));
+        if (!snap.exists()) {
+          setFetchErr("Package not found.");
+          setFetching(false);
+          return;
+        }
+        const data = { id: snap.id, ...snap.data() };
+
+        // Decorators can only edit their own packages
+        if (
+          isDecorator &&
+          data.created_by_uid &&
+          data.created_by_uid !== userProfile?.uid
+        ) {
+          router.replace("/decor");
+          return;
+        }
+
+        setOriginal(data);
+        setForm({
+          name: data.name || "",
+          theme: data.theme || "Royal",
+          description: data.description || "",
+          status: data.status || "active",
+        });
+        setItems(
+          Array.isArray(data.items) && data.items.length > 0
+            ? data.items.map((it) => ({
+                name: it.name || "",
+                qty: it.qty ?? 1,
+                unit_price: it.unit_price ?? "",
+              }))
+            : [{ name: "", qty: 1, unit_price: "" }],
+        );
+        setSuitable(data.suitable_for || data.suitableFor || []);
+        setImageUrls(Array.isArray(data.image_urls) ? data.image_urls : []);
+      } catch (e) {
+        setFetchErr(e.message);
+      }
+      setFetching(false);
+    })();
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
   const addItem = () =>
@@ -110,12 +164,16 @@ export default function CreateDecorPackagePage() {
           unit_price: Number(it.unit_price),
         }));
 
-      const res = await fetch("/api/decor", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch(`/api/decor/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Uid": userProfile?.uid || "",
+          "X-User-Role": role || "",
+          "X-Branch-Id": branchId || "",
+          "X-Franchise-Id": franchiseId || "",
+        },
         body: JSON.stringify({
-          franchise_id: franchiseId,
-          branch_id: branchId,
           name: form.name.trim(),
           theme: form.theme,
           description: form.description.trim(),
@@ -124,9 +182,6 @@ export default function CreateDecorPackagePage() {
           base_price: totalPrice,
           suitable_for: suitable,
           image_urls: imageUrls,
-          created_by_uid: userProfile?.uid || "",
-          created_by_name: userProfile?.name || "",
-          created_by_role: role || "",
         }),
       });
       const data = await res.json();
@@ -139,6 +194,41 @@ export default function CreateDecorPackagePage() {
     }
     setSaving(false);
   };
+
+  if (fetching) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 360,
+        }}
+      >
+        <p style={{ color: "var(--color-text-muted)" }}>Loading package…</p>
+      </div>
+    );
+  }
+
+  if (fetchErr) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 360,
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <p style={{ color: "#c0392b", marginBottom: 14 }}>{fetchErr}</p>
+          <Link href="/decor" className="btn btn-ghost">
+            ← Back to Decor
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (saved) {
     return (
@@ -166,7 +256,7 @@ export default function CreateDecorPackagePage() {
               color: "var(--color-text-h)",
             }}
           >
-            Package Created!
+            Package Updated!
           </p>
           <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>
             Redirecting…
@@ -196,11 +286,11 @@ export default function CreateDecorPackagePage() {
             >
               <ArrowLeft size={13} /> Back to Decor
             </Link>
-            <h1>Add Decor Package</h1>
+            <h1>Edit Decor Package</h1>
             <p style={{ color: "var(--color-text-muted)", fontSize: 13 }}>
               {isDecorator
-                ? "Build your decoration offering with item-by-item pricing"
-                : "Add a new decoration package for this branch"}
+                ? "Update your decoration offering's items and pricing"
+                : `Editing: ${original?.name || ""}`}
             </p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -217,7 +307,7 @@ export default function CreateDecorPackagePage() {
               disabled={saving}
               style={{ display: "flex", alignItems: "center", gap: 5 }}
             >
-              <Save size={14} /> {saving ? "Saving…" : "Save Package"}
+              <Save size={14} /> {saving ? "Saving…" : "Save Changes"}
             </button>
           </div>
         </div>
@@ -393,7 +483,7 @@ export default function CreateDecorPackagePage() {
                         width: 150,
                       }}
                     >
-                      Unit Price (\u20B9)
+                      Unit Price (₹)
                     </th>
                     <th
                       style={{
@@ -605,7 +695,7 @@ export default function CreateDecorPackagePage() {
               disabled={saving}
               style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <Save size={15} /> {saving ? "Saving…" : "Save Package"}
+              <Save size={15} /> {saving ? "Saving…" : "Save Changes"}
             </button>
           </div>
         </div>
@@ -755,39 +845,48 @@ export default function CreateDecorPackagePage() {
           </div>
         </div>
 
-        <div className="card" style={{ padding: 18, marginTop: 14 }}>
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 13,
-              color: "var(--color-text-h)",
-              marginBottom: 10,
-            }}
-          >
-            💡 Pricing Tips
-          </div>
-          {[
-            "Break costs into separate items — customers trust transparent pricing.",
-            "Add all physical elements: stage, flowers, lights, backdrop, table decor.",
-            "Set qty = 1 for lump-sum elements (e.g. full stage setup).",
-            '"Suitable For" tags help sales staff match packages to leads.',
-            "Create multiple packages at different price tiers.",
-          ].map((t, i) => (
-            <p
-              key={i}
+        {original && (
+          <div className="card" style={{ padding: 18, marginTop: 14 }}>
+            <div
               style={{
-                fontSize: 12,
-                color: "var(--color-text-muted)",
-                lineHeight: 1.6,
-                margin: "0 0 7px",
-                paddingLeft: 10,
-                borderLeft: "2px solid var(--color-border)",
+                fontWeight: 700,
+                fontSize: 13,
+                color: "var(--color-text-h)",
+                marginBottom: 10,
               }}
             >
-              {t}
-            </p>
-          ))}
-        </div>
+              Package Info
+            </div>
+            {[
+              ["Created by", original.created_by_name || "—"],
+              [
+                "Created at",
+                original.created_at
+                  ? new Date(original.created_at).toLocaleDateString("en-IN")
+                  : "—",
+              ],
+              ["Branch", original.branch_id || "—"],
+            ].map(([k, v]) => (
+              <div
+                key={k}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  color: "var(--color-text-muted)",
+                  marginBottom: 6,
+                }}
+              >
+                <span>{k}</span>
+                <span
+                  style={{ fontWeight: 600, color: "var(--color-text-body)" }}
+                >
+                  {v}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <style>{`
