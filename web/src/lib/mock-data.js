@@ -983,7 +983,7 @@ export const sidebarMenus = {
     { icon: "⚙️", label: "Branch Settings", href: "/settings/branch" },
   ],
   sales_executive: [
-    { icon: "⬡", label: "Dashboard", href: "/dashboard/branch" },
+    { icon: "⬡", label: "Dashboard", href: "/dashboard/sales_executive" },
     { icon: "🎯", label: "Leads", href: "/leads" },
     { icon: "📋", label: "Bookings", href: "/bookings" },
     { icon: "🎉", label: "Events", href: "/events" },
@@ -1013,11 +1013,13 @@ export const sidebarMenus = {
     { icon: "🎨", label: "Decor Packages", href: "/decor" },
   ],
   receptionist: [
-    { icon: "⬡", label: "Dashboard", href: "/dashboard/branch" },
+    { icon: "⬡", label: "Dashboard", href: "/dashboard/receptionist" },
     { icon: "🎯", label: "Leads", href: "/leads" },
+    { icon: "➕", label: "New Lead", href: "/leads/create" },
   ],
   customer: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/customer" },
+    { icon: "➕", label: "New Enquiry", href: "/leads/create" },
     { icon: "📋", label: "My Bookings", href: "/bookings" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
     { icon: "🎨", label: "Venues & Decor", href: "/decor" },

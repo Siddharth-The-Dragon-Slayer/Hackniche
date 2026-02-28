@@ -1,6 +1,6 @@
 {
   "id": "banquetease-birthday-v1",
-  "comment": "BanquetEase Birthday Invitation - Festive Gold & Confetti",
+  "comment": "BanquetEase Birthday Invitation — Premium Dark Violet & Champagne Gold",
   "resolution": "full-hd",
   "quality": "high",
   "draft": false,
@@ -22,7 +22,7 @@
   "scenes": [
     {
       "id": "bday-scene-1",
-      "comment": "Opening - Festive Reveal",
+      "comment": "Opening — Premium Dark Violet Reveal",
       "elements": [
         {
           "id": "bday-bg-1",
@@ -30,27 +30,62 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(135deg, #1a0533 0%, #2d0a5e 40%, #4a0e8f 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(145deg, #0d0221 0%, #1e0845 35%, #340d6e 65%, #1e0845 100%)"
             }
           },
-          "comment": "Deep violet background",
           "duration": 4
         },
         {
-          "id": "bday-stars",
+          "id": "bday-stars-left",
           "type": "component",
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "radial-gradient(ellipse at 20% 20%, rgba(255,215,0,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(255,100,150,0.15) 0%, transparent 60%)"
+              "left": "-5%", "top": "10%", "width": "40%", "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.18) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-stars-right",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "60%", "top": "40%", "width": "50%", "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,100,150,0.15) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-corner-tl",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "3%", "top": "3%", "width": "8vw", "height": "8vw",
+              "background": "transparent",
+              "border-top-width": "0.25vw", "border-left-width": "0.25vw",
+              "border-color": "rgba(255,215,0,0.5)"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-corner-br",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "89%", "top": "86%", "width": "8vw", "height": "8vw",
+              "background": "transparent",
+              "border-bottom-width": "0.25vw", "border-right-width": "0.25vw",
+              "border-color": "rgba(255,215,0,0.5)"
             }
           },
           "duration": 4
@@ -65,10 +100,10 @@
               "font-family": "Playfair Display",
               "font-size": "11vw",
               "color": "#FFD700",
-              "text-shadow": "0 0 30px rgba(255,215,0,0.8)"
+              "font-style": "italic"
             }
           },
-          "comment": "Main invite headline",
+          "comment": "2 lines × 11vw × 1.25 = 528px — centered y 276–804. No other text. Clear.",
           "duration": 4,
           "fade-out": 0.8
         },
@@ -84,7 +119,7 @@
     },
     {
       "id": "bday-scene-2",
-      "comment": "Name Reveal - Golden Spotlight",
+      "comment": "Name Reveal — Golden Spotlight",
       "elements": [
         {
           "id": "bday-bg-2",
@@ -92,11 +127,21 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(180deg, #0d0521 0%, #1e0a3c 50%, #0d0521 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(180deg, #080116 0%, #130330 45%, #080116 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-spotlight",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%", "top": "25%", "width": "60%", "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.2) 0%, transparent 65%)",
+              "border-radius": "50%"
             }
           },
           "duration": 5
@@ -106,17 +151,30 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "4vw",
+            "font-size": "3.2vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#E0B0FF",
             "letter-spacing": "0.5vw"
           },
           "position": "center-center",
-          "y": -120,
-          "width": 1600,
+          "y": -390,
+          "width": 1700,
           "text": "🎉  CELEBRATING  🎉",
-          "start": 0.3
+          "start": 0.3,
+          "comment": "y=-390 → abs 150px. 3.2vw=61px. Spans 119–181. Guest name spans 358–720. Gap 177px."
+        },
+        {
+          "id": "bday-ornament",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "35%", "top": "30%", "width": "30%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 0.5, "duration": 5
         },
         {
           "id": "bday-guest-name",
@@ -126,15 +184,27 @@
             "animation": {
               "text": "{{guestName}}",
               "font-family": "Playfair Display",
-              "font-size": "13vw",
+              "font-size": "11vw",
               "color": "#FFD700",
               "font-weight": "700"
             }
           },
-          "comment": "Birthday person's name",
+          "comment": "1 line × 11vw × 1.25 = 264px — centered y 408–672. Celebrate at 119–181. Ornament at 324. Gap 84px.",
           "start": 0.5,
           "duration": 5,
           "fade-out": 0.5
+        },
+        {
+          "id": "bday-ornament2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "35%", "top": "67%", "width": "30%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 1.0, "duration": 5
         },
         {
           "id": "bday-age-badge",
@@ -142,22 +212,15 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "43%",
-              "top": "110%",
-              "width": "14vw",
-              "height": "14vw",
-              "animate": {
-                "duration": "800",
-                "easing": "easeOutBounce",
-                "top": "62%"
-              },
+              "left": "43%", "top": "110%", "width": "14vw", "height": "14vw",
+              "animate": { "duration": "800", "easing": "easeOutBounce", "top": "68%" },
               "background": "linear-gradient(135deg, #FFD700, #FF8C00)",
               "border-radius": "50%",
               "border-width": "0.5vw",
               "border-color": "white"
             }
           },
-          "comment": "Age badge circle",
+          "comment": "Badge: top 68%=734px, 14vw=269px → spans 734–1003. Name ends 672. Gap 62px.",
           "start": 1.5
         },
         {
@@ -170,11 +233,11 @@
             "color": "#1a0533"
           },
           "position": "custom",
-          "x": 760,
-          "y": 620,
-          "width": 160,
+          "x": 756, "y": 760,
+          "width": 200,
           "text": "{{age}}",
-          "start": 2.2
+          "start": 2.2,
+          "comment": "y=760. Badge center at 734+134=868. Text top 760+115=875 center. Good alignment."
         },
         {
           "id": "bday-voice-2",
@@ -188,7 +251,7 @@
     },
     {
       "id": "bday-scene-3",
-      "comment": "Event Details - Elegant Info Card",
+      "comment": "Event Details — Glassmorphism Premium",
       "elements": [
         {
           "id": "bday-bg-3",
@@ -196,11 +259,21 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(160deg, #0f2027 0%, #203a43 50%, #2c5364 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(155deg, #071520 0%, #102535 40%, #1a3d55 70%, #102535 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "bday-bg-glow-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "20%", "width": "50%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
           "duration": 6
@@ -211,54 +284,73 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "-110%",
-              "top": "15%",
-              "width": "75%",
-              "height": "70%",
-              "animate": {
-                "duration": "900",
-                "easing": "easeOutCubic",
-                "left": "12%"
-              },
-              "background": "rgba(255,255,255,0.07)",
-              "border-width": "0.15vw",
+              "left": "-110%", "top": "6%", "width": "80%", "height": "85%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "left": "10%" },
+              "background": "rgba(255,255,255,0.06)",
+              "border-width": "0.2vw",
               "border-color": "rgba(255,215,0,0.5)",
-              "border-radius": "1.5vw"
+              "border-radius": "1.2vw"
             }
           },
-          "comment": "Glassmorphism card"
+          "comment": "Card: top 6%=65px, height 85%=918px → spans 65–983"
+        },
+        {
+          "id": "bday-details-card-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-110%", "top": "8%", "width": "76%", "height": "81%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "left": "12%" },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(255,215,0,0.2)",
+              "border-radius": "0.8vw"
+            }
+          }
         },
         {
           "id": "bday-details-header",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.5vw",
+            "font-size": "3.2vw",
             "font-family": "Playfair Display",
             "color": "#FFD700",
-            "letter-spacing": "0.3vw"
+            "letter-spacing": "0.3vw",
+            "font-style": "italic"
           },
           "position": "custom",
-          "x": 220,
-          "y": 200,
-          "width": 1100,
-          "text": "EVENT DETAILS",
+          "x": 230, "y": 100,
+          "width": 1200,
+          "text": "✦  Event Details",
           "start": 0.8
+        },
+        {
+          "id": "bday-header-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%", "top": "18%", "width": "68%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(255,215,0,0.7), transparent)"
+            }
+          },
+          "start": 1.0, "duration": 6
         },
         {
           "id": "bday-date-line",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#ffffff"
           },
           "position": "custom",
-          "x": 220,
-          "y": 310,
-          "width": 1200,
+          "x": 230, "y": 230,
+          "width": 1250,
           "text": "📅  {{eventDate}}",
           "start": 1.2
         },
@@ -267,15 +359,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#ffffff"
           },
           "position": "custom",
-          "x": 220,
-          "y": 420,
-          "width": 1200,
+          "x": 230, "y": 340,
+          "width": 1250,
           "text": "⏰  {{eventTime}}",
           "start": 1.6
         },
@@ -284,15 +375,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#ffffff"
           },
           "position": "custom",
-          "x": 220,
-          "y": 530,
-          "width": 1200,
+          "x": 230, "y": 450,
+          "width": 1250,
           "text": "📍  {{venueName}}",
           "start": 2.0
         },
@@ -301,42 +391,50 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "2.8vw",
+            "font-size": "2.6vw",
             "font-family": "Lato",
             "font-weight": "300",
-            "color": "#ccc"
+            "color": "#aaccdd"
           },
           "position": "custom",
-          "x": 270,
-          "y": 608,
+          "x": 280, "y": 535,
           "width": 1200,
           "text": "{{venueAddress}}",
           "start": 2.3
+        },
+        {
+          "id": "bday-mid-divider",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%", "top": "60%", "width": "68%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 2.5, "duration": 6
         },
         {
           "id": "bday-host-line",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#E0B0FF"
           },
           "position": "custom",
-          "x": 220,
-          "y": 700,
-          "width": 1200,
+          "x": 230, "y": 680,
+          "width": 1250,
           "text": "Hosted by  {{hostName}}",
           "start": 2.7
         },
         {
           "id": "bday-audiogram-3",
           "type": "audiogram",
-          "x": 0,
-          "y": 980,
-          "width": 1920,
-          "height": 100,
+          "x": 0, "y": 1000,
+          "width": 1920, "height": 60,
           "position": "custom",
           "color": "#FFD700",
           "amplitude": 8
@@ -353,7 +451,7 @@
     },
     {
       "id": "bday-scene-4",
-      "comment": "RSVP & Closing CTA",
+      "comment": "RSVP & Closing — Gold Burst",
       "elements": [
         {
           "id": "bday-bg-4",
@@ -361,14 +459,41 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #FF4500 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(145deg, #FFD700 0%, #FF9500 40%, #FF4500 70%, #FF9500 100%)"
             }
           },
           "duration": 5
+        },
+        {
+          "id": "bday-glow-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%", "top": "10%", "width": "60%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-rsvp-eyebrow",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "2.4vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(26,5,51,0.6)",
+            "letter-spacing": "0.6vw"
+          },
+          "position": "center-center",
+          "y": -340,
+          "width": 1700,
+          "text": "✦  DON'T MISS IT  ✦",
+          "start": 0.3
         },
         {
           "id": "bday-rsvp-title",
@@ -376,14 +501,30 @@
           "component": "advanced/001",
           "settings": {
             "animation": {
-              "text": "RSVP BY<br>{{rsvpDate}}",
+              "text": "RSVP NOW!",
               "font-family": "Anton",
               "font-size": "10vw",
               "color": "#1a0533"
             }
           },
-          "comment": "RSVP headline",
+          "comment": "Single line 10vw=240px — centered y 420–660. Eyebrow at 200, gap 220. Date at 730, gap 70.",
           "duration": 5
+        },
+        {
+          "id": "bday-rsvp-date",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#1a0533"
+          },
+          "position": "custom",
+          "x": 0, "y": 730,
+          "width": 1920,
+          "text": "by  {{rsvpDate}}",
+          "start": 1.0
         },
         {
           "id": "bday-contact-btn",
@@ -392,30 +533,25 @@
           "settings": {
             "button": {
               "background": "#1a0533",
-              "padding": "0 8vw",
-              "box-shadow": "0.5vw 0.5vw 0 rgba(0,0,0,0.3)",
+              "padding": "0 9vw",
               "text": "📞  {{rsvpContact}}",
-              "font-size": "4vw",
+              "font-size": "3.8vw",
               "font-family": "Lato",
               "color": "#FFD700",
               "border-radius": "5vw"
             }
           },
-          "comment": "Contact button",
-          "x": 0,
-          "y": 550,
+          "x": 0, "y": 820,
           "width": 1920,
-          "height": 400,
+          "height": 150,
           "start": 1.5,
           "extra-time": 2
         },
         {
           "id": "bday-audiogram-4",
           "type": "audiogram",
-          "x": 0,
-          "y": 980,
-          "width": 1920,
-          "height": 100,
+          "x": 0, "y": 1010,
+          "width": 1920, "height": 50,
           "position": "custom",
           "color": "#1a0533",
           "amplitude": 12
@@ -436,9 +572,7 @@
       "id": "bday-bg-music",
       "type": "audio",
       "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
-      "fade-out": 2,
-      "duration": -2,
-      "volume": 0.15
+      "fade-out": 2, "duration": -2, "volume": 0.15
     }
   ]
 }

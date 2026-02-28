@@ -17,6 +17,7 @@
     "firebase": "^12.10.0",
     "firebase-admin": "^13.7.0",
     "framer-motion": "^12.34.3",
+    "google-search-results-nodejs": "^2.1.0",
     "gsap": "^3.14.2",
     "json2video-sdk": "^2.0.4",
     "langchain": "^1.2.28",

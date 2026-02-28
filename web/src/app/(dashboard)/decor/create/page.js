@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Save, Brain } from 'lucide-react';
 import { staggerContainer, fadeUp } from '@/lib/motion-variants';
+import { useAuth } from '@/contexts/auth-context';
+
 
 const THEMES = ['Floral', 'Royal', 'Rustic', 'Modern Minimal', 'Traditional', 'Bollywood', 'Garden', 'Beach', 'Fairy Tale', 'Corporate'];
 const EVENT_TYPES = ['Wedding', 'Reception', 'Engagement', 'Birthday', 'Corporate', 'Anniversary', 'Baby Shower', 'Other'];
@@ -12,11 +14,49 @@ const COLOR_PALETTES = ['Pastel Pink & White', 'Gold & Maroon', 'Navy & Gold', '
 
 export default function CreateDecorPage() {
   const router = useRouter();
+  const { userProfile } = useAuth();
   const [form, setForm] = useState({
     name: '', theme: '', eventType: '', colorPalette: '', basePrice: '', pricePerUnit: '',
     minPax: '', maxPax: '', description: '', imageUrl: '', tags: '', branchId: '', isActive: true,
   });
+  const [loading, setLoading] = useState(false);
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const handleSaveDecor = async () => {
+    if (!form.name || !form.theme || !form.basePrice) {
+      alert('Please fill in required fields: Name, Theme, and Base Price');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const franchiseId = userProfile?.franchise_id || 'pfd';
+      
+      const response = await fetch('/api/decor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          franchise_id: franchiseId,
+          tags: form.tags ? form.tags.split(',').map(t => t.trim()) : [],
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Decor package created successfully!');
+        router.push('/decor');
+      } else {
+        alert(`Failed to create decor: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error creating decor package');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
@@ -115,8 +155,8 @@ export default function CreateDecorPage() {
         {/* Form Actions */}
         <motion.div variants={fadeUp} className="form-actions">
           <Link href="/decor" className="btn btn-ghost" style={{ textDecoration: 'none' }}>Cancel</Link>
-          <button type="button" className="btn btn-primary" onClick={() => router.push('/decor')}>
-            <Save size={16} /> Save Decor Package
+          <button type="button" className="btn btn-primary" onClick={handleSaveDecor} disabled={loading}>
+            <Save size={16} /> {loading ? 'Saving...' : 'Save Decor Package'}
           </button>
         </motion.div>
       </form>

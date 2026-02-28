@@ -1,6 +1,6 @@
 {
   "id": "banquetease-wedding-v1",
-  "comment": "BanquetEase Wedding Invitation - Ivory, Rose Gold & Florals",
+  "comment": "BanquetEase Wedding Invitation — Luxury Ivory, Rose Gold & Champagne",
   "resolution": "full-hd",
   "quality": "high",
   "draft": false,
@@ -22,7 +22,7 @@
   "scenes": [
     {
       "id": "wed-scene-1",
-      "comment": "Opening - Romantic Floral Reveal",
+      "comment": "Opening — Luxury Ivory Reveal",
       "elements": [
         {
           "id": "wed-bg-1",
@@ -30,46 +30,82 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(160deg, #fdf6ec 0%, #f5e6d3 40%, #eedfd0 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(160deg, #fdf8ef 0%, #f5e6d0 45%, #e8d5b7 100%)"
             }
           },
-          "duration": 5
+          "duration": 6
         },
         {
-          "id": "wed-overlay",
+          "id": "wed-glow-center",
           "type": "component",
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "radial-gradient(ellipse at 50% 50%, rgba(179,122,81,0.1) 0%, transparent 70%)"
+              "left": "25%", "top": "20%", "width": "50%", "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(212,175,55,0.18) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
-          "duration": 5
+          "duration": 6
+        },
+        {
+          "id": "wed-corner-tl",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "2%", "top": "2%", "width": "8vw", "height": "8vw",
+              "background": "transparent",
+              "border-top-width": "0.25vw", "border-left-width": "0.25vw",
+              "border-color": "#D4AF37"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "wed-corner-br",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "89%", "top": "87%", "width": "8vw", "height": "8vw",
+              "background": "transparent",
+              "border-bottom-width": "0.25vw", "border-right-width": "0.25vw",
+              "border-color": "#D4AF37"
+            }
+          },
+          "duration": 6
         },
         {
           "id": "wed-together-label",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.4vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#b37a51",
-            "letter-spacing": "1vw"
+            "letter-spacing": "0.9vw"
           },
           "position": "center-center",
-          "y": -180,
-          "width": 1600,
+          "y": -390,
+          "width": 1700,
           "text": "TOGETHER  WITH  THEIR  FAMILIES",
           "start": 0.5
+        },
+        {
+          "id": "wed-ornament-top",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "32%", "width": "40%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+            }
+          },
+          "start": 0.6,
+          "duration": 6
         },
         {
           "id": "wed-headline",
@@ -79,31 +115,44 @@
             "animation": {
               "text": "{{bride}}<br>&amp;<br>{{groom}}",
               "font-family": "Playfair Display",
-              "font-size": "9vw",
-              "color": "#5c3d2e",
+              "font-size": "8vw",
+              "color": "#4a2e1a",
               "font-style": "italic"
             }
           },
-          "comment": "Couple names",
+          "comment": "3 lines × 8vw × 1.25 ≈ 480px — spans y 300–780",
           "start": 0.8,
-          "duration": 5,
+          "duration": 6,
           "fade-out": 0.8
+        },
+        {
+          "id": "wed-ornament-bottom",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%", "top": "75%", "width": "40%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+            }
+          },
+          "start": 1.5,
+          "duration": 6
         },
         {
           "id": "wed-invite-sub",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.2vw",
             "font-family": "Lato",
             "font-weight": "300",
-            "color": "#b37a51",
-            "letter-spacing": "0.5vw"
+            "color": "#9a6840",
+            "letter-spacing": "0.6vw"
           },
           "position": "center-center",
-          "y": 320,
-          "width": 1600,
-          "text": "REQUEST THE HONOUR OF YOUR PRESENCE",
+          "y": 390,
+          "width": 1700,
+          "text": "REQUEST  THE  HONOUR  OF  YOUR  PRESENCE",
           "start": 2.5
         },
         {
@@ -114,11 +163,11 @@
           "start": 0.5
         }
       ],
-      "duration": 5
+      "duration": 6
     },
     {
       "id": "wed-scene-2",
-      "comment": "Wedding Banner - Deep Burgundy",
+      "comment": "Wedding Banner — Deep Burgundy Luxury",
       "elements": [
         {
           "id": "wed-bg-2",
@@ -126,41 +175,58 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(135deg, #2c0a1a 0%, #5c1a3a 50%, #8b2252 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(145deg, #1a0511 0%, #3d0f26 35%, #6b1a42 65%, #3d0f26 100%)"
             }
           },
           "duration": 5
         },
         {
-          "id": "wed-gold-strip-top",
+          "id": "wed-shimmer-left",
           "type": "component",
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "5%",
-              "width": "100%",
-              "height": "0.4vw",
-              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+              "left": "-10%", "top": "30%", "width": "45%", "height": "40%",
+              "background": "radial-gradient(ellipse, rgba(212,175,55,0.12) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
           "duration": 5
         },
         {
-          "id": "wed-gold-strip-bottom",
+          "id": "wed-shimmer-right",
           "type": "component",
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "92%",
-              "width": "100%",
-              "height": "0.4vw",
-              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+              "left": "55%", "top": "30%", "width": "55%", "height": "40%",
+              "background": "radial-gradient(ellipse, rgba(212,175,55,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "wed-strip-top",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%", "top": "6%", "width": "100%", "height": "0.5vw",
+              "background": "linear-gradient(90deg, transparent 0%, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "wed-strip-top2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "5%", "top": "8%", "width": "90%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)"
             }
           },
           "duration": 5
@@ -170,16 +236,16 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.5vw",
+            "font-size": "2.6vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#D4AF37",
-            "letter-spacing": "0.8vw"
+            "letter-spacing": "0.9vw"
           },
           "position": "center-center",
-          "y": -280,
-          "width": 1600,
-          "text": "— WE'RE GETTING MARRIED —",
+          "y": -350,
+          "width": 1700,
+          "text": "✦  WE'RE GETTING MARRIED  ✦",
           "start": 0.3
         },
         {
@@ -190,24 +256,46 @@
             "animation": {
               "text": "{{bride}}<br>&amp;  {{groom}}",
               "font-family": "Playfair Display",
-              "font-size": "8.5vw",
+              "font-size": "8vw",
               "color": "#ffffff",
               "font-style": "italic",
               "font-weight": "700"
             }
           },
-          "comment": "Names bold version",
+          "comment": "2 lines × 8vw × 1.25 = 384px — centered y 348–732. Label at 190, gap 158px. Audiogram at 900.",
           "start": 0.6,
           "duration": 5,
           "fade-out": 0.6
         },
         {
+          "id": "wed-strip-bottom2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "5%", "top": "83%", "width": "90%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "wed-strip-bottom",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%", "top": "85%", "width": "100%", "height": "0.5vw",
+              "background": "linear-gradient(90deg, transparent 0%, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
           "id": "wed-audiogram-2",
           "type": "audiogram",
-          "x": 0,
-          "y": 980,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 920,
+          "width": 1920, "height": 55,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 6
@@ -224,7 +312,7 @@
     },
     {
       "id": "wed-scene-3",
-      "comment": "Ceremony Details - Soft Ivory",
+      "comment": "Ceremony Details — Luxury Ivory Card",
       "elements": [
         {
           "id": "wed-bg-3",
@@ -232,11 +320,21 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(180deg, #fdf6ec 0%, #f0e0c8 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(170deg, #fdf8ef 0%, #f5e6d0 50%, #ecdbc0 100%)"
+            }
+          },
+          "duration": 7
+        },
+        {
+          "id": "wed-bg-glow",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "10%", "top": "10%", "width": "80%", "height": "80%",
+              "background": "radial-gradient(ellipse, rgba(212,175,55,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
             }
           },
           "duration": 7
@@ -247,39 +345,47 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "10%",
-              "top": "-100%",
-              "width": "80%",
-              "height": "82%",
-              "animate": {
-                "duration": "900",
-                "easing": "easeOutCubic",
-                "top": "7%"
-              },
-              "background": "rgba(255,255,255,0.85)",
+              "left": "8%", "top": "-110%", "width": "84%", "height": "83%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "top": "6%" },
+              "background": "rgba(255,255,255,0.92)",
               "border-width": "0.3vw",
               "border-color": "#D4AF37",
-              "border-radius": "1vw"
+              "border-radius": "0.8vw"
             }
           },
-          "comment": "Ivory card"
+          "comment": "Card: top 6%=65px, height 83%=896px → spans 65–961px"
+        },
+        {
+          "id": "wed-card-inner-border",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "9.5%", "top": "-110%", "width": "81%", "height": "80%",
+              "animate": { "duration": "950", "easing": "easeOutCubic", "top": "8%" },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(212,175,55,0.4)",
+              "border-radius": "0.6vw"
+            }
+          },
+          "comment": "Decorative inner border frame"
         },
         {
           "id": "wed-ceremony-header",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.2vw",
+            "font-size": "2.8vw",
             "font-family": "Playfair Display",
             "font-style": "italic",
-            "color": "#b37a51",
-            "letter-spacing": "0.3vw"
+            "color": "#9a6840",
+            "letter-spacing": "0.2vw"
           },
           "position": "custom",
-          "x": 200,
-          "y": 130,
-          "width": 1500,
-          "text": "Ceremony",
+          "x": 250, "y": 110,
+          "width": 1420,
+          "text": "✦  Ceremony",
           "start": 1.0
         },
         {
@@ -287,15 +393,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "4vw",
+            "font-size": "3.8vw",
             "font-family": "Lato",
             "font-weight": "700",
-            "color": "#5c3d2e"
+            "color": "#3d200a"
           },
           "position": "custom",
-          "x": 200,
-          "y": 230,
-          "width": 1600,
+          "x": 250, "y": 195,
+          "width": 1420,
           "text": "{{weddingDate}}",
           "start": 1.4
         },
@@ -304,17 +409,29 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.5vw",
+            "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#5c3d2e"
           },
           "position": "custom",
-          "x": 200,
-          "y": 340,
-          "width": 1600,
-          "text": "⏰ Ceremony at {{ceremonyTime}}  |  Reception at {{receptionTime}}",
+          "x": 250, "y": 290,
+          "width": 1420,
+          "text": "⏰  Ceremony at {{ceremonyTime}}    |    Reception at {{receptionTime}}",
           "start": 1.8
+        },
+        {
+          "id": "wed-divider-dot-left",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "10%", "top": "39%", "width": "1.2vw", "height": "1.2vw",
+              "background": "#D4AF37",
+              "border-radius": "50%"
+            }
+          },
+          "start": 2.0, "duration": 7
         },
         {
           "id": "wed-divider",
@@ -322,31 +439,39 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "10%",
-              "top": "55%",
-              "width": "80%",
-              "height": "0.2vw",
-              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+              "left": "12%", "top": "40%", "width": "76%", "height": "0.15vw",
+              "background": "linear-gradient(90deg, #D4AF37, rgba(212,175,55,0.3), #D4AF37)"
             }
           },
-          "start": 2.0,
-          "duration": 7
+          "start": 2.0, "duration": 7
+        },
+        {
+          "id": "wed-divider-dot-right",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "89%", "top": "39%", "width": "1.2vw", "height": "1.2vw",
+              "background": "#D4AF37",
+              "border-radius": "50%"
+            }
+          },
+          "start": 2.0, "duration": 7
         },
         {
           "id": "wed-venue-header",
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.2vw",
+            "font-size": "2.8vw",
             "font-family": "Playfair Display",
             "font-style": "italic",
-            "color": "#b37a51"
+            "color": "#9a6840"
           },
           "position": "custom",
-          "x": 200,
-          "y": 570,
-          "width": 1500,
-          "text": "Venue",
+          "x": 250, "y": 455,
+          "width": 1420,
+          "text": "✦  Venue",
           "start": 2.4
         },
         {
@@ -354,15 +479,14 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "4vw",
+            "font-size": "3.8vw",
             "font-family": "Playfair Display",
             "font-weight": "700",
-            "color": "#5c3d2e"
+            "color": "#3d200a"
           },
           "position": "custom",
-          "x": 200,
-          "y": 660,
-          "width": 1600,
+          "x": 250, "y": 540,
+          "width": 1420,
           "text": "{{venueName}}",
           "start": 2.8
         },
@@ -371,25 +495,22 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.6vw",
             "font-family": "Lato",
             "font-weight": "300",
-            "color": "#8b6347"
+            "color": "#7a5038"
           },
           "position": "custom",
-          "x": 200,
-          "y": 770,
-          "width": 1600,
+          "x": 250, "y": 628,
+          "width": 1420,
           "text": "{{venueAddress}}",
           "start": 3.2
         },
         {
           "id": "wed-audiogram-3",
           "type": "audiogram",
-          "x": 0,
-          "y": 1000,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 1000,
+          "width": 1920, "height": 50,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 5
@@ -406,7 +527,7 @@
     },
     {
       "id": "wed-scene-4",
-      "comment": "RSVP & Closing",
+      "comment": "RSVP & Closing — Burgundy Luxury",
       "elements": [
         {
           "id": "wed-bg-4",
@@ -414,14 +535,41 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%",
-              "top": "0%",
-              "width": "100%",
-              "height": "100%",
-              "background": "linear-gradient(135deg, #5c1a3a 0%, #2c0a1a 100%)"
+              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "background": "linear-gradient(145deg, #1a0511 0%, #3d0f26 40%, #6b1a42 70%, #3d0f26 100%)"
             }
           },
           "duration": 6
+        },
+        {
+          "id": "wed-glow-rsvp",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%", "top": "20%", "width": "60%", "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(212,175,55,0.15) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "wed-rsvp-label",
+          "type": "text",
+          "style": "003",
+          "settings": {
+            "font-size": "2.2vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(212,175,55,0.7)",
+            "letter-spacing": "0.8vw"
+          },
+          "position": "center-center",
+          "y": -340,
+          "width": 1700,
+          "text": "✦  KINDLY  ✦",
+          "start": 0.3
         },
         {
           "id": "wed-rsvp-headline",
@@ -429,13 +577,14 @@
           "component": "advanced/001",
           "settings": {
             "animation": {
-              "text": "KINDLY<br>RSVP",
+              "text": "RSVP",
               "font-family": "Playfair Display",
-              "font-size": "11vw",
+              "font-size": "14vw",
               "color": "#D4AF37",
               "font-style": "italic"
             }
           },
+          "comment": "Single line 14vw=269px — centered y 405–675. Label at 200, gap 205. Date at 730, gap 55.",
           "duration": 6
         },
         {
@@ -443,16 +592,15 @@
           "type": "text",
           "style": "003",
           "settings": {
-            "font-size": "3.5vw",
+            "font-size": "3vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#f0e0c8"
           },
           "position": "custom",
-          "x": 0,
-          "y": 650,
+          "x": 0, "y": 730,
           "width": 1920,
-          "text": "by {{rsvpDate}}",
+          "text": "by  {{rsvpDate}}",
           "start": 1.5
         },
         {
@@ -462,28 +610,25 @@
           "settings": {
             "button": {
               "background": "#D4AF37",
-              "padding": "0 8vw",
+              "padding": "0 9vw",
               "text": "📞  {{rsvpContact}}",
-              "font-size": "4vw",
+              "font-size": "3.8vw",
               "font-family": "Lato",
-              "color": "#2c0a1a",
+              "color": "#1a0511",
               "border-radius": "5vw"
             }
           },
-          "x": 0,
-          "y": 730,
+          "x": 0, "y": 815,
           "width": 1920,
-          "height": 400,
+          "height": 150,
           "start": 2.5,
           "extra-time": 2
         },
         {
           "id": "wed-audiogram-4",
           "type": "audiogram",
-          "x": 0,
-          "y": 1000,
-          "width": 1920,
-          "height": 80,
+          "x": 0, "y": 1010,
+          "width": 1920, "height": 50,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 8
@@ -504,9 +649,7 @@
       "id": "wed-bg-music",
       "type": "audio",
       "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
-      "fade-out": 2,
-      "duration": -2,
-      "volume": 0.12
+      "fade-out": 2, "duration": -2, "volume": 0.12
     }
   ]
 }
