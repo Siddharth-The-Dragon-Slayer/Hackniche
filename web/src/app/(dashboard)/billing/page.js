@@ -8,7 +8,7 @@ import DataTable from '@/components/ui/DataTable';
 import Badge from '@/components/ui/Badge';
 import Tabs from '@/components/ui/Tabs';
 import SearchRow from '@/components/ui/SearchRow';
-import { RefreshCw, Loader2, AlertCircle, FileText, DollarSign, Clock, CreditCard } from 'lucide-react';
+import { RefreshCw, Loader2, AlertCircle, FileText, DollarSign, Clock, CreditCard, Printer, Eye } from 'lucide-react';
 
 const STATUS_V = { draft:'neutral', sent:'warning', partially_paid:'warning', paid:'green', overdue:'red', cancelled:'red' };
 const STATUS_L = { draft:'Draft', sent:'Sent', partially_paid:'Partial', paid:'Paid', overdue:'Overdue', cancelled:'Cancelled' };
@@ -22,7 +22,7 @@ const TAB_GROUPS = [
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
 const fmt     = n => '₹'+Number(n||0).toLocaleString('en-IN');
 
-const columns = [
+const makeColumns = (fid, bid, onPrint) => [
   { key:'invoice_number', label:'Invoice #', render:v=><span style={{fontFamily:'var(--font-mono)',fontWeight:600,fontSize:13}}>{v}</span>},
   { key:'customer_name', label:'Customer', render:(v,r)=><div><div style={{fontWeight:600}}>{v}</div>{r.phone&&<div style={{fontSize:11,color:'var(--color-text-muted)'}}>{r.phone}</div>}</div>},
   { key:'issue_date', label:'Date', render:v=>fmtDate(v) },
@@ -31,6 +31,30 @@ const columns = [
   { key:'balance', label:'Balance', render:v=><span style={{color:v>0?'#dc2626':'#16a34a',fontWeight:600}}>{fmt(v)}</span>},
   { key:'due_date', label:'Due', render:v=>{ if(!v) return '—'; const od=new Date(v)<new Date(); return <span style={{color:od?'#dc2626':'inherit',fontWeight:od?600:400}}>{od?'⚠ ':''}{fmtDate(v)}</span>;}},
   { key:'status', label:'Status', render:v=><Badge variant={STATUS_V[v]||'neutral'}>{STATUS_L[v]||v}</Badge>},
+  { 
+    key:'actions', 
+    label:'Actions', 
+    render:(v,row)=>(
+      <div style={{display:'flex',gap:6,alignItems:'center'}}>
+        <button 
+          className="btn btn-ghost btn-xs" 
+          onClick={(e)=>{e.stopPropagation();window.open(`/billing/${row.id}?franchise_id=${fid}&branch_id=${bid}`,'_blank');}}
+          title="View invoice"
+          style={{padding:'4px 8px'}}
+        >
+          <Eye size={14}/>
+        </button>
+        <button 
+          className="btn btn-ghost btn-xs" 
+          onClick={(e)=>{e.stopPropagation();onPrint(row.id);}}
+          title="Print/PDF"
+          style={{padding:'4px 8px'}}
+        >
+          <Printer size={14}/>
+        </button>
+      </div>
+    )
+  },
 ];
 
 export default function BillingPage() {
@@ -71,6 +95,20 @@ export default function BillingPage() {
   const totalBalance = invoices.reduce((s,i) => s + (i.balance||0), 0);
   const overdue      = invoices.filter(i => i.status==='overdue'||(['sent','partially_paid'].includes(i.status)&&i.due_date&&new Date(i.due_date)<new Date())).length;
 
+  const handlePrint = (invoiceId) => {
+    const url = `/billing/${invoiceId}?franchise_id=${fid}&branch_id=${bid}`;
+    const printWindow = window.open(url, '_blank');
+    if (printWindow) {
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      };
+    }
+  };
+
+  const columns = makeColumns(fid, bid, handlePrint);
+
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
       <motion.div variants={fadeUp} className="page-header" style={{marginBottom:24}}>
@@ -109,7 +147,17 @@ export default function BillingPage() {
             <div>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
                 <div><div style={{fontWeight:600,fontSize:14}}>{row.invoice_number}</div><div style={{fontSize:12,color:'var(--color-text-muted)'}}>{row.customer_name}</div></div>
-                <Badge variant={STATUS_V[row.status]||'neutral'}>{STATUS_L[row.status]||row.status}</Badge>
+                <div style={{display:'flex',alignItems:'center',gap:6}}>
+                  <Badge variant={STATUS_V[row.status]||'neutral'}>{STATUS_L[row.status]||row.status}</Badge>
+                  <button 
+                    className="btn btn-ghost btn-xs" 
+                    onClick={(e)=>{e.stopPropagation();handlePrint(row.id);}}
+                    title="Print/PDF"
+                    style={{padding:'4px'}}
+                  >
+                    <Printer size={14}/>
+                  </button>
+                </div>
               </div>
               <div style={{display:'flex',gap:12,fontSize:12,color:'var(--color-text-muted)'}}>
                 <span>Total: {fmt(row.total)}</span><span>Paid: {fmt(row.amount_paid)}</span><span style={{color:row.balance>0?'#dc2626':'#16a34a',fontWeight:600}}>Bal: {fmt(row.balance)}</span>

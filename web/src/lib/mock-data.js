@@ -1008,8 +1008,8 @@ export const sidebarMenus = {
   ],
   kitchen_manager: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/branch" },
-    { icon: "�", label: "Leads", href: "/leads" },
-    { icon: "�🎉", label: "Events", href: "/events" },
+    { icon: "🎯", label: "Leads", href: "/leads" },
+    { icon: "🎉", label: "Events", href: "/events" },
     { icon: "🍽️", label: "Menus", href: "/menus" },
     { icon: "📦", label: "Inventory", href: "/inventory" },
     { icon: "🛒", label: "Purchase Orders", href: "/purchase-orders" },

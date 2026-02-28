@@ -396,20 +396,14 @@ export async function PUT(request, { params }) {
       const taxAmount = Math.round(subtotal * taxRate);
       const invoiceTotal = subtotal + taxAmount;
 
-      // Sequential invoice number
-      const lastInvSnap = await adminDb.collection('invoices')
-        .where('franchise_id', '==', franchise_id)
-        .orderBy('created_at', 'desc').limit(1).get();
-      let invSeq = 1001;
-      if (!lastInvSnap.empty) {
-        const lastNum = lastInvSnap.docs[0].data().invoice_number || '';
-        const parsed = parseInt(lastNum.replace('INV-', ''), 10);
-        if (!isNaN(parsed)) invSeq = parsed + 1;
-      }
+      // Use timestamp-based invoice number to avoid index requirement
+      const timestamp = Date.now();
+      const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      const invoiceNumber = `INV-${franchise_id.toUpperCase()}-${timestamp}${randomSuffix}`;
 
       const invoiceRef = adminDb.collection('invoices').doc();
       const invoiceDoc = {
-        invoice_number: `INV-${String(invSeq).padStart(5, '0')}`,
+        invoice_number: invoiceNumber,
         booking_id: bookingRef.id,
         lead_id,
         franchise_id,
