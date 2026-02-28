@@ -588,35 +588,60 @@ function DynamicPricePreview({ hall }) {
     const dayOfWeek = eventDate.getDay();
     eventDate.setDate(eventDate.getDate() + ((6 - dayOfWeek + 7) % 7));
     return calculateDynamicPrice({
-      baseHallRent:      hall.base_price      || 0,
+      baseHallRent: hall.base_price || 0,
       basePricePerPlate: hall.price_per_plate || 0,
-      guestCount:        0,
+      guestCount: 0,
       eventDate,
-      bookingDate:       new Date(),
-      occupancyPercent:  60,
+      bookingDate: new Date(),
+      occupancyPercent: 60,
     });
   }, [hall.base_price, hall.price_per_plate]);
 
   const higher = preview.dynamicPrice > preview.basePrice;
 
   return (
-    <div style={{
-      borderTop: "1px solid var(--color-border)",
-      paddingTop: 10,
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-    }}>
+    <div
+      style={{
+        borderTop: "1px solid var(--color-border)",
+        paddingTop: 10,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
       <div>
-        <div style={{ fontSize: 10, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 2 }}>DYNAMIC PRICE (Sat · 45d · 60%)</div>
-        <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "var(--font-mono)", color: higher ? "#c0392b" : "#27ae60" }}>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 600,
+            color: "var(--color-text-muted)",
+            marginBottom: 2,
+          }}
+        >
+          DYNAMIC PRICE (Sat · 45d · 60%)
+        </div>
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 800,
+            fontFamily: "var(--font-mono)",
+            color: higher ? "#c0392b" : "#27ae60",
+          }}
+        >
           {formatINR(preview.dynamicPrice)}
         </div>
-        <div style={{ fontSize: 10, color: "var(--color-text-muted)" }}>{preview.combinedMultiplier}× multiplier</div>
+        <div style={{ fontSize: 10, color: "var(--color-text-muted)" }}>
+          {preview.combinedMultiplier}× multiplier
+        </div>
       </div>
       <Link
         href="/dynamic-pricing"
-        style={{ fontSize: 11, color: "var(--color-primary)", textDecoration: "none", fontWeight: 600 }}
+        style={{
+          fontSize: 11,
+          color: "var(--color-primary)",
+          textDecoration: "none",
+          fontWeight: 600,
+        }}
       >
         Calculator →
       </Link>
@@ -805,7 +830,13 @@ export default function HallsPage() {
           <Link
             href="/dynamic-pricing"
             className="btn btn-ghost btn-sm"
-            style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 4, fontSize: 12 }}
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 12,
+            }}
             title="Dynamic Pricing Calculator"
           >
             ₹ Pricing Calc
