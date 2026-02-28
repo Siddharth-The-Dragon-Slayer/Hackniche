@@ -1008,7 +1008,7 @@ export default function DecorPage() {
         .dc-actions { display:flex;flex-wrap:wrap;gap:7px;padding-top:10px;border-top:1px solid var(--color-border); }
 
         .kpi-strip  { display:flex;flex-wrap:wrap;gap:10px; }
-        .kpi-chip   { display:flex;flex-direction:column;align-items:flex-start;padding:12px 16px;border-radius:10px;border:1.5px solid var(--color-border);background:var(--color-card);flex:1 1 100px;min-width:90px; }
+        .kpi-chip   { display:flex;flex-direction:column;align-items:flex-start;padding:12px 16px;border-radius:10px;border:1.5px solid var(--color-border);background:var(--color-bg-card);flex:1 1 100px;min-width:90px; }
 
         .spin { animation:spin .8s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
