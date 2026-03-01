@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import admin from 'firebase-admin';
 import { cache } from '@/lib/cache';
 import { getResend, FROM_ADDRESS, buildPaymentConfirmationEmail } from '@/lib/resend-client';
 
@@ -25,6 +26,7 @@ export async function GET(req, { params }) {
     // Fetch lead by ID (bookings are leads with booking statuses)
     const snap = await adminDb.collection('leads').doc(id).get();
     if (!snap.exists) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+<<<<<<< HEAD
 
     const lead = snap.data();
 
@@ -102,6 +104,35 @@ export async function GET(req, { params }) {
     const result = { booking };
     cache.set(cacheKey, result, 120);
     return NextResponse.json(result);
+=======
+    
+    let booking = { id: snap.id, ...snap.data() };
+    
+    // If booking has no decoration data but has lead_id, fetch from lead
+    if (booking.lead_id && (!booking.decor || (!booking.decor.theme && !booking.decor.partner && !booking.decor.cost))) {
+      try {
+        const leadSnap = await adminDb.collection('leads').doc(booking.lead_id).get();
+        if (leadSnap.exists) {
+          const lead = leadSnap.data();
+          if (lead.event_finalization) {
+            booking.decor = {
+              theme: lead.event_finalization.decoration_theme || null,
+              partner: lead.event_finalization.decoration_partner || null,
+              cost: Number(lead.event_finalization.decoration_cost || 0),
+              setup_date: lead.event_finalization.setup_date || null,
+              teardown_date: lead.event_finalization.teardown_date || null,
+              special_requests: lead.event_finalization.special_requests || null,
+              description: lead.event_finalization.description || null,
+            };
+          }
+        }
+      } catch (leadErr) {
+        console.error('[Lead fetch error for decoration data]', leadErr);
+      }
+    }
+    
+    return NextResponse.json({ booking });
+>>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
   } catch (e) {
     console.error('[GET /api/bookings/[id]]', e);
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -193,6 +224,19 @@ export async function PUT(req, { params }) {
           } catch (emailErr) {
             console.error('[Payment Email Failed]', emailErr);
           }
+        }
+
+        // Sync to linked invoice so invoice-based views stay consistent
+        if (booking.invoice_id) {
+          const invRef = adminDb.collection('invoices').doc(booking.invoice_id);
+          const balanceDue = (booking.payments?.quote_total || 0) - (updates.payments?.total_paid || 0);
+          invRef.update({
+            payments: admin.firestore.FieldValue.arrayUnion(paymentEntry),
+            amount_paid: admin.firestore.FieldValue.increment(Number(paymentEntry.amount)),
+            balance: admin.firestore.FieldValue.increment(-Number(paymentEntry.amount)),
+            status: balanceDue <= 0 ? 'paid' : 'partially_paid',
+            updated_at: now,
+          }).catch(err => console.error('[bookings/add_payment] invoice sync failed:', err));
         }
         break;
       }

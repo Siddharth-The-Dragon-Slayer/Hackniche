@@ -1307,9 +1307,15 @@ export const sidebarMenus = {
   customer: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/customer" },
     { icon: "➕", label: "New Enquiry", href: "/leads/create" },
+    { icon: "🎯", label: "My Enquiries", href: "/leads" },
     { icon: "📋", label: "My Bookings", href: "/bookings" },
+<<<<<<< HEAD
     { icon: "�", label: "My Payments", href: "/dashboard/customer/invoices" },
     { icon: "�📅", label: "Calendar", href: "/calendar" },
+=======
+    { icon: "💳", label: "My Payments", href: "/payments" },
+    { icon: "📅", label: "Calendar", href: "/calendar" },
+>>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
     { icon: "🎨", label: "Venues & Decor", href: "/decor" },
     { icon: "🎬", label: "Create Invitations", href: "/dashboard/customer/invitations" },
     { icon: "💬", label: "Reviews", href: "/reviews" },

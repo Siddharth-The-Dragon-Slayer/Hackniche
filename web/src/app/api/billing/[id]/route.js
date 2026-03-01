@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import admin from 'firebase-admin';
 import { cache } from '@/lib/cache';
 
 /* ══════════════════════════════════════════════════════════════════
@@ -16,7 +17,14 @@ export async function GET(req, { params }) {
     const { id } = await params;
     const snap = await adminDb.collection('invoices').doc(id).get();
     if (!snap.exists) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
-    return NextResponse.json({ invoice: { id: snap.id, ...snap.data() } });
+    const invData = snap.data();
+    // Normalise legacy field names for consumers
+    return NextResponse.json({ invoice: {
+      id: snap.id,
+      ...invData,
+      payments: invData.payments || invData.payment_history || [],
+      balance: invData.balance ?? invData.balance_due ?? 0,
+    }});
   } catch (e) {
     console.error('[GET /api/billing/[id]]', e);
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -34,6 +42,9 @@ export async function PUT(req, { params }) {
     const snap = await ref.get();
     if (!snap.exists) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     const inv = snap.data();
+    // Normalise legacy field names
+    inv.payments = inv.payments || inv.payment_history || [];
+    inv.balance = inv.balance ?? inv.balance_due ?? 0;
 
     const now = new Date().toISOString();
     let updates = { updated_at: now };
@@ -64,6 +75,18 @@ export async function PUT(req, { params }) {
         updates.status = balance <= 0 ? 'paid' : 'partially_paid';
         if (balance <= 0) updates.paid_date = now.slice(0, 10);
         message = `Payment ₹${Number(amount).toLocaleString('en-IN')} recorded. ${balance <= 0 ? 'Invoice fully paid!' : `Balance: ₹${balance.toLocaleString('en-IN')}`}`;
+
+        // Sync to linked booking so customer-payments view stays consistent
+        if (inv.booking_id) {
+          const bookingRef = adminDb.collection('bookings').doc(inv.booking_id);
+          // Fire-and-forget; invoice is the source of truth
+          bookingRef.update({
+            'payments.payment_history': admin.firestore.FieldValue.arrayUnion(entry),
+            'payments.total_paid': amountPaid,
+            'payments.balance_due': Math.max(balance, 0),
+            updated_at: now,
+          }).catch(err => console.error('[billing/add_payment] booking sync failed:', err));
+        }
         break;
       }
 
