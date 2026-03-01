@@ -42,8 +42,26 @@ import { NextResponse } from "next/server";
 const SERPAPI_KEY = process.env.SERPAPI_KEY || "db0dad09048e7977d52c70cbcfa109f11fd6d63744e033b1b4779213342ffd54";
 const SERPAPI_BASE = "https://serpapi.com/search";
 
-// Helper function to fetch from SerpApi
-async function serpApiCall(params) {
+// ── In-Memory Cache (30-minute TTL, resets on server restart) ──────────────
+const _reviewCache = new Map();
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+function _cacheKey(vendorName, city, sortBy) {
+  return `${vendorName.toLowerCase().trim()}||${city.toLowerCase().trim()}||${sortBy}`;
+}
+function _getCached(key) {
+  const entry = _reviewCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.ts > CACHE_TTL_MS) { _reviewCache.delete(key); return null; }
+  return entry.data;
+}
+function _setCache(key, data) {
+  _reviewCache.set(key, { data, ts: Date.now() });
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+// Helper function to fetch from SerpApi — accepts an external AbortSignal
+async function serpApiCall(params, signal) {
   try {
     const url = new URL(SERPAPI_BASE);
     Object.entries(params).forEach(([key, value]) => {
@@ -51,7 +69,7 @@ async function serpApiCall(params) {
     });
     url.searchParams.append("api_key", SERPAPI_KEY);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { signal });
     if (!response.ok) {
       throw new Error(`SerpApi error: ${response.status}`);
     }
@@ -62,21 +80,23 @@ async function serpApiCall(params) {
   }
 }
 export async function GET(request) {
+  // Single 10 s timeout shared across all SerpApi calls in this request
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
   try {
     // ── 1. Parse query parameters ──────────────────────────────
     const { searchParams } = new URL(request.url);
     const vendorName = searchParams.get("vendorName")?.trim();
-    const city = searchParams.get("city")?.trim();
+    const city = searchParams.get("city")?.trim() || "";
     const sortBy = searchParams.get("sortBy") || "qualityScore";
 
     // ── 2. Validate inputs ─────────────────────────────────────
-    if (!vendorName || !city) {
+    if (!vendorName) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required parameters: vendorName and city",
-          example:
-            "/api/vendor/get-reviews?vendorName=Sharma%20Tent%20House&city=Delhi&sortBy=newest",
+          error: "Missing required parameter: vendorName",
+          example: "/api/vendor/get-reviews?vendorName=Prasad%20Food%20Divine&sortBy=newest",
         },
         { status: 400 }
       );
@@ -94,30 +114,36 @@ export async function GET(request) {
     }
 
     console.log(
-      `[get-reviews] Searching for: ${vendorName} in ${city}`
+      `[get-reviews] Searching for: ${vendorName}${city ? ` in ${city}` : ""}`
     );
+
+    // ── 3 (cache check). Return cached result instantly if available ──────
+    const cacheKey = _cacheKey(vendorName, city, sortBy);
+    const cached = _getCached(cacheKey);
+    if (cached) {
+      console.log(`[get-reviews] Cache HIT for: ${vendorName}`);
+      return NextResponse.json({ ...cached, cached: true });
+    }
 
     // ── 3. STEP 1: Find the vendor on Google Maps ──────────────
     const searchParams1 = {
       engine: "google_maps",
-      q: `${vendorName} ${city}`,
+      q: vendorName,   // search by name only — no city appended
       type: "search",
     };
 
-    const searchResult = await serpApiCall(searchParams1);
+    const searchResult = await serpApiCall(searchParams1, controller.signal);
 
     // Check if local results exist
     if (!searchResult.local_results || searchResult.local_results.length === 0) {
-      console.log(
-        `[get-reviews] Vendor not found: ${vendorName} in ${city}`
-      );
+      console.log(`[get-reviews] Vendor not found: ${vendorName}`);
       return NextResponse.json(
         {
           success: false,
-          error: `Vendor "${vendorName}" not found on Google Maps in ${city}`,
-          suggestion:
-            "Try searching with different keywords, check spelling, or verify the location",
-          tried_search: `${vendorName} ${city}`,
+          already_synced: true,
+          error: `Vendor "${vendorName}" not found on Google Maps`,
+          suggestion: "Check spelling or try a different search name",
+          tried_search: vendorName,
         },
         { status: 404 }
       );
@@ -138,13 +164,14 @@ export async function GET(request) {
       sort_by: sortBy,
     };
 
-    const reviewsResult = await serpApiCall(reviewParams);
+    const reviewsResult = await serpApiCall(reviewParams, controller.signal);
 
     // Format reviews in a consistent format
     const reviews = (reviewsResult.reviews || []).map((review) => ({
       author: review.user?.name || "Anonymous",
       rating: review.rating || 0,
-      text: review.snippet || "",
+      // SerpApi uses 'snippet' in search results and 'text' in reviews endpoint
+      text: review.snippet || review.text || review.description || "",
       date: review.published_at_raw || review.review_datetime_utc || "Unknown date",
       avatar: review.user?.thumbnail || null,
       helpful_count: review.review_likes_count || 0,
@@ -157,7 +184,7 @@ export async function GET(request) {
     );
 
     // ── 5. Build response ──────────────────────────────────────
-    return NextResponse.json({
+    const responseData = {
       success: true,
       vendor_info: {
         name: topMatch.title || vendorName,
@@ -179,26 +206,29 @@ export async function GET(request) {
         search_cost: 1,
         reviews_cost: 1,
         total_cost: 2,
-        note: "Cache this result for 30 days to minimize costs",
+        note: "Cache TTL: 30 minutes",
       },
       cached: false,
       fetched_at: new Date().toISOString(),
-    });
+    };
+
+    // Store in cache for future requests
+    _setCache(cacheKey, responseData);
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("[get-reviews] Error:", error);
-
+    const isTimeout = error.name === "AbortError" || error.code === "UND_ERR_SOCKET";
     return NextResponse.json(
       {
         success: false,
-        error:
-          process.env.NODE_ENV === "development"
-            ? error.message
-            : "Failed to fetch reviews",
-        stack:
-          process.env.NODE_ENV === "development" ? error.stack : undefined,
+        already_synced: true,
+        error: isTimeout ? "Connection timed out" : (error.message || "Failed to fetch reviews"),
       },
       { status: 500 }
     );
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -208,13 +238,13 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { vendorName, city, sortBy = "qualityScore" } = body;
+    const { vendorName, city = "", sortBy = "qualityScore" } = body;
 
-    if (!vendorName || !city) {
+    if (!vendorName) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required fields: vendorName, city",
+          error: "Missing required fields: vendorName",
         },
         { status: 400 }
       );

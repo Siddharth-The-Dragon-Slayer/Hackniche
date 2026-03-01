@@ -14,6 +14,9 @@ function initAdmin() {
     const keyPath = join(process.cwd(), "scripts", "serviceAccountKey.json");
     const serviceAccount = JSON.parse(readFileSync(keyPath, "utf8"));
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    // Force HTTP long-polling instead of gRPC — eliminates 20-75 s cold-start
+    // latency caused by gRPC channel establishment failures in dev environments.
+    admin.firestore().settings({ ignoreUndefinedProperties: true, preferRest: true });
   } catch (err) {
     console.error("[firebase-admin] Init failed:", err.message);
     throw new Error("Firebase Admin could not be initialised: " + err.message);

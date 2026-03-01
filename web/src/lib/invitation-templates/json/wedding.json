@@ -30,7 +30,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
               "background": "linear-gradient(160deg, #fdf8ef 0%, #f5e6d0 45%, #e8d5b7 100%)"
             }
           },
@@ -42,7 +45,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "25%", "top": "20%", "width": "50%", "height": "60%",
+              "left": "25%",
+              "top": "20%",
+              "width": "50%",
+              "height": "60%",
               "background": "radial-gradient(ellipse, rgba(212,175,55,0.18) 0%, transparent 70%)",
               "border-radius": "50%"
             }
@@ -55,9 +61,13 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "2%", "top": "2%", "width": "8vw", "height": "8vw",
+              "left": "2%",
+              "top": "2%",
+              "width": "8vw",
+              "height": "8vw",
               "background": "transparent",
-              "border-top-width": "0.25vw", "border-left-width": "0.25vw",
+              "border-top-width": "0.25vw",
+              "border-left-width": "0.25vw",
               "border-color": "#D4AF37"
             }
           },
@@ -69,9 +79,13 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "89%", "top": "87%", "width": "8vw", "height": "8vw",
+              "left": "89%",
+              "top": "87%",
+              "width": "8vw",
+              "height": "8vw",
               "background": "transparent",
-              "border-bottom-width": "0.25vw", "border-right-width": "0.25vw",
+              "border-bottom-width": "0.25vw",
+              "border-right-width": "0.25vw",
               "border-color": "#D4AF37"
             }
           },
@@ -80,19 +94,21 @@
         {
           "id": "wed-together-label",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.4vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#b37a51",
-            "letter-spacing": "0.9vw"
+            "letter-spacing": "0.9vw",
+            "text-align": "center"
           },
           "position": "center-center",
           "y": -390,
           "width": 1700,
           "text": "TOGETHER  WITH  THEIR  FAMILIES",
-          "start": 0.5
+          "start": 0.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-ornament-top",
@@ -100,8 +116,11 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "30%", "top": "32%", "width": "40%", "height": "0.15vw",
-              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+              "left": "25%",
+              "top": "23%",
+              "width": "50%",
+              "height": "0.2vw",
+              "background": "linear-gradient(90deg, transparent, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent)"
             }
           },
           "start": 0.6,
@@ -131,8 +150,11 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "30%", "top": "75%", "width": "40%", "height": "0.15vw",
-              "background": "linear-gradient(90deg, transparent, #D4AF37, transparent)"
+              "left": "25%",
+              "top": "79%",
+              "width": "50%",
+              "height": "0.2vw",
+              "background": "linear-gradient(90deg, transparent, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent)"
             }
           },
           "start": 1.5,
@@ -141,26 +163,28 @@
         {
           "id": "wed-invite-sub",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.2vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#9a6840",
-            "letter-spacing": "0.6vw"
+            "letter-spacing": "0.6vw",
+            "text-align": "center"
           },
           "position": "center-center",
-          "y": 390,
+          "y": 340,
           "width": 1700,
           "text": "REQUEST  THE  HONOUR  OF  YOUR  PRESENCE",
-          "start": 2.5
+          "start": 2.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-voice-1",
           "type": "voice",
           "voice": "en-IN-NeerjaNeural",
           "text": "{{voiceScene1}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
       "duration": 6
@@ -175,7 +199,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
               "background": "linear-gradient(145deg, #1a0511 0%, #3d0f26 35%, #6b1a42 65%, #3d0f26 100%)"
             }
           },
@@ -187,7 +214,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "-10%", "top": "30%", "width": "45%", "height": "40%",
+              "left": "-10%",
+              "top": "30%",
+              "width": "45%",
+              "height": "40%",
               "background": "radial-gradient(ellipse, rgba(212,175,55,0.12) 0%, transparent 70%)",
               "border-radius": "50%"
             }
@@ -200,7 +230,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "55%", "top": "30%", "width": "55%", "height": "40%",
+              "left": "55%",
+              "top": "30%",
+              "width": "55%",
+              "height": "40%",
               "background": "radial-gradient(ellipse, rgba(212,175,55,0.1) 0%, transparent 70%)",
               "border-radius": "50%"
             }
@@ -213,7 +246,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "6%", "width": "100%", "height": "0.5vw",
+              "left": "0%",
+              "top": "6%",
+              "width": "100%",
+              "height": "0.5vw",
               "background": "linear-gradient(90deg, transparent 0%, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent 100%)"
             }
           },
@@ -225,7 +261,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "5%", "top": "8%", "width": "90%", "height": "0.15vw",
+              "left": "5%",
+              "top": "8%",
+              "width": "90%",
+              "height": "0.15vw",
               "background": "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)"
             }
           },
@@ -234,19 +273,21 @@
         {
           "id": "wed-married-label",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.6vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#D4AF37",
-            "letter-spacing": "0.9vw"
+            "letter-spacing": "0.9vw",
+            "text-align": "center"
           },
           "position": "center-center",
           "y": -350,
           "width": 1700,
           "text": "✦  WE'RE GETTING MARRIED  ✦",
-          "start": 0.3
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-names-big",
@@ -265,7 +306,7 @@
           "comment": "2 lines × 8vw × 1.25 = 384px — centered y 348–732. Label at 190, gap 158px. Audiogram at 900.",
           "start": 0.6,
           "duration": 5,
-          "fade-out": 0.6
+          "fade-out": 0.8
         },
         {
           "id": "wed-strip-bottom2",
@@ -273,7 +314,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "5%", "top": "83%", "width": "90%", "height": "0.15vw",
+              "left": "5%",
+              "top": "83%",
+              "width": "90%",
+              "height": "0.15vw",
               "background": "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)"
             }
           },
@@ -285,7 +329,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "85%", "width": "100%", "height": "0.5vw",
+              "left": "0%",
+              "top": "85%",
+              "width": "100%",
+              "height": "0.5vw",
               "background": "linear-gradient(90deg, transparent 0%, #D4AF37 30%, #fff8dc 50%, #D4AF37 70%, transparent 100%)"
             }
           },
@@ -294,8 +341,10 @@
         {
           "id": "wed-audiogram-2",
           "type": "audiogram",
-          "x": 0, "y": 920,
-          "width": 1920, "height": 55,
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 6
@@ -305,10 +354,10 @@
           "type": "voice",
           "voice": "en-IN-NeerjaNeural",
           "text": "{{voiceScene2}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 5
+      "duration": 7
     },
     {
       "id": "wed-scene-3",
@@ -320,7 +369,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
               "background": "linear-gradient(170deg, #fdf8ef 0%, #f5e6d0 50%, #ecdbc0 100%)"
             }
           },
@@ -332,7 +384,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "10%", "top": "10%", "width": "80%", "height": "80%",
+              "left": "10%",
+              "top": "10%",
+              "width": "80%",
+              "height": "80%",
               "background": "radial-gradient(ellipse, rgba(212,175,55,0.1) 0%, transparent 70%)",
               "border-radius": "50%"
             }
@@ -345,8 +400,15 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "8%", "top": "-110%", "width": "84%", "height": "83%",
-              "animate": { "duration": "950", "easing": "easeOutCubic", "top": "6%" },
+              "left": "8%",
+              "top": "-110%",
+              "width": "84%",
+              "height": "83%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "top": "6%"
+              },
               "background": "rgba(255,255,255,0.92)",
               "border-width": "0.3vw",
               "border-color": "#D4AF37",
@@ -361,8 +423,15 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "9.5%", "top": "-110%", "width": "81%", "height": "80%",
-              "animate": { "duration": "950", "easing": "easeOutCubic", "top": "8%" },
+              "left": "9.5%",
+              "top": "-110%",
+              "width": "81%",
+              "height": "80%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "top": "8%"
+              },
               "background": "transparent",
               "border-width": "0.1vw",
               "border-color": "rgba(212,175,55,0.4)",
@@ -374,7 +443,6 @@
         {
           "id": "wed-ceremony-header",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.8vw",
             "font-family": "Playfair Display",
@@ -382,43 +450,64 @@
             "color": "#9a6840",
             "letter-spacing": "0.2vw"
           },
-          "position": "custom",
-          "x": 250, "y": 110,
+          "position": "center-center",
+          "y": -430,
           "width": 1420,
           "text": "✦  Ceremony",
-          "start": 1.0
+          "start": 1,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-date-detail",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3.8vw",
             "font-family": "Lato",
             "font-weight": "700",
             "color": "#3d200a"
           },
-          "position": "custom",
-          "x": 250, "y": 195,
+          "position": "center-center",
+          "y": -345,
           "width": 1420,
           "text": "{{weddingDate}}",
-          "start": 1.4
+          "start": 1.7,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
-          "id": "wed-time-detail",
+          "id": "wed-ceremony-time",
           "type": "text",
-          "style": "003",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "400",
+            "color": "#5c3d2e"
+          },
+          "position": "center-center",
+          "y": -255,
+          "width": 1420,
+          "text": "⏰  Ceremony  ·  {{ceremonyTime}}",
+          "start": 2.4,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "wed-reception-time",
+          "type": "text",
           "settings": {
             "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
-            "color": "#5c3d2e"
+            "color": "#7a5038"
           },
-          "position": "custom",
-          "x": 250, "y": 290,
+          "position": "center-center",
+          "y": -166,
           "width": 1420,
-          "text": "⏰  Ceremony at {{ceremonyTime}}    |    Reception at {{receptionTime}}",
-          "start": 1.8
+          "text": "🥂  Reception  ·  {{receptionTime}}",
+          "start": 3.1,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-divider-dot-left",
@@ -426,12 +515,16 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "10%", "top": "39%", "width": "1.2vw", "height": "1.2vw",
+              "left": "10%",
+              "top": "46%",
+              "width": "1.2vw",
+              "height": "1.2vw",
               "background": "#D4AF37",
               "border-radius": "50%"
             }
           },
-          "start": 2.0, "duration": 7
+          "start": 2,
+          "duration": 7
         },
         {
           "id": "wed-divider",
@@ -439,11 +532,15 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "12%", "top": "40%", "width": "76%", "height": "0.15vw",
+              "left": "12%",
+              "top": "47%",
+              "width": "76%",
+              "height": "0.2vw",
               "background": "linear-gradient(90deg, #D4AF37, rgba(212,175,55,0.3), #D4AF37)"
             }
           },
-          "start": 2.0, "duration": 7
+          "start": 2,
+          "duration": 7
         },
         {
           "id": "wed-divider-dot-right",
@@ -451,66 +548,109 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "89%", "top": "39%", "width": "1.2vw", "height": "1.2vw",
+              "left": "89%",
+              "top": "46%",
+              "width": "1.2vw",
+              "height": "1.2vw",
               "background": "#D4AF37",
               "border-radius": "50%"
             }
           },
-          "start": 2.0, "duration": 7
+          "start": 2,
+          "duration": 7
         },
         {
           "id": "wed-venue-header",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.8vw",
             "font-family": "Playfair Display",
             "font-style": "italic",
             "color": "#9a6840"
           },
-          "position": "custom",
-          "x": 250, "y": 455,
+          "position": "center-center",
+          "y": -10,
           "width": 1420,
           "text": "✦  Venue",
-          "start": 2.4
+          "start": 3.8,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-venue-name",
           "type": "text",
-          "style": "003",
           "settings": {
-            "font-size": "3.8vw",
+            "font-size": "3.5vw",
             "font-family": "Playfair Display",
             "font-weight": "700",
             "color": "#3d200a"
           },
-          "position": "custom",
-          "x": 250, "y": 540,
+          "position": "center-center",
+          "y": 70,
           "width": 1420,
           "text": "{{venueName}}",
-          "start": 2.8
+          "start": 4.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-venue-addr",
           "type": "text",
-          "style": "003",
           "settings": {
-            "font-size": "2.6vw",
+            "font-size": "2.5vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#7a5038"
           },
-          "position": "custom",
-          "x": 250, "y": 628,
+          "position": "center-center",
+          "y": 172,
           "width": 1420,
           "text": "{{venueAddress}}",
-          "start": 3.2
+          "start": 5.2,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "wed-card-footer-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "10%",
+              "top": "78%",
+              "width": "80%",
+              "height": "0.12vw",
+              "background": "linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)"
+            }
+          },
+          "start": 3.5,
+          "duration": 7
+        },
+        {
+          "id": "wed-powered-by",
+          "type": "text",
+          "settings": {
+            "font-size": "1.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(154,104,64,0.5)",
+            "letter-spacing": "0.4vw"
+          },
+          "position": "center-center",
+          "y": 315,
+          "width": 1920,
+          "text": "✦  BANQUETEASE  ✦",
+          "start": 5.9,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-audiogram-3",
           "type": "audiogram",
-          "x": 0, "y": 1000,
-          "width": 1920, "height": 50,
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 5
@@ -520,10 +660,10 @@
           "type": "voice",
           "voice": "en-IN-NeerjaNeural",
           "text": "{{voiceScene3}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 7
+      "duration": 9
     },
     {
       "id": "wed-scene-4",
@@ -535,7 +675,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "0%", "top": "0%", "width": "100%", "height": "100%",
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
               "background": "linear-gradient(145deg, #1a0511 0%, #3d0f26 40%, #6b1a42 70%, #3d0f26 100%)"
             }
           },
@@ -547,7 +690,10 @@
           "component": "shape/rectangle",
           "settings": {
             "rectangle1": {
-              "left": "20%", "top": "20%", "width": "60%", "height": "50%",
+              "left": "20%",
+              "top": "20%",
+              "width": "60%",
+              "height": "50%",
               "background": "radial-gradient(ellipse, rgba(212,175,55,0.15) 0%, transparent 70%)",
               "border-radius": "50%"
             }
@@ -557,19 +703,21 @@
         {
           "id": "wed-rsvp-label",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.2vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "rgba(212,175,55,0.7)",
-            "letter-spacing": "0.8vw"
+            "letter-spacing": "0.8vw",
+            "text-align": "center"
           },
           "position": "center-center",
           "y": -340,
           "width": 1700,
           "text": "✦  KINDLY  ✦",
-          "start": 0.3
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-rsvp-headline",
@@ -585,23 +733,25 @@
             }
           },
           "comment": "Single line 14vw=269px — centered y 405–675. Label at 200, gap 205. Date at 730, gap 55.",
-          "duration": 6
+          "duration": 6,
+          "fade-out": 0.8
         },
         {
           "id": "wed-rsvp-by",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#f0e0c8"
           },
-          "position": "custom",
-          "x": 0, "y": 730,
+          "position": "center-center",
+          "y": 190,
           "width": 1920,
           "text": "by  {{rsvpDate}}",
-          "start": 1.5
+          "start": 1.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "wed-contact-btn",
@@ -618,7 +768,8 @@
               "border-radius": "5vw"
             }
           },
-          "x": 0, "y": 815,
+          "x": 0,
+          "y": 815,
           "width": 1920,
           "height": 150,
           "start": 2.5,
@@ -627,8 +778,10 @@
         {
           "id": "wed-audiogram-4",
           "type": "audiogram",
-          "x": 0, "y": 1010,
-          "width": 1920, "height": 50,
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
           "position": "custom",
           "color": "#D4AF37",
           "amplitude": 8
@@ -638,10 +791,10 @@
           "type": "voice",
           "voice": "en-IN-NeerjaNeural",
           "text": "{{voiceScene4}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 6
+      "duration": 7
     }
   ],
   "elements": [
@@ -649,7 +802,9 @@
       "id": "wed-bg-music",
       "type": "audio",
       "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
-      "fade-out": 2, "duration": -2, "volume": 0.12
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.12
     }
   ]
 }
