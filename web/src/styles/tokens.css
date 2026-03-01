@@ -99,86 +99,86 @@
 [data-theme="light"] {
   /* Backgrounds */
   --color-bg: #ffffff;
-  --color-bg-alt: #fff8e7;
-  --color-bg-alt2: #fefae0;
+  --color-bg-alt: #fffbf0;
+  --color-bg-alt2: #fef7e8;
   --color-bg-card: #ffffff;
-  --color-bg-card-hover: #fffdf5;
-  --color-bg-nav: rgba(255, 255, 255, 0.96);
-  --color-bg-overlay: rgba(90, 16, 16, 0.72);
-  --color-bg-footer: #5a1010;
+  --color-bg-card-hover: #fffef8;
+  --color-bg-nav: rgba(255, 255, 255, 0.97);
+  --color-bg-overlay: rgba(70, 10, 10, 0.75);
+  --color-bg-footer: #4a0f0f;
 
-  /* Brand */
-  --color-primary: #7b1c1c;
-  --color-primary-dark: #5a1010;
-  --color-primary-light: #9b3a3a;
-  --color-primary-ghost: rgba(123, 28, 28, 0.08);
-  --color-accent: #c9921a;
-  --color-accent-dark: #a87510;
-  --color-accent-light: #e8b84b;
-  --color-accent-ghost: rgba(201, 146, 26, 0.1);
+  /* Brand - Enhanced & More Vibrant */
+  --color-primary: #8b2c2c;
+  --color-primary-dark: #6b1616;
+  --color-primary-light: #b24545;
+  --color-primary-ghost: rgba(139, 44, 44, 0.08);
+  --color-accent: #e6a812;
+  --color-accent-dark: #c98d0a;
+  --color-accent-light: #f5c844;
+  --color-accent-ghost: rgba(230, 168, 18, 0.12);
 
   /* Text */
   --color-text-h: #1a1a1a;
-  --color-text-body: #4a4a4a;
-  --color-text-muted: #888888;
+  --color-text-body: #424242;
+  --color-text-muted: #7a7a7a;
   --color-text-inverse: #ffffff;
   --color-text-on-gold: #1a1a1a;
-  --color-text-footer: rgba(255, 255, 255, 0.75);
+  --color-text-footer: rgba(255, 255, 255, 0.85);
 
   /* Surfaces (dashboard cards / form backgrounds) */
   --color-surface: #ffffff;
-  --color-surface-2: #faf7f2;
+  --color-surface-2: #faf8f3;
 
   /* Borders */
-  --color-border: #e8e0d0;
-  --color-border-hover: rgba(123, 28, 28, 0.25);
-  --color-border-accent: rgba(201, 146, 26, 0.3);
+  --color-border: #e8dccf;
+  --color-border-hover: rgba(139, 44, 44, 0.28);
+  --color-border-accent: rgba(230, 168, 18, 0.35);
 
   /* Semantic */
-  --color-star: #f5a623;
-  --color-success: #2e7d32;
-  --color-danger: #c0392b;
-  --color-warning: #e67e22;
-  --color-info: #1565c0;
+  --color-star: #f39c12;
+  --color-success: #27ae60;
+  --color-danger: #e74c3c;
+  --color-warning: #f97316;
+  --color-info: #2196f3;
 
   /* Shadows */
   --shadow-card:
-    0 2px 12px rgba(123, 28, 28, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+    0 2px 12px rgba(139, 44, 44, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-hover:
-    0 12px 40px rgba(123, 28, 28, 0.14), 0 4px 16px rgba(0, 0, 0, 0.08);
+    0 12px 40px rgba(139, 44, 44, 0.18), 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-nav: 0 2px 20px rgba(0, 0, 0, 0.08);
-  --shadow-btn: 0 4px 16px rgba(201, 146, 26, 0.35);
-  --shadow-btn-hover: 0 8px 28px rgba(201, 146, 26, 0.5);
+  --shadow-btn: 0 4px 16px rgba(230, 168, 18, 0.4);
+  --shadow-btn-hover: 0 8px 32px rgba(230, 168, 18, 0.55);
   --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.25);
 
-  /* Gradients */
+  /* Gradients - More Vibrant */
   --gradient-hero: linear-gradient(
     135deg,
-    rgba(90, 16, 16, 0.82) 0%,
-    rgba(26, 10, 10, 0.55) 60%,
-    rgba(201, 146, 26, 0.08) 100%
+    rgba(70, 10, 10, 0.88) 0%,
+    rgba(50, 8, 8, 0.65) 60%,
+    rgba(230, 168, 18, 0.12) 100%
   );
-  --gradient-btn: linear-gradient(135deg, #c9921a 0%, #a87510 100%);
-  --gradient-btn-alt: linear-gradient(135deg, #9b3a3a 0%, #7b1c1c 100%);
+  --gradient-btn: linear-gradient(135deg, #e6a812 0%, #c98d0a 100%);
+  --gradient-btn-alt: linear-gradient(135deg, #b24545 0%, #8b2c2c 100%);
   --gradient-text: linear-gradient(
     135deg,
-    #7b1c1c 0%,
-    #c9921a 60%,
-    #e8b84b 100%
+    #8b2c2c 0%,
+    #e6a812 60%,
+    #f5c844 100%
   );
-  --gradient-footer: linear-gradient(180deg, #5a1010 0%, #3d0a0a 100%);
-  --gradient-bar: linear-gradient(90deg, #7b1c1c, #c9921a);
+  --gradient-footer: linear-gradient(180deg, #4a0f0f 0%, #2d0808 100%);
+  --gradient-bar: linear-gradient(90deg, #8b2c2c, #e6a812);
   --gradient-shimmer: linear-gradient(
     90deg,
-    #f5ede0 0%,
-    #fefae0 50%,
-    #f5ede0 100%
+    #fffbf0 0%,
+    #fef7e8 50%,
+    #fffbf0 100%
   );
   --gradient-section: linear-gradient(
     180deg,
-    #fff8e7 0%,
-    #fefae0 50%,
-    #fff8e7 100%
+    #fffbf0 0%,
+    #fef7e8 50%,
+    #fffbf0 100%
   );
 }
 
@@ -187,85 +187,85 @@
    ════════════════════════════════════════════════════ */
 [data-theme="dark"] {
   /* Backgrounds */
-  --color-bg: #0f0508;
-  --color-bg-alt: #160a0a;
-  --color-bg-alt2: #1c0d0d;
-  --color-bg-card: #1c0d0d;
-  --color-bg-card-hover: #221010;
-  --color-bg-nav: rgba(15, 5, 8, 0.94);
-  --color-bg-overlay: rgba(15, 5, 8, 0.85);
-  --color-bg-footer: #0a0306;
+  --color-bg: #0d0406;
+  --color-bg-alt: #130808;
+  --color-bg-alt2: #1a0a0a;
+  --color-bg-card: #1a0a0a;
+  --color-bg-card-hover: #20100f;
+  --color-bg-nav: rgba(13, 4, 6, 0.95);
+  --color-bg-overlay: rgba(13, 4, 6, 0.88);
+  --color-bg-footer: #080203;
 
-  /* Brand — shifted warmer */
-  --color-primary: #c9603a;
-  --color-primary-dark: #a8492a;
-  --color-primary-light: #e07050;
-  --color-primary-ghost: rgba(201, 96, 58, 0.12);
-  --color-accent: #e8b84b;
-  --color-accent-dark: #c9921a;
-  --color-accent-light: #f5d07a;
-  --color-accent-ghost: rgba(232, 184, 75, 0.12);
+  /* Brand — Enhanced & More Vibrant */
+  --color-primary: #d67c7c;
+  --color-primary-dark: #b85555;
+  --color-primary-light: #f5a4a4;
+  --color-primary-ghost: rgba(214, 124, 124, 0.14);
+  --color-accent: #f5c844;
+  --color-accent-dark: #e6a812;
+  --color-accent-light: #ffde57;
+  --color-accent-ghost: rgba(245, 200, 68, 0.14);
 
   /* Text */
-  --color-text-h: #f5ede0;
-  --color-text-body: #bfa89a;
-  --color-text-muted: #7a5a50;
-  --color-text-inverse: #1a0a05;
-  --color-text-on-gold: #1a0a05;
-  --color-text-footer: rgba(245, 237, 224, 0.65);
+  --color-text-h: #faf5f0;
+  --color-text-body: #c5a89a;
+  --color-text-muted: #8a6a5f;
+  --color-text-inverse: #0d0406;
+  --color-text-on-gold: #0d0406;
+  --color-text-footer: rgba(250, 245, 240, 0.7);
 
   /* Surfaces */
-  --color-surface: #1c0d0d;
-  --color-surface-2: #160a0a;
+  --color-surface: #1a0a0a;
+  --color-surface-2: #130808;
 
   /* Borders */
-  --color-border: rgba(201, 96, 58, 0.15);
-  --color-border-hover: rgba(232, 184, 75, 0.35);
-  --color-border-accent: rgba(232, 184, 75, 0.25);
+  --color-border: rgba(214, 124, 124, 0.18);
+  --color-border-hover: rgba(245, 200, 68, 0.4);
+  --color-border-accent: rgba(245, 200, 68, 0.3);
 
   /* Semantic */
-  --color-star: #e8b84b;
-  --color-success: #4caf50;
-  --color-danger: #e74c3c;
-  --color-warning: #f97316;
-  --color-info: #29b6f6;
+  --color-star: #f5c844;
+  --color-success: #66bb6a;
+  --color-danger: #ef5350;
+  --color-warning: #ff6f00;
+  --color-info: #42a5f5;
 
   /* Shadows */
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
   --shadow-hover:
-    0 16px 48px rgba(0, 0, 0, 0.55), 0 0 40px rgba(232, 184, 75, 0.08);
-  --shadow-nav: 0 4px 24px rgba(0, 0, 0, 0.5);
-  --shadow-btn: 0 4px 16px rgba(232, 184, 75, 0.3);
-  --shadow-btn-hover: 0 8px 32px rgba(232, 184, 75, 0.45);
-  --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.7);
+    0 16px 48px rgba(0, 0, 0, 0.65), 0 0 40px rgba(245, 200, 68, 0.1);
+  --shadow-nav: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --shadow-btn: 0 4px 16px rgba(245, 200, 68, 0.35);
+  --shadow-btn-hover: 0 8px 32px rgba(245, 200, 68, 0.5);
+  --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.8);
 
-  /* Gradients */
+  /* Gradients - More Vibrant */
   --gradient-hero: linear-gradient(
     135deg,
-    rgba(15, 5, 8, 0.92) 0%,
-    rgba(30, 8, 8, 0.72) 60%,
-    rgba(232, 184, 75, 0.06) 100%
+    rgba(13, 4, 6, 0.94) 0%,
+    rgba(25, 6, 7, 0.75) 60%,
+    rgba(245, 200, 68, 0.08) 100%
   );
-  --gradient-btn: linear-gradient(135deg, #e8b84b 0%, #c9921a 100%);
-  --gradient-btn-alt: linear-gradient(135deg, #e07050 0%, #c9603a 100%);
+  --gradient-btn: linear-gradient(135deg, #f5c844 0%, #e6a812 100%);
+  --gradient-btn-alt: linear-gradient(135deg, #f5a4a4 0%, #d67c7c 100%);
   --gradient-text: linear-gradient(
     135deg,
-    #e07050 0%,
-    #e8b84b 60%,
-    #f5d07a 100%
+    #f5a4a4 0%,
+    #f5c844 60%,
+    #ffde57 100%
   );
-  --gradient-footer: linear-gradient(180deg, #0a0306 0%, #050106 100%);
-  --gradient-bar: linear-gradient(90deg, #c9603a, #e8b84b);
+  --gradient-footer: linear-gradient(180deg, #080203 0%, #040102 100%);
+  --gradient-bar: linear-gradient(90deg, #d67c7c, #f5c844);
   --gradient-shimmer: linear-gradient(
     90deg,
-    #1c0d0d 0%,
-    #2a1212 50%,
-    #1c0d0d 100%
+    #1a0a0a 0%,
+    #240d0d 50%,
+    #1a0a0a 100%
   );
   --gradient-section: linear-gradient(
     180deg,
-    #160a0a 0%,
-    #1c0d0d 50%,
-    #160a0a 100%
+    #130808 0%,
+    #1a0a0a 50%,
+    #130808 100%
   );
 }

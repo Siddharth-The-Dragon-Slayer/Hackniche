@@ -13,10 +13,9 @@ import {
   ChevronRight,
   CheckCircle2,
   Circle,
-  DollarSign,
+  Eye,
+  Sparkles,
   FileText,
-  TrendingUp,
-  MoreVertical,
 } from "lucide-react";
 
 // Simplified pipeline stages shown to customers
@@ -141,6 +140,8 @@ export default function CustomerDashboard() {
     const d = new Date(l.event_date);
     return d >= today && d <= in30;
   });
+
+  // ── Inner tab components ────────────────────────────────────────
 
   function ActiveTab() {
     if (loading)
@@ -982,6 +983,131 @@ export default function CustomerDashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* 360° Hall Tours promo */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Link
+          href="/dashboard/customer/hall-tours"
+          style={{ textDecoration: "none", display: "block", marginBottom: 32 }}
+        >
+          <div
+            className="card"
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "stretch",
+              minHeight: 120,
+              transition: "box-shadow 0.2s, transform 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow =
+                "0 8px 32px rgba(212,175,55,0.15)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "";
+              e.currentTarget.style.transform = "";
+            }}
+          >
+            <div
+              style={{
+                width: 140,
+                minHeight: "100%",
+                background:
+                  "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: "rgba(212,175,55,0.15)",
+                  border: "2px solid rgba(212,175,55,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Eye size={24} style={{ color: "#D4AF37" }} />
+              </div>
+            </div>
+            <div
+              style={{
+                flex: 1,
+                padding: "20px 24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 16,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 4,
+                  }}
+                >
+                  <Sparkles
+                    size={16}
+                    style={{ color: "var(--color-primary)" }}
+                  />
+                  <h3
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "var(--color-text-h)",
+                      fontFamily: "var(--font-display)",
+                    }}
+                  >
+                    360° Virtual Hall Tours
+                  </h3>
+                  <span
+                    style={{
+                      background: "rgba(212,175,55,0.15)",
+                      color: "#D4AF37",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    NEW
+                  </span>
+                </div>
+                <p
+                  style={{
+                    color: "var(--color-text-muted)",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Explore our banquet halls in immersive 360° — Kalyan West
+                  Grand Hall &amp; more
+                </p>
+              </div>
+              <ChevronRight
+                size={22}
+                style={{ color: "var(--color-primary)", flexShrink: 0 }}
+              />
+            </div>
+          </div>
+        </Link>
+      </motion.div>
 
       {/* Tabs for different views */}
       <div
