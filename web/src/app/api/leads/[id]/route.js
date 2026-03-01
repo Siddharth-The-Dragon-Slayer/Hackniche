@@ -870,9 +870,11 @@ export async function PUT(request, { params }) {
         done_by_user_id: puid || null, done_by_user_name: pname || null,
         done_at: now, is_overdue: false, created_at: now,
       });
+      const actMeta = { followup_type };
+      if (outcome) actMeta.outcome = outcome;
       act(adminDb, batch, lead_id, franchise_id, branch_id, 'followup_logged',
         `Follow-up: ${followup_type}${outcome ? ' — ' + outcome : ''}${fuNotes ? '. ' + fuNotes.slice(0, 100) : ''}`,
-        puid, pname, { followup_type, outcome });
+        puid, pname, actMeta);
 
       const ldUpd = { followup_count: admin.firestore.FieldValue.increment(1), last_contacted_at: now, updated_at: now };
       if (nextDate) ldUpd.next_followup_date = nextDate;
