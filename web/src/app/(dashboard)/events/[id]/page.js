@@ -69,7 +69,7 @@ export default function EventDetailPage({ params }) {
           `/api/bookings/${eventId}?franchise_id=${fid}&branch_id=${bid}`,
         );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Event not found');
+        if (!res.ok) throw new Error(data.error || "Event not found");
 
         const booking = data.booking;
 

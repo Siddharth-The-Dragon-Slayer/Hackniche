@@ -32,7 +32,7 @@ export async function GET(req) {
     const snap = await q.limit(500).get();
     // Filter by franchise_id and sort in memory
     const invoices = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
+      .map(d => { const data = d.data(); return { id: d.id, ...data, payments: data.payments || data.payment_history || [], balance: data.balance ?? data.balance_due ?? 0 }; })
       .filter(inv => inv.franchise_id === franchise_id)
       .sort((a, b) => {
         const aDate = a.created_at ? new Date(a.created_at) : new Date(0);

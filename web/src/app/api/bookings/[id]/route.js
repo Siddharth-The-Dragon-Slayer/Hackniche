@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import admin from 'firebase-admin';
 import { cache } from '@/lib/cache';
 import { getResend, FROM_ADDRESS, buildPaymentConfirmationEmail } from '@/lib/resend-client';
 
@@ -125,6 +126,19 @@ export async function PUT(req, { params }) {
           } catch (emailErr) {
             console.error('[Payment Email Failed]', emailErr);
           }
+        }
+
+        // Sync to linked invoice so invoice-based views stay consistent
+        if (booking.invoice_id) {
+          const invRef = adminDb.collection('invoices').doc(booking.invoice_id);
+          const balanceDue = (booking.payments?.quote_total || 0) - (updates.payments?.total_paid || 0);
+          invRef.update({
+            payments: admin.firestore.FieldValue.arrayUnion(paymentEntry),
+            amount_paid: admin.firestore.FieldValue.increment(Number(paymentEntry.amount)),
+            balance: admin.firestore.FieldValue.increment(-Number(paymentEntry.amount)),
+            status: balanceDue <= 0 ? 'paid' : 'partially_paid',
+            updated_at: now,
+          }).catch(err => console.error('[bookings/add_payment] invoice sync failed:', err));
         }
         break;
       }

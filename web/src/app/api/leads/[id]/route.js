@@ -724,8 +724,8 @@ export async function PUT(request, { params }) {
         discount: 0,
         total: invoiceTotal,
         amount_paid: advAmt,
-        balance_due: Math.max(invoiceTotal - advAmt, 0),
-        payment_history: [
+        balance: Math.max(invoiceTotal - advAmt, 0),
+        payments: [
           {
             amount: advAmt,
             date: payment_date,
@@ -733,6 +733,7 @@ export async function PUT(request, { params }) {
             ref: transaction_ref || null,
             type: "advance",
             recorded_by: pname || null,
+            recorded_at: now,
           },
         ],
         status: advAmt >= invoiceTotal ? "paid" : "sent",
@@ -753,6 +754,9 @@ export async function PUT(request, { params }) {
         converted_booking_id: bookingRef.id,
         converted_at: now,
       });
+
+      // Also stamp invoice_id onto the booking so bookings/[id] add_payment can sync back
+      batch.update(bookingRef, { invoice_id: invoiceRef.id, updated_at: now });
 
       await batch.commit();
       invalidate(franchise_id, branch_id, lead_id);
@@ -989,6 +993,40 @@ export async function PUT(request, { params }) {
         },
         created_at: now,
       });
+
+      // ── Sync full payment to booking + invoice (single source of truth) ──
+      const fullPayAmt = Number(remaining_amount);
+      const advPaid = Number(current.booking_confirmed?.advance_amount || 0);
+      const remEntry = {
+        amount: fullPayAmt,
+        date: payment_date,
+        mode: payment_mode || "cash",
+        ref: transaction_ref || null,
+        type: "final",
+        recorded_by: pname || null,
+        recorded_at: now,
+      };
+      if (current.booking_id) {
+        const bkgRef = adminDb.collection("bookings").doc(current.booking_id);
+        batch.update(bkgRef, {
+          "payments.payment_history": admin.firestore.FieldValue.arrayUnion(remEntry),
+          "payments.total_paid": advPaid + fullPayAmt,
+          "payments.balance_due": 0,
+          status: "paid",
+          event_locked: true,
+          updated_at: now,
+        });
+      }
+      if (current.invoice_id) {
+        const invRef = adminDb.collection("invoices").doc(current.invoice_id);
+        batch.update(invRef, {
+          payments: admin.firestore.FieldValue.arrayUnion(remEntry),
+          amount_paid: admin.firestore.FieldValue.increment(fullPayAmt),
+          balance: admin.firestore.FieldValue.increment(-fullPayAmt),
+          status: "paid",
+          updated_at: now,
+        });
+      }
 
       await batch.commit();
       invalidate(franchise_id, branch_id, lead_id);

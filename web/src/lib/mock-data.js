@@ -1306,7 +1306,9 @@ export const sidebarMenus = {
   customer: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/customer" },
     { icon: "➕", label: "New Enquiry", href: "/leads/create" },
+    { icon: "🎯", label: "My Enquiries", href: "/leads" },
     { icon: "📋", label: "My Bookings", href: "/bookings" },
+    { icon: "💳", label: "My Payments", href: "/payments" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
     { icon: "🎨", label: "Venues & Decor", href: "/decor" },
     { icon: "🎬", label: "Create Invitations", href: "/dashboard/customer/invitations" },
