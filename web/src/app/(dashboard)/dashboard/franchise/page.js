@@ -25,6 +25,9 @@ import {
   ShoppingCart,
   Loader2,
   RefreshCw,
+  FileDown,
+  Mail,
+  CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import LowStockAlerts from "@/components/shared/LowStockAlerts";
@@ -69,11 +72,13 @@ export default function FranchiseDashboard() {
   const [branches, setBranches] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [leads, setLeads] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [invAnalytics, setInvAnalytics] = useState(null);
 
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [loadingLeads, setLoadingLeads] = useState(true);
+  const [loadingInvoices, setLoadingInvoices] = useState(true);
   const [loadingInv, setLoadingInv] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(null);
 
@@ -90,6 +95,7 @@ export default function FranchiseDashboard() {
     setLoadingBranches(true);
     setLoadingBookings(true);
     setLoadingLeads(true);
+    setLoadingInvoices(true);
     setLoadingInv(true);
 
     await Promise.allSettled([
@@ -124,6 +130,15 @@ export default function FranchiseDashboard() {
         })
         .catch(console.error)
         .finally(() => setLoadingInv(false)),
+
+      // Fetch all invoices for real revenue data
+      fetch(`/api/billing?franchise_id=${franchiseId}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.invoices) setInvoices(d.invoices);
+        })
+        .catch(console.error)
+        .finally(() => setLoadingInvoices(false)),
     ]);
     setLastRefresh(new Date());
   }, [user, userProfile, franchiseId]);
@@ -134,34 +149,56 @@ export default function FranchiseDashboard() {
 
   // ── Derived KPIs ──
   const now = new Date();
-  const mtdStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .slice(0, 10);
+  const mtdStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const mtdStartStr = mtdStart.toISOString().slice(0, 10);
   const mtdEnd = now.toISOString().slice(0, 10);
 
+  // CONVERSION: a lead that paid advance or beyond = confirmed booking
+  const CONVERTED_STATUSES = [
+    "advance_paid",
+    "decoration_scheduled",
+    "full_payment_pending",
+    "paid",
+    "in_progress",
+    "completed",
+    "settlement_pending",
+    "settlement_complete",
+    "closed",
+  ];
+
+  // Real revenue = sum of ALL payments actually received (from invoices)
+  const allPaymentRecs = invoices.flatMap((inv) =>
+    (inv.payments || []).map((p) => ({ ...p, branch_id: inv.branch_id })),
+  );
+  const totalRev = allPaymentRecs.reduce(
+    (s, p) => s + Number(p.amount || 0),
+    0,
+  );
+  const mtdPayments = allPaymentRecs.filter((p) => {
+    const d = new Date(p.date || p.recorded_at || 0);
+    return d >= mtdStart;
+  });
+  const mtdRevenue = mtdPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
+
+  // MTD bookings still from bookings collection (for count)
   const mtdBookings = bookings.filter(
     (b) =>
-      b.event_date >= mtdStart &&
+      b.event_date >= mtdStartStr &&
       b.event_date <= mtdEnd &&
       b.status !== "cancelled",
   );
-  const mtdRevenue = mtdBookings.reduce(
-    (s, b) => s + (b.payments?.quote_total || b.payments?.total_paid || 0),
-    0,
-  );
-  const totalRev = bookings
-    .filter((b) => b.status !== "cancelled")
-    .reduce(
-      (s, b) => s + (b.payments?.quote_total || b.payments?.total_paid || 0),
-      0,
-    );
+
   const activeLeads = leads.filter(
-    (l) => !["confirmed", "lost"].includes(l.status),
+    (l) => ![...CONVERTED_STATUSES, "lost"].includes(l.status),
   ).length;
   const newLeads = leads.filter((l) => l.status === "new").length;
-  const confirmedLeads = leads.filter((l) => l.status === "confirmed").length;
+  const convertedLeads = leads.filter((l) =>
+    CONVERTED_STATUSES.includes(l.status),
+  ).length;
+  const conversionRate =
+    leads.length > 0 ? Math.round((convertedLeads / leads.length) * 100) : 0;
 
-  // Revenue by month (last 6 months)
+  // Revenue by month from ACTUAL payments received (last 6 months)
   const revenueByMonth = (() => {
     const map = {};
     for (let i = 5; i >= 0; i--) {
@@ -169,24 +206,32 @@ export default function FranchiseDashboard() {
       map[d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" })] =
         0;
     }
-    bookings
-      .filter((b) => b.status !== "cancelled" && b.event_date)
-      .forEach((b) => {
-        const d = new Date(b.event_date);
-        const key = d.toLocaleDateString("en-IN", {
-          month: "short",
-          year: "2-digit",
-        });
-        if (key in map)
-          map[key] += b.payments?.quote_total || b.payments?.total_paid || 0;
+    allPaymentRecs.forEach((p) => {
+      const d = new Date(p.date || p.recorded_at || 0);
+      const key = d.toLocaleDateString("en-IN", {
+        month: "short",
+        year: "2-digit",
       });
+      if (key in map) map[key] += Number(p.amount || 0);
+    });
     return Object.entries(map).map(([month, revenue]) => ({ month, revenue }));
   })();
 
-  // Lead funnel
-  const leadFunnel = LEAD_STAGES.map((s) => ({
-    stage: LEAD_LABELS[s],
-    count: leads.filter((l) => l.status === s).length,
+  // Lead funnel — all meaningful stages from data
+  const ALL_LEAD_STAGES = [
+    { key: "new", label: "New Enquiry" },
+    { key: "visited", label: "Site Visit" },
+    { key: "tasting_done", label: "Tasting Done" },
+    { key: "menu_selected", label: "Menu Selected" },
+    { key: "advance_paid", label: "Advance Paid" },
+    { key: "decoration_scheduled", label: "Decor Scheduled" },
+    { key: "paid", label: "Fully Paid" },
+    { key: "completed", label: "Completed" },
+    { key: "lost", label: "Lost" },
+  ];
+  const leadFunnel = ALL_LEAD_STAGES.map((s) => ({
+    stage: s.label,
+    count: leads.filter((l) => l.status === s.key).length,
   })).filter((s) => s.count > 0);
   const maxLeadCount = Math.max(...leadFunnel.map((s) => s.count), 1);
 
@@ -207,6 +252,84 @@ export default function FranchiseDashboard() {
   const po = invAnalytics?.purchaseOrders || {};
   const consumption = invAnalytics?.consumption || {};
 
+  // ── Export helpers ──
+  const exportCSV = (rows, filename) => {
+    if (!rows?.length) return alert("No data to export.");
+    const headers = Object.keys(rows[0]);
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => esc(r[h])).join(",")),
+    ].join("\n");
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })),
+      download: filename,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const exportDashboardCSV = () => {
+    const rows = [
+      { Metric: "Revenue (MTD)", Value: mtdRevenue },
+      { Metric: "Revenue (Total)", Value: totalRev },
+      { Metric: "Bookings (MTD)", Value: mtdBookings.length },
+      { Metric: "Total Bookings", Value: bookings.length },
+      { Metric: "Active Leads", Value: activeLeads },
+      { Metric: "Total Leads", Value: leads.length },
+      { Metric: "Conversions", Value: convertedLeads },
+      { Metric: "Conversion Rate (%)", Value: conversionRate },
+      { Metric: "Branches", Value: branches.length },
+    ];
+    exportCSV(
+      rows,
+      `franchise-summary-${new Date().toISOString().slice(0, 10)}.csv`,
+    );
+  };
+
+  const exportLeadsCSV = () => {
+    const rows = leads.map((l) => ({
+      Name: l.customer_name || "",
+      Phone: l.phone || "",
+      "Event Type": l.event_type || "",
+      "Event Date": l.event_date || "",
+      Hall: l.hall_name || "",
+      Guests: l.expected_guest_count || 0,
+      Status: l.status || "",
+      "Quote Total": l.quote?.total_estimated || 0,
+      Branch: l.branch_id || "",
+    }));
+    exportCSV(rows, `leads-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const exportBookingsCSV = () => {
+    const rows = bookings.map((b) => ({
+      Customer: b.customer_name || "",
+      "Event Type": b.event_type || "",
+      "Event Date": b.event_date || "",
+      Hall: b.hall_name || "",
+      Guests: b.expected_guest_count || b.final_guest_count || 0,
+      "Quote Total": b.payments?.quote_total || 0,
+      "Amount Paid": b.payments?.total_paid || 0,
+      Status: b.status || "",
+      Branch: b.branch_id || "",
+    }));
+    exportCSV(rows, `bookings-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const exportRevenueCSV = () => {
+    const rows = allPaymentRecs.map((p) => ({
+      Date: p.date || p.recorded_at || "",
+      Amount: Number(p.amount || 0),
+      Mode: p.mode?.replace(/_/g, " ") || "Cash",
+      Type: p.type || "",
+      Branch: p.branch_id || "",
+      Ref: p.ref || "",
+    }));
+    exportCSV(rows, `revenue-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   const kpis = [
     {
       icon: <Building2 size={20} />,
@@ -216,8 +339,8 @@ export default function FranchiseDashboard() {
     {
       icon: <DollarSign size={20} />,
       label: "Revenue (MTD)",
-      value: loadingBookings ? null : fmtL(mtdRevenue),
-      sub: `Total: ${fmtL(totalRev)}`,
+      value: loadingInvoices ? null : fmtL(mtdRevenue),
+      sub: `Total collected: ${fmtL(totalRev)}`,
     },
     {
       icon: <CalendarDays size={20} />,
@@ -229,20 +352,18 @@ export default function FranchiseDashboard() {
       icon: <Users size={20} />,
       label: "Active Leads",
       value: loadingLeads ? null : activeLeads,
-      sub: `${newLeads} new`,
+      sub: `${newLeads} new · ${leads.length} total`,
     },
     {
-      icon: <TrendingUp size={20} />,
+      icon: <CheckCircle2 size={20} />,
       label: "Conversions",
-      value: loadingLeads ? null : confirmedLeads,
-      sub:
-        leads.length > 0
-          ? `${Math.round((confirmedLeads / leads.length) * 100)}% rate`
-          : null,
+      value: loadingLeads ? null : convertedLeads,
+      sub: `${conversionRate}% conversion rate`,
     },
   ];
 
-  const anyLoading = loadingBranches || loadingBookings || loadingLeads;
+  const anyLoading =
+    loadingBranches || loadingBookings || loadingLeads || loadingInvoices;
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
@@ -258,7 +379,46 @@ export default function FranchiseDashboard() {
             {franchiseName} — Franchise Admin View
           </p>
         </div>
-        <div className="page-header-right">
+        <div
+          className="page-header-right"
+          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+        >
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={exportDashboardCSV}
+            disabled={anyLoading}
+            title="Export summary as CSV"
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <FileDown size={14} /> Summary CSV
+          </button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={exportLeadsCSV}
+            disabled={loadingLeads || leads.length === 0}
+            title="Export all leads as CSV"
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <FileDown size={14} /> Leads CSV
+          </button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={exportBookingsCSV}
+            disabled={loadingBookings || bookings.length === 0}
+            title="Export all bookings as CSV"
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <FileDown size={14} /> Bookings CSV
+          </button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={exportRevenueCSV}
+            disabled={loadingInvoices || allPaymentRecs.length === 0}
+            title="Export all revenue payments as CSV"
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <FileDown size={14} /> Revenue CSV
+          </button>
           <button
             className="btn btn-ghost btn-sm"
             onClick={fetchAll}
@@ -822,6 +982,7 @@ export default function FranchiseDashboard() {
                 <th>City</th>
                 <th>Manager</th>
                 <th>Bookings</th>
+                <th>Conversions</th>
                 <th>Revenue</th>
                 <th>Status</th>
               </tr>
@@ -829,16 +990,15 @@ export default function FranchiseDashboard() {
             <tbody>
               {branches.map((b, i) => {
                 const bkgs = bookings.filter((bk) => bk.branch_id === b.id);
-                const rev = bkgs
-                  .filter((bk) => bk.status !== "cancelled")
-                  .reduce(
-                    (s, bk) =>
-                      s +
-                      (bk.payments?.quote_total ||
-                        bk.payments?.total_paid ||
-                        0),
-                    0,
-                  );
+                // Real revenue = actual payments received for this branch
+                const rev = allPaymentRecs
+                  .filter((p) => p.branch_id === b.id)
+                  .reduce((s, p) => s + Number(p.amount || 0), 0);
+                // Leads/conversions for this branch
+                const branchLeads = leads.filter((l) => l.branch_id === b.id);
+                const branchConv = branchLeads.filter((l) =>
+                  CONVERTED_STATUSES.includes(l.status),
+                ).length;
                 return (
                   <tr key={b.id || i}>
                     <td
@@ -849,8 +1009,13 @@ export default function FranchiseDashboard() {
                     <td>{b.city || "—"}</td>
                     <td>{b.manager_name || b.manager || "—"}</td>
                     <td>{loadingBookings ? "—" : bkgs.length}</td>
+                    <td>
+                      {loadingLeads
+                        ? "—"
+                        : `${branchConv} / ${branchLeads.length}`}
+                    </td>
                     <td style={{ fontFamily: "var(--font-mono)" }}>
-                      {loadingBookings ? "—" : fmtL(rev)}
+                      {loadingInvoices ? "—" : fmtL(rev)}
                     </td>
                     <td>
                       <Badge

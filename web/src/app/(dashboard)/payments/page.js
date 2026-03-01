@@ -19,6 +19,11 @@ import {
   CalendarDays,
   Users,
   MapPin,
+  Mail,
+  Share2,
+  BarChart2,
+  FileDown,
+  Send,
 } from "lucide-react";
 import {
   generateInvoiceHTML,
@@ -34,6 +39,35 @@ const fmtDate = (d) =>
       })
     : "—";
 const fmt = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
+
+// ─── CSV export helper ────────────────────────────────────────────────────────
+function exportToCSV(rows, filename) {
+  if (!rows || rows.length === 0) {
+    alert("No data to export.");
+    return;
+  }
+  const headers = Object.keys(rows[0]);
+  const escape = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─── mailto share helper ──────────────────────────────────────────────────────
+function shareViaEmail(toEmail, subject, body) {
+  const mailto = `mailto:${toEmail || ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(mailto, "_blank");
+}
 
 // Pipeline stages shown to customers (simplified)
 const PIPELINE = [
@@ -257,6 +291,165 @@ export default function PaymentsPage() {
     }
   };
 
+  // ── CSV Exports ───────────────────────────────────────────────────────────
+  const handleExportPaymentsCSV = () => {
+    const rows = allPayments.map((p) => ({
+      Date: fmtDate(p.date),
+      Customer: p.customer_name || "",
+      "Invoice #": p.invoice_number || "",
+      Amount: Number(p.amount || 0),
+      Mode: p.mode?.replace(/_/g, " ") || "Cash",
+      Type: p.type || "",
+      Ref: p.ref || "",
+      "Received By": p.received_by || "",
+    }));
+    exportToCSV(rows, `payments-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const handleExportInvoicesCSV = () => {
+    const rows = invoices.map((inv) => ({
+      "Invoice #": inv.invoice_number || "",
+      Customer: inv.customer_name || "",
+      "Event Type": inv.event_type || "",
+      "Event Date": fmtDate(inv.event_date),
+      "Quote Total": Number(inv.quote_total || 0),
+      "Amount Paid": Number(inv.amount_paid || 0),
+      Balance: Number(inv.balance || 0),
+      Status: inv.status || "",
+    }));
+    exportToCSV(rows, `invoices-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const handleExportCustomerPaymentsCSV = () => {
+    const rows = customerPayments.map((p) => ({
+      Date: fmtDate(p.date),
+      Amount: Number(p.amount || 0),
+      Mode: p.mode?.replace(/_/g, " ") || "Cash",
+      Type: p.type || "",
+      "Event Type": p.event_type || "",
+      "Event Date": fmtDate(p.event_date),
+      "Invoice #": p.invoice_number || "",
+      Ref: p.ref || "",
+      "Balance Due": Number(p.balance_due || 0),
+    }));
+    exportToCSV(
+      rows,
+      `my-payments-${new Date().toISOString().slice(0, 10)}.csv`,
+    );
+  };
+
+  const handleExportEnquiriesCSV = () => {
+    const rows = customerLeads.map((l) => ({
+      "Event Type": l.event_type || "",
+      "Event Date": fmtDate(l.event_date),
+      Hall: l.hall_name || "",
+      Guests: l.guest_count || 0,
+      Status: STATUS_BADGES[l.status]?.label || l.status || "",
+      "Quote Total": Number(l.quote_total || 0),
+      Paid: Number(l.total_paid || 0),
+      "Balance Due": Number(l.balance_due || 0),
+      "Invoice #": l.invoice_number || "",
+    }));
+    exportToCSV(
+      rows,
+      `my-enquiries-${new Date().toISOString().slice(0, 10)}.csv`,
+    );
+  };
+
+  // ── Email Shares ──────────────────────────────────────────────────────────
+  const shareInvoiceEmail = (booking) => {
+    const email = userProfile?.email || "";
+    const subject = `Invoice #${booking.invoice_number} – ${booking.event_type} at ${booking.hall_name || "BanquetEase"}`;
+    const body = `Dear ${userProfile?.displayName || "Valued Customer"},
+
+Here is your invoice summary for your upcoming event:
+
+──────────────────────────────
+Event: ${booking.event_type || "Event"}
+Date: ${fmtDate(booking.event_date)}
+Venue: ${booking.hall_name || "BanquetEase"}
+Guests: ${booking.guest_count || "—"}
+Invoice #: ${booking.invoice_number || "—"}
+──────────────────────────────
+Financial Summary:
+  Total Amount : ${fmt(booking.quote_total)}
+  Amount Paid  : ${fmt(booking.total_paid)}
+  Balance Due  : ${fmt(booking.balance_due)}
+──────────────────────────────
+${booking.payment_history?.length > 0 ? `\nPayment History:\n${booking.payment_history.map((ph) => `  • ${fmtDate(ph.date)}  ${fmt(ph.amount)}  via ${ph.mode?.replace(/_/g, " ") || "Cash"}${ph.ref ? "  Ref: " + ph.ref : ""}`).join("\n")}` : ""}
+
+${booking.balance_due > 0 ? "Please complete your remaining payment at your earliest convenience." : "Your payment is complete. Thank you for your trust!"}
+
+For any queries, feel free to reach out to us.
+
+Regards,
+BanquetEase Team`;
+    shareViaEmail(email, subject, body);
+  };
+
+  const sharePaymentSummaryEmail = () => {
+    const email = userProfile?.email || "";
+    const subject = "My Payment Summary – BanquetEase";
+    const body = `Dear ${userProfile?.displayName || "Valued Customer"},
+
+Here is your current payment summary with BanquetEase:
+
+──────────────────────────────
+Total Paid     : ${fmt(customerSummary.totalPaid)}
+Balance Due    : ${fmt(customerSummary.totalDue)}
+Transactions   : ${customerSummary.transactionCount}
+Enquiries      : ${customerSummary.enquiryCount}
+──────────────────────────────
+${
+  customerPayments.length > 0
+    ? `\nRecent Payments:\n${customerPayments
+        .slice(0, 5)
+        .map(
+          (p) =>
+            `  • ${fmtDate(p.date)}  ${fmt(p.amount)}  via ${p.mode?.replace(/_/g, " ") || "Cash"}${p.invoice_number ? "  #" + p.invoice_number : ""}`,
+        )
+        .join("\n")}`
+    : ""
+}
+
+For any queries, feel free to reach out to us.
+
+Regards,
+BanquetEase Team`;
+    shareViaEmail(email, subject, body);
+  };
+
+  const shareBusinessInsightsEmail = () => {
+    const recipientEmail = userProfile?.email || "";
+    const methodBreakdown = Object.entries(
+      allPayments.reduce((acc, p) => {
+        const mode = p.mode?.replace(/_/g, " ") || "Cash";
+        acc[mode] = (acc[mode] || 0) + Number(p.amount || 0);
+        return acc;
+      }, {}),
+    )
+      .sort((a, b) => b[1] - a[1])
+      .map(([mode, amt]) => `  • ${mode}: ${fmt(amt)}`)
+      .join("\n");
+
+    const subject = `Payments Insights Report – ${new Date().toLocaleDateString("en-IN")}`;
+    const body = `Payments Insights Report
+Generated: ${new Date().toLocaleString("en-IN")}
+──────────────────────────────
+Total Collected  : ${fmt(totalCollected)}
+Outstanding      : ${fmt(totalOutstanding)}
+This Month       : ${fmt(monthTotal)}
+Total Payments   : ${allPayments.length}
+Total Invoices   : ${invoices.length}
+──────────────────────────────
+Payment Method Breakdown:
+${methodBreakdown || "  No data"}
+──────────────────────────────
+
+BanquetEase`;
+    shareViaEmail(recipientEmail, subject, body);
+  };
+
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
       {/* Page Header */}
@@ -299,12 +492,56 @@ export default function PaymentsPage() {
               >
                 Invoices
               </button>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={sharePaymentSummaryEmail}
+                title="Share payment summary via email"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Mail size={14} />
+                Share Summary
+              </button>
+            </>
+          )}
+          {!isCustomer && (
+            <>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={handleExportPaymentsCSV}
+                disabled={loading || allPayments.length === 0}
+                title="Export all payments as CSV"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <FileDown size={14} />
+                Export Payments
+              </button>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={handleExportInvoicesCSV}
+                disabled={loading || invoices.length === 0}
+                title="Export all invoices as CSV"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <FileDown size={14} />
+                Export Invoices
+              </button>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={shareBusinessInsightsEmail}
+                disabled={loading || allPayments.length === 0}
+                title="Share insights report via email"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Mail size={14} />
+                Share Report
+              </button>
             </>
           )}
           <button
             className="btn btn-outline btn-sm"
             onClick={fetch_}
             disabled={loading}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
             <RefreshCw size={14} />
             Refresh
@@ -395,6 +632,270 @@ export default function PaymentsPage() {
         ))}
       </motion.div>
 
+      {/* Business Insights Breakdown */}
+      {!isCustomer &&
+        !loading &&
+        allPayments.length > 0 &&
+        (() => {
+          const methodTotals = allPayments.reduce((acc, p) => {
+            const mode = p.mode?.replace(/_/g, " ") || "Cash";
+            acc[mode] = (acc[mode] || 0) + Number(p.amount || 0);
+            return acc;
+          }, {});
+          const methodEntries = Object.entries(methodTotals).sort(
+            (a, b) => b[1] - a[1],
+          );
+          const maxVal = methodEntries[0]?.[1] || 1;
+
+          const lastMonth = allPayments.filter((p) => {
+            const d = new Date(p.date);
+            const n = new Date();
+            const lm = new Date(n.getFullYear(), n.getMonth() - 1, 1);
+            return (
+              d.getMonth() === lm.getMonth() &&
+              d.getFullYear() === lm.getFullYear()
+            );
+          });
+          const lastMonthTotal = lastMonth.reduce(
+            (s, p) => s + Number(p.amount || 0),
+            0,
+          );
+          const paidInvoices = invoices.filter(
+            (inv) => inv.balance === 0 || inv.status === "paid",
+          );
+          const pendingInvoices = invoices.filter(
+            (inv) => (inv.balance || 0) > 0,
+          );
+
+          return (
+            <motion.div variants={fadeUp} style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 12,
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "var(--color-text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <BarChart2 size={14} />
+                  Insights
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 14,
+                }}
+              >
+                {/* Payment Method Breakdown */}
+                <div className="card" style={{ padding: "16px 18px" }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "var(--color-text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      marginBottom: 12,
+                    }}
+                  >
+                    Payment Methods
+                  </div>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
+                    {methodEntries.map(([mode, total]) => (
+                      <div key={mode}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            fontSize: 12,
+                            marginBottom: 3,
+                          }}
+                        >
+                          <span
+                            style={{
+                              textTransform: "capitalize",
+                              color: "var(--color-text-body)",
+                            }}
+                          >
+                            {mode}
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: "var(--color-text-h)",
+                            }}
+                          >
+                            {fmt(total)}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            height: 6,
+                            borderRadius: 3,
+                            background: "var(--color-border)",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${(total / maxVal) * 100}%`,
+                              background: "var(--color-primary, #b8953f)",
+                              borderRadius: 3,
+                              transition: "width 0.4s ease",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="card" style={{ padding: "16px 18px" }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "var(--color-text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      marginBottom: 12,
+                    }}
+                  >
+                    Invoice Status
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    {[
+                      {
+                        label: "Fully Paid",
+                        val: paidInvoices.length,
+                        pct: invoices.length
+                          ? Math.round(
+                              (paidInvoices.length / invoices.length) * 100,
+                            )
+                          : 0,
+                        color: "#16a34a",
+                      },
+                      {
+                        label: "Pending Payment",
+                        val: pendingInvoices.length,
+                        pct: invoices.length
+                          ? Math.round(
+                              (pendingInvoices.length / invoices.length) * 100,
+                            )
+                          : 0,
+                        color: "#dc2626",
+                      },
+                    ].map((s) => (
+                      <div key={s.label}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            fontSize: 12,
+                            marginBottom: 3,
+                          }}
+                        >
+                          <span style={{ color: "var(--color-text-body)" }}>
+                            {s.label}
+                          </span>
+                          <span style={{ fontWeight: 600, color: s.color }}>
+                            {s.val} ({s.pct}%)
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            height: 6,
+                            borderRadius: 3,
+                            background: "var(--color-border)",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${s.pct}%`,
+                              background: s.color,
+                              borderRadius: 3,
+                              transition: "width 0.4s ease",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <div
+                      style={{
+                        borderTop: "1px solid var(--color-border)",
+                        paddingTop: 10,
+                        marginTop: 2,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 12,
+                      }}
+                    >
+                      <span style={{ color: "var(--color-text-muted)" }}>
+                        Last Month
+                      </span>
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--color-text-h)",
+                        }}
+                      >
+                        {fmt(lastMonthTotal)}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 12,
+                      }}
+                    >
+                      <span style={{ color: "var(--color-text-muted)" }}>
+                        Avg per Invoice
+                      </span>
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--color-text-h)",
+                        }}
+                      >
+                        {invoices.length
+                          ? fmt(Math.round(totalCollected / invoices.length))
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
+
       {/* Error Banner */}
       {error && (
         <motion.div
@@ -443,6 +944,37 @@ export default function PaymentsPage() {
               <div
                 style={{ display: "flex", flexDirection: "column", gap: 14 }}
               >
+                {/* Section toolbar */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 4,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {customerLeads.length} enquir
+                    {customerLeads.length === 1 ? "y" : "ies"}
+                  </span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={handleExportEnquiriesCSV}
+                      title="Export enquiries as CSV"
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FileDown size={13} />
+                      Export CSV
+                    </button>
+                  </div>
+                </div>
                 {customerLeads.map((lead, i) => {
                   const badge = STATUS_BADGES[lead.status] || {
                     variant: "neutral",
@@ -618,6 +1150,46 @@ export default function PaymentsPage() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {/* Section toolbar */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 4,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {customerPayments.length} payment
+                    {customerPayments.length === 1 ? "" : "s"}
+                  </span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={handleExportCustomerPaymentsCSV}
+                      title="Export payments as CSV"
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FileDown size={13} />
+                      Export CSV
+                    </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={sharePaymentSummaryEmail}
+                      title="Share payment summary via email"
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <Mail size={13} />
+                      Share via Email
+                    </button>
+                  </div>
+                </div>
                 {customerPayments.map((p, i) => (
                   <div
                     key={i}
@@ -816,14 +1388,33 @@ export default function PaymentsPage() {
                         )}
                       </div>
                     </div>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => downloadInvoice(booking)}
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      <Download size={14} />
-                      Download
-                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => shareInvoiceEmail(booking)}
+                        title="Share this invoice via email"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Mail size={13} />
+                        Share
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => downloadInvoice(booking)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Download size={14} />
+                        Download
+                      </button>
+                    </div>
                   </div>
                   <div
                     style={{
@@ -971,6 +1562,35 @@ export default function PaymentsPage() {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {/* Section toolbar */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 8,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                {allPayments.length} transaction
+                {allPayments.length === 1 ? "" : "s"}
+              </span>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={handleExportPaymentsCSV}
+                title="Export all payments as CSV"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <FileDown size={13} />
+                Export CSV
+              </button>
+            </div>
             {allPayments.map((p, i) => (
               <div
                 key={i}

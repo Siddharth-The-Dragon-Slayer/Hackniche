@@ -1207,7 +1207,6 @@ export const sidebarMenus = {
     { icon: "🎯", label: "Leads", href: "/leads" },
     { icon: "📋", label: "Bookings", href: "/bookings" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
-    { icon: "💰", label: "Billing", href: "/billing" },
     { icon: "💳", label: "Payments", href: "/payments" },
     { icon: "👥", label: "Staff", href: "/staff" },
     { icon: "🧱", label: "Raw Materials", href: "/inventory" },
