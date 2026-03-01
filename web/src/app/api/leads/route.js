@@ -58,8 +58,22 @@ export async function GET(request) {
       return NextResponse.json(payload);
     }
 
-    if (!franchise_id || !branch_id) {
-      return NextResponse.json({ error: 'franchise_id and branch_id required' }, { status: 400 });
+    if (!franchise_id && !branch_id) {
+      return NextResponse.json({ error: 'franchise_id required' }, { status: 400 });
+    }
+
+    // Franchise-level query (no branch_id): fetch all leads for the franchise
+    if (franchise_id && !branch_id) {
+      const cKey = `leads:franchise:${franchise_id}:${status||'all'}`;
+      const cached = cache.get(cKey);
+      if (cached) return NextResponse.json({ ...cached, cached: true });
+      const snap = await adminDb.collection('leads').where('franchise_id', '==', franchise_id).get();
+      let leads = snap.docs.map(serializeLead);
+      if (status) leads = leads.filter(l => l.status === status);
+      leads.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+      const payload = { leads, total: leads.length, franchise_id, filter_status: status };
+      cache.set(cKey, payload, LEAD_TTL);
+      return NextResponse.json(payload);
     }
 
     const cKey = status ? statusKey(franchise_id, branch_id, status) : listKey(franchise_id, branch_id);

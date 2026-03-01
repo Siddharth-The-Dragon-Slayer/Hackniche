@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import { cache } from '@/lib/cache';
+import { buildPOCreatedEmail, sendInventoryEmail } from '@/lib/inventory-emails';
 
 // GET - Fetch all purchase orders for a franchise
 export async function GET(request) {
@@ -13,6 +15,11 @@ export async function GET(request) {
         error: 'franchise_id is required'
       }, { status: 400 });
     }
+
+    // Check server cache
+    const cacheKey = `po:${franchiseId}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return NextResponse.json(cached);
 
     const db = getAdminDb();
     const docRef = db.collection('purchase-order').doc(franchiseId);
@@ -29,10 +36,13 @@ export async function GET(request) {
     const data = doc.data();
     const orders = data.orders || [];
 
-    return NextResponse.json({
+    const result = {
       success: true,
       data: orders
-    });
+    };
+    cache.set(cacheKey, result, 120);
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Purchase order GET error:', error);
@@ -121,12 +131,24 @@ export async function POST(request) {
       });
     }
 
+    // Invalidate analytics + PO cache
+    cache.del(`inv_analytics:${franchise_id}`);
+    cache.del(`po:${franchise_id}`);
+
+    // Email notification (fire-and-forget)
+    const notifyEmail = body.notify_email;
+    if (notifyEmail) {
+      const poHtml = buildPOCreatedEmail({ po: newOrder, vendorName });
+      sendInventoryEmail(notifyEmail, `PO ${poId} Created — ${vendorName}`, poHtml).catch(() => {});
+    }
+
     return NextResponse.json({
       success: true,
       data: newOrder,
       message: 'Purchase order created successfully'
     });
 
+    // Fire-and-forget: send PO created email
   } catch (error) {
     console.error('Purchase order POST error:', error);
     return NextResponse.json({
@@ -183,6 +205,10 @@ export async function PUT(request) {
       orders,
       lastUpdated: new Date().toISOString()
     });
+
+    // Invalidate caches
+    cache.del(`po:${franchise_id}`);
+    cache.del(`inv_analytics:${franchise_id}`);
 
     return NextResponse.json({
       success: true,

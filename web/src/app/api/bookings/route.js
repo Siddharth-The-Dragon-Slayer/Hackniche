@@ -18,20 +18,18 @@ export async function GET(req) {
     const adminDb = getAdminDb();
     const { searchParams } = new URL(req.url);
     const franchise_id = searchParams.get('franchise_id') || 'pfd';
-    const branch_id    = searchParams.get('branch_id') || 'pfd_b1';
+    const branch_id    = searchParams.get('branch_id') || null;  // optional — omit for franchise-level
     const hall_id      = searchParams.get('hall_id');
     const status       = searchParams.get('status');
     const from_date    = searchParams.get('from_date');
     const to_date      = searchParams.get('to_date');
 
-    const cacheKey = `bookings:${franchise_id}:${branch_id}:${hall_id||''}:${status||''}:${from_date||''}:${to_date||''}`;
+    const cacheKey = `bookings:${franchise_id}:${branch_id||'all'}:${hall_id||''}:${status||''}:${from_date||''}:${to_date||''}`;
     const cached = cache.get(cacheKey);
     if (cached) return NextResponse.json(cached);
 
-    let q = adminDb.collection('bookings')
-      .where('franchise_id', '==', franchise_id)
-      .where('branch_id', '==', branch_id);
-
+    let q = adminDb.collection('bookings').where('franchise_id', '==', franchise_id);
+    if (branch_id) q = q.where('branch_id', '==', branch_id);
     if (status && BOOKING_STATUSES.includes(status)) q = q.where('status', '==', status);
     if (hall_id) q = q.where('hall_id', '==', hall_id);
 

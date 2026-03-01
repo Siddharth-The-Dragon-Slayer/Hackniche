@@ -93,7 +93,10 @@ export async function POST(request) {
       theme,
       description,
       status,
-      base_price: typeof base_price === "string" ? parseFloat(base_price) : base_price || 0,
+      base_price:
+        typeof base_price === "string"
+          ? parseFloat(base_price)
+          : base_price || 0,
       items: Array.isArray(items) ? items : [],
       suitable_for: Array.isArray(suitable_for) ? suitable_for : [],
       image_urls: Array.isArray(image_urls) ? image_urls : [],

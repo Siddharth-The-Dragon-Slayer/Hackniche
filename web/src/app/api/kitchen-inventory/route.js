@@ -3,6 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import { cache } from '@/lib/cache';
 
 // GET - Fetch kitchen inventory items
 export async function GET(request) {
@@ -18,6 +19,14 @@ export async function GET(request) {
         success: false,
         error: 'franchise_id is required'
       }, { status: 400 });
+    }
+
+    // Check cache for unfiltered requests (most common)
+    const isFiltered = category || status || lowStock;
+    const cacheKey = `inv:${franchise_id}:${category||''}:${status||''}:${lowStock||''}`;
+    if (!isFiltered) {
+      const cached = cache.get(cacheKey);
+      if (cached) return NextResponse.json(cached);
     }
 
     const db = getAdminDb();
@@ -78,12 +87,17 @@ export async function GET(request) {
       categories: [...new Set(enhancedData.map(item => item.category))].length
     };
 
-    return NextResponse.json({
+    const result = {
       success: true,
       data: enhancedData,
       stats,
       message: `${enhancedData.length} items found`
-    });
+    };
+
+    // Cache unfiltered results for 2 min
+    if (!isFiltered) cache.set(cacheKey, result, 120);
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Kitchen inventory GET error:', error);
@@ -158,6 +172,10 @@ export async function POST(request) {
       });
     }
 
+    // Invalidate caches
+    cache.delPattern(`inv:${franchise_id}`);
+    cache.del(`inv_analytics:${franchise_id}`);
+
     return NextResponse.json({
       success: true,
       data: newItem,
@@ -226,6 +244,10 @@ export async function PUT(request) {
       lastUpdated: new Date().toISOString()
     });
 
+    // Invalidate caches
+    cache.delPattern(`inv:${franchise_id}`);
+    cache.del(`inv_analytics:${franchise_id}`);
+
     return NextResponse.json({
       success: true,
       data: updatedItem,
@@ -286,6 +308,10 @@ export async function DELETE(request) {
       items,
       lastUpdated: new Date().toISOString()
     });
+
+    // Invalidate caches
+    cache.delPattern(`inv:${franchise_id}`);
+    cache.del(`inv_analytics:${franchise_id}`);
 
     return NextResponse.json({
       success: true,

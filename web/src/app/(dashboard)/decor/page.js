@@ -353,7 +353,10 @@ function DecorCard({
             lineHeight: 1.55,
             margin: 0,
             paddingTop: 6,
-            borderTop: Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0 ? "1px solid var(--color-border)" : "none",
+            borderTop:
+              Array.isArray(pkg.image_urls) && pkg.image_urls.length > 0
+                ? "1px solid var(--color-border)"
+                : "none",
           }}
         >
           {pkg.description}

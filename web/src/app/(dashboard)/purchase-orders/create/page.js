@@ -1,21 +1,24 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, AlertTriangle, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
-export default function CreatePurchaseOrderPage() {
+function CreatePOInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [vendors, setVendors] = useState([]);
+  const [prefillBanner, setPrefillBanner] = useState(null);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [errors, setErrors] = useState({});
   
   const [form, setForm] = useState({
     vendorId: '',
     vendorName: '',
+    vendorCategory: '',
     branchId: '',
     expectedDelivery: '',
     notes: '',
@@ -31,6 +34,31 @@ export default function CreatePurchaseOrderPage() {
   const [items, setItems] = useState([
     { itemId: '', name: '', sku: '', qty: '', unitPrice: '', unit: 'kg', total: 0 }
   ]);
+
+  // Pre-fill items from shortage data (passed via URL query param)
+  useEffect(() => {
+    const prefillParam = searchParams.get('prefill');
+    if (prefillParam) {
+      try {
+        const shortageItems = JSON.parse(decodeURIComponent(prefillParam));
+        if (Array.isArray(shortageItems) && shortageItems.length > 0) {
+          const prefilled = shortageItems.map(s => ({
+            itemId: '',
+            name: s.name || '',
+            sku: '',
+            qty: s.qty || '',
+            unitPrice: '',
+            unit: s.unit || 'kg',
+            total: 0,
+          }));
+          setItems(prefilled);
+          setPrefillBanner(`${shortageItems.length} shortage items pre-filled from stock deduction. Select a vendor and review quantities.`);
+        }
+      } catch (e) {
+        console.warn('Failed to parse prefill data:', e);
+      }
+    }
+  }, [searchParams]);
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const setItem = (i, k, v) => {
@@ -72,6 +100,29 @@ export default function CreatePurchaseOrderPage() {
         const invResult = await invRes.json();
         if (invResult.success) {
           setInventoryItems(invResult.data);
+
+          // Match prefilled shortage items to inventory IDs and prices
+          setItems(prev => prev.map(it => {
+            if (it.itemId || !it.name) return it; // already matched or empty
+            const match = invResult.data.find(inv =>
+              inv.name.toLowerCase() === it.name.toLowerCase() ||
+              inv.name.toLowerCase().includes(it.name.toLowerCase()) ||
+              it.name.toLowerCase().includes(inv.name.toLowerCase())
+            );
+            if (match) {
+              const qty = parseFloat(it.qty) || 0;
+              const unitPrice = match.pricePerUnit || 0;
+              return {
+                ...it,
+                itemId: match.id,
+                sku: match.id,
+                unit: match.unit || it.unit,
+                unitPrice,
+                total: qty * unitPrice,
+              };
+            }
+            return it;
+          }));
         }
       } catch (error) {
         console.error('Error fetching inventory:', error);
@@ -81,22 +132,50 @@ export default function CreatePurchaseOrderPage() {
     fetchData();
   }, [userProfile]);
 
-  // Handle vendor selection
+  // Handle vendor selection — also clears item selections since vendor changed
   const handleVendorChange = (vendorId) => {
     const vendor = vendors.find(v => v.id === vendorId);
-    set('vendorId', vendorId);
-    set('vendorName', vendor ? vendor.name : '');
+    setForm(p => ({
+      ...p,
+      vendorId,
+      vendorName: vendor ? vendor.name : '',
+      vendorCategory: vendor ? (vendor.category || '') : '',
+    }));
+    // Clear item selections so stale selections don't carry over
+    setItems(prev => prev.map(it => ({ ...it, itemId: '', name: '', sku: '', unit: 'kg', unitPrice: '', total: 0 })));
   };
 
-  // Handle inventory item selection
+  // Filter inventory items to those matching the vendor's supply category
+  const vendorCategory = form.vendorCategory || '';
+  const vendorItems = vendorCategory
+    ? inventoryItems.filter(inv => inv.category?.toLowerCase() === vendorCategory.toLowerCase())
+    : inventoryItems;
+
+  // Handle inventory item selection — all fields updated in one setItems call to avoid stale-state overwrites
   const handleItemSelect = (idx, itemId) => {
     const item = inventoryItems.find(i => i.id === itemId);
+    if (!itemId) {
+      // Clear the row if empty option selected
+      setItems(prev => prev.map((it, i) =>
+        i === idx ? { ...it, itemId: '', name: '', sku: '', unit: 'kg', unitPrice: '', total: 0 } : it
+      ));
+      return;
+    }
     if (item) {
-      setItem(idx, 'itemId', itemId);
-      setItem(idx, 'name', item.name);
-      setItem(idx, 'sku', item.id);
-      setItem(idx, 'unit', item.unit);
-      setItem(idx, 'unitPrice', item.pricePerUnit || 0);
+      const unitPrice = item.pricePerUnit || 0;
+      setItems(prev => prev.map((it, i) => {
+        if (i !== idx) return it;
+        const qty = parseFloat(it.qty) || 0;
+        return {
+          ...it,
+          itemId: item.id,
+          name: item.name,
+          sku: item.id,
+          unit: item.unit || 'kg',
+          unitPrice,
+          total: qty * unitPrice,
+        };
+      }));
     }
   };
 
@@ -190,6 +269,19 @@ export default function CreatePurchaseOrderPage() {
       </div>
 
       <form style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 960 }}>
+        {/* Prefill Banner */}
+        {prefillBanner && (
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 20px', borderRadius: 12,
+            background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)',
+          }}>
+            <AlertTriangle size={18} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: 13, color: 'var(--color-text-h)', lineHeight: 1.6 }}>
+              <strong>Shortage Auto-Fill:</strong> {prefillBanner}
+            </div>
+          </div>
+        )}
+
         <div className="card" style={{ padding: 28 }}>
           <div className="form-section-title">Order Details</div>
           <div className="form-grid">
@@ -198,10 +290,29 @@ export default function CreatePurchaseOrderPage() {
               <select className="input" value={form.vendorId} onChange={e => handleVendorChange(e.target.value)}>
                 <option value="">Select vendor</option>
                 {vendors.map(v => (
-                  <option key={v.id} value={v.id}>{v.name}</option>
+                  <option key={v.id} value={v.id}>{v.name}{v.category ? ` — ${v.category}` : ''}</option>
                 ))}
               </select>
               {errors.vendor && <span style={{color: 'red', fontSize: 12}}>{errors.vendor}</span>}
+              {/* Vendor info chip */}
+              {form.vendorId && (() => {
+                const v = vendors.find(x => x.id === form.vendorId);
+                if (!v) return null;
+                return (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
+                    padding: '6px 12px', borderRadius: 8, fontSize: 12,
+                    background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)',
+                  }}>
+                    <Building2 size={12} style={{ color: '#6366f1' }} />
+                    <span style={{ color: 'var(--color-text-muted)' }}>
+                      {v.contactName && <><strong>{v.contactName}</strong> &middot; </>}
+                      {v.phone && <>{v.phone} &middot; </>}
+                      {v.category && <span style={{ fontWeight: 600, color: '#6366f1' }}>{v.category}</span>}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
             <div>
               <label className="form-label">Expected Delivery Date *</label>
@@ -273,12 +384,30 @@ export default function CreatePurchaseOrderPage() {
             <div className="form-section-title" style={{ marginBottom: 0 }}>Line Items</div>
             <button type="button" className="btn btn-ghost" onClick={addItem} style={{ fontSize: 13 }}><Plus size={14} /> Add Item</button>
           </div>
+          {!form.vendorId && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, marginBottom: 12,
+              background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', fontSize: 13, color: '#92400e'
+            }}>
+              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              Select a vendor first — the item list will filter to that vendor&apos;s supply category.
+            </div>
+          )}
+          {form.vendorId && vendorItems.length === 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, marginBottom: 12,
+              background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', fontSize: 13, color: '#4338ca'
+            }}>
+              <Building2 size={14} style={{ flexShrink: 0 }} />
+              No inventory items found for category &quot;{form.vendorCategory}&quot;. Enter item names manually below.
+            </div>
+          )}
           {errors.items && <div style={{color: 'red', fontSize: 12, marginBottom: 12}}>{errors.items}</div>}
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
               <thead>
                 <tr style={{ background: 'var(--color-surface-2)', fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>Select Item</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>Select Item{vendorCategory ? ` (${vendorCategory})` : ''}</th>
                   <th style={{ padding: '8px 10px', textAlign: 'left' }}>Item Name</th>
                   <th style={{ padding: '8px 10px', textAlign: 'left' }}>Unit</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>Qty</th>
@@ -295,11 +424,20 @@ export default function CreatePurchaseOrderPage() {
                         className="input" 
                         value={it.itemId} 
                         onChange={e => handleItemSelect(i, e.target.value)}
-                        style={{ minWidth: 150 }}
+                        style={{ minWidth: 180 }}
+                        disabled={!form.vendorId}
                       >
-                        <option value="">Select from inventory</option>
-                        {inventoryItems.map(inv => (
-                          <option key={inv.id} value={inv.id}>{inv.name}</option>
+                        <option value="">
+                          {!form.vendorId
+                            ? 'Select vendor first'
+                            : vendorItems.length > 0
+                              ? `Pick item…`
+                              : 'Enter name manually'}
+                        </option>
+                        {(vendorItems.length > 0 ? vendorItems : inventoryItems).map(inv => (
+                          <option key={inv.id} value={inv.id}>
+                            {inv.name}{inv.currentStock !== undefined ? ` (${inv.currentStock} ${inv.unit} in stock)` : ''}
+                          </option>
                         ))}
                       </select>
                     </td>
@@ -398,5 +536,13 @@ export default function CreatePurchaseOrderPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CreatePurchaseOrderPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading...</div>}>
+      <CreatePOInner />
+    </Suspense>
   );
 }
