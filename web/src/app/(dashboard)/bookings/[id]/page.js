@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import { useAuth } from '@/contexts/auth-context';
 import Badge from '@/components/ui/Badge';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import {
   ArrowLeft, RefreshCw, Loader2, AlertCircle, Calendar, Users,
   Building2, CreditCard, Plus, Trash2, CheckCircle2, PlayCircle,
@@ -38,6 +40,7 @@ export default function BookingDetailPage(){
   const [toast,setToast]     = useState(null);
   const [tab,setTab]         = useState('overview');
   const [dialog,setDialog]   = useState(null);
+  const [staffList,setStaffList] = useState([]);
 
   /* ── dialog forms ── */
   const [payForm,setPayForm] = useState({amount:'',date:'',mode:'cash',ref:'',note:''});
@@ -57,6 +60,14 @@ export default function BookingDetailPage(){
     }catch(e){setError(e.message);}finally{setLoading(false);}
   },[id]);
   useEffect(()=>{fetchB();},[fetchB]);
+
+  /* ── Load staff for dropdowns ── */
+  useEffect(()=>{
+    if(!bid) return;
+    getDocs(query(collection(db,'users'),where('branch_id','==',bid)))
+      .then(s=>setStaffList(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''))))
+      .catch(()=>{});
+  },[bid]);
 
   async function doAction(body){
     setSaving(true);
@@ -287,7 +298,7 @@ export default function BookingDetailPage(){
         <DA saving={saving} onCancel={closeD} onOk={handlePay} ok="Record"/>
       </Dlg>}
       {dialog==='chk'&&<Dlg title="Add Checklist Item" onClose={closeD}>
-        <FG><Fld l="Task *" s><input className="input" value={chkForm.task} onChange={e=>setChkForm(p=>({...p,task:e.target.value}))}/></Fld><Fld l="Assigned To"><input className="input" value={chkForm.assigned_to} onChange={e=>setChkForm(p=>({...p,assigned_to:e.target.value}))}/></Fld><Fld l="Due Date"><input className="input" type="date" value={chkForm.due_date} onChange={e=>setChkForm(p=>({...p,due_date:e.target.value}))}/></Fld></FG>
+        <FG><Fld l="Task *" s><input className="input" value={chkForm.task} onChange={e=>setChkForm(p=>({...p,task:e.target.value}))}/></Fld><Fld l="Assigned To">{staffList.length>0?<select className="input" value={chkForm.assigned_to} onChange={e=>setChkForm(p=>({...p,assigned_to:e.target.value}))}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')||'Staff'})</option>)}</select>:<input className="input" value={chkForm.assigned_to} onChange={e=>setChkForm(p=>({...p,assigned_to:e.target.value}))} placeholder="Staff name"/>}</Fld><Fld l="Due Date"><input className="input" type="date" value={chkForm.due_date} onChange={e=>setChkForm(p=>({...p,due_date:e.target.value}))}/></Fld></FG>
         <DA saving={saving} onCancel={closeD} onOk={handleChk} ok="Add"/>
       </Dlg>}
       {dialog==='vnd'&&<Dlg title="Add Vendor" onClose={closeD}>
@@ -295,7 +306,7 @@ export default function BookingDetailPage(){
         <DA saving={saving} onCancel={closeD} onOk={handleVnd} ok="Add Vendor"/>
       </Dlg>}
       {dialog==='stf'&&<Dlg title="Assign Staff" onClose={closeD}>
-        <FG><Fld l="Name *"><input className="input" value={stfForm.name} onChange={e=>setStfForm(p=>({...p,name:e.target.value}))}/></Fld><Fld l="Role"><input className="input" placeholder="Manager, Chef…" value={stfForm.role} onChange={e=>setStfForm(p=>({...p,role:e.target.value}))}/></Fld></FG>
+        <FG><Fld l="Staff *">{staffList.length>0?<select className="input" value={stfForm.name} onChange={e=>{const s=staffList.find(x=>x.name===e.target.value);setStfForm({name:e.target.value,role:s?.role||''});}}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')||'Staff'})</option>)}</select>:<input className="input" value={stfForm.name} onChange={e=>setStfForm(p=>({...p,name:e.target.value}))} placeholder="Staff name"/>}</Fld><Fld l="Role"><input className="input" placeholder="Manager, Chef…" value={stfForm.role} onChange={e=>setStfForm(p=>({...p,role:e.target.value}))}/></Fld></FG>
         <DA saving={saving} onCancel={closeD} onOk={handleStf} ok="Assign"/>
       </Dlg>}
 
