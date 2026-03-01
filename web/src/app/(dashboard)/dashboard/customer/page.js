@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
@@ -51,13 +51,21 @@ export default function CustomerDashboard() {
   const [leads, setLeads]     = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchLeads = useCallback(() => {
     if (!uid) return;
     fetch(`/api/leads?customer_uid=${uid}`)
       .then(r => r.json())
       .then(d => { setLeads(d.leads || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, [uid]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Auto-poll every 30 s so customers see their booking confirmed status live.
+  useEffect(() => {
+    const id = setInterval(fetchLeads, 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
 
   const activeLeads    = leads.filter(l => !['closed','lost','completed'].includes(l.status));
   const completedLeads = leads.filter(l => l.status === 'completed' || l.status === 'closed');

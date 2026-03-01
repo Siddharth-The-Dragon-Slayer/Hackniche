@@ -225,6 +225,12 @@ export default function DecoratorDashboard() {
     );
   }, [fetchPackages, fetchLeads]);
 
+  // Auto-poll leads every 30 s so decorator sees new decoration orders live.
+  useEffect(() => {
+    const id = setInterval(fetchLeads, 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
+
   // ── Derived data ────────────────────────────────────────────────────────
   const myPackageIds = new Set(packages.map((p) => p.id));
   const activePackages = packages.filter((p) => p.status === "active");

@@ -476,10 +476,13 @@ export async function PUT(request, { params }) {
       };
       batch.set(invoiceRef, invoiceDoc);
 
-      // Link booking_id + invoice_id back to lead
+      // Link booking_id + invoice_id back to lead; also mark as converted
       batch.update(leadRef, {
         booking_id: bookingRef.id,
         invoice_id: invoiceRef.id,
+        is_converted: true,
+        converted_booking_id: bookingRef.id,
+        converted_at: now,
       });
 
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
@@ -1004,4 +1007,9 @@ function invalidate(fid, bid, lid) {
   cache.del(detailKey(fid, bid, lid));
   cache.del(listKey(fid, bid));
   cache.delPattern(`leads:${fid}:${bid}:`);
+  // Also clear franchise-level leads cache and bookings cache so all
+  // users (any role, any view) immediately see the updated state.
+  cache.delPattern(`leads:franchise:${fid}:`);
+  cache.delPattern(`leads:customer:`);
+  cache.delPattern(`bookings:${fid}:`);
 }

@@ -1013,7 +1013,11 @@ export const sidebarMenus = {
     { icon: "🎉", label: "Events", href: "/events" },
     { icon: "🍽️", label: "Menus", href: "/menus" },
     { icon: "🧱", label: "Raw Materials", href: "/inventory" },
-    { icon: "📉", label: "Stock Deduction", href: "/inventory/stock-deduction" },
+    {
+      icon: "📉",
+      label: "Stock Deduction",
+      href: "/inventory/stock-deduction",
+    },
     { icon: "🛒", label: "Purchase Orders", href: "/purchase-orders" },
     { icon: "🤝", label: "Vendors", href: "/vendors" },
   ],

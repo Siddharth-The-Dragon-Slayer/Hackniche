@@ -2,86 +2,88 @@
 // Deducts raw materials based on menu items and guest count
 // Called when a booking is confirmed or event is executed
 
-import { NextResponse } from 'next/server';
-import { getAdminDb } from '@/lib/firebase-admin';
-import { cache } from '@/lib/cache';
+import { NextResponse } from "next/server";
+import { getAdminDb } from "@/lib/firebase-admin";
+import { cache } from "@/lib/cache";
 import {
-  buildLowStockEmail, buildStockDeductionEmail, sendInventoryEmail
-} from '@/lib/inventory-emails';
+  buildLowStockEmail,
+  buildStockDeductionEmail,
+  sendInventoryEmail,
+} from "@/lib/inventory-emails";
 
 // Recipe-to-raw-material mapping (per guest)
 // Quantities are based on standard banquet catering portions.
 // A 10% wastage/spillage buffer is applied automatically.
-const WASTAGE_FACTOR = 1.10; // 10% extra for cooking loss & spillage
+const WASTAGE_FACTOR = 1.1; // 10% extra for cooking loss & spillage
 
 const RECIPE_MATERIAL_MAP = {
-  'Biryani': [
-    { name: 'Basmati Rice', unit: 'kg', qtyPerGuest: 0.15 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.025 },
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.06 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.03 },
-    { name: 'Spices Mix', unit: 'kg', qtyPerGuest: 0.012 },
-    { name: 'Ginger Garlic Paste', unit: 'kg', qtyPerGuest: 0.008 },
-    { name: 'Ghee', unit: 'kg', qtyPerGuest: 0.01 },
-    { name: 'Fresh Coriander', unit: 'kg', qtyPerGuest: 0.005 },
-    { name: 'Mint Leaves', unit: 'kg', qtyPerGuest: 0.003 },
+  Biryani: [
+    { name: "Basmati Rice", unit: "kg", qtyPerGuest: 0.15 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.025 },
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.06 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.03 },
+    { name: "Spices Mix", unit: "kg", qtyPerGuest: 0.012 },
+    { name: "Ginger Garlic Paste", unit: "kg", qtyPerGuest: 0.008 },
+    { name: "Ghee", unit: "kg", qtyPerGuest: 0.01 },
+    { name: "Fresh Coriander", unit: "kg", qtyPerGuest: 0.005 },
+    { name: "Mint Leaves", unit: "kg", qtyPerGuest: 0.003 },
   ],
-  'Paneer Butter Masala': [
-    { name: 'Fresh Paneer', unit: 'kg', qtyPerGuest: 0.1 },
-    { name: 'Butter', unit: 'kg', qtyPerGuest: 0.015 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.01 },
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.04 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.06 },
-    { name: 'Cream', unit: 'liter', qtyPerGuest: 0.015 },
-    { name: 'Ginger Garlic Paste', unit: 'kg', qtyPerGuest: 0.006 },
-    { name: 'Spices Mix', unit: 'kg', qtyPerGuest: 0.005 },
+  "Paneer Butter Masala": [
+    { name: "Fresh Paneer", unit: "kg", qtyPerGuest: 0.1 },
+    { name: "Butter", unit: "kg", qtyPerGuest: 0.015 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.01 },
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.04 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.06 },
+    { name: "Cream", unit: "liter", qtyPerGuest: 0.015 },
+    { name: "Ginger Garlic Paste", unit: "kg", qtyPerGuest: 0.006 },
+    { name: "Spices Mix", unit: "kg", qtyPerGuest: 0.005 },
   ],
-  'Dal Tadka': [
-    { name: 'Toor Dal', unit: 'kg', qtyPerGuest: 0.06 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.01 },
-    { name: 'Ghee', unit: 'kg', qtyPerGuest: 0.005 },
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.02 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.02 },
-    { name: 'Ginger Garlic Paste', unit: 'kg', qtyPerGuest: 0.004 },
-    { name: 'Fresh Coriander', unit: 'kg', qtyPerGuest: 0.003 },
+  "Dal Tadka": [
+    { name: "Toor Dal", unit: "kg", qtyPerGuest: 0.06 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.01 },
+    { name: "Ghee", unit: "kg", qtyPerGuest: 0.005 },
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.02 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.02 },
+    { name: "Ginger Garlic Paste", unit: "kg", qtyPerGuest: 0.004 },
+    { name: "Fresh Coriander", unit: "kg", qtyPerGuest: 0.003 },
   ],
-  'Naan/Roti': [
-    { name: 'Flour (Maida)', unit: 'kg', qtyPerGuest: 0.1 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.005 },
-    { name: 'Butter', unit: 'kg', qtyPerGuest: 0.008 },
-    { name: 'Curd/Yogurt', unit: 'kg', qtyPerGuest: 0.01 },
+  "Naan/Roti": [
+    { name: "Flour (Maida)", unit: "kg", qtyPerGuest: 0.1 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.005 },
+    { name: "Butter", unit: "kg", qtyPerGuest: 0.008 },
+    { name: "Curd/Yogurt", unit: "kg", qtyPerGuest: 0.01 },
   ],
-  'Rice': [
-    { name: 'Basmati Rice', unit: 'kg', qtyPerGuest: 0.12 },
-    { name: 'Ghee', unit: 'kg', qtyPerGuest: 0.005 },
+  Rice: [
+    { name: "Basmati Rice", unit: "kg", qtyPerGuest: 0.12 },
+    { name: "Ghee", unit: "kg", qtyPerGuest: 0.005 },
   ],
-  'Raita': [
-    { name: 'Curd/Yogurt', unit: 'kg', qtyPerGuest: 0.08 },
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.01 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.01 },
-    { name: 'Fresh Coriander', unit: 'kg', qtyPerGuest: 0.002 },
+  Raita: [
+    { name: "Curd/Yogurt", unit: "kg", qtyPerGuest: 0.08 },
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.01 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.01 },
+    { name: "Fresh Coriander", unit: "kg", qtyPerGuest: 0.002 },
   ],
-  'Gulab Jamun': [
-    { name: 'Flour (Maida)', unit: 'kg', qtyPerGuest: 0.03 },
-    { name: 'Sugar', unit: 'kg', qtyPerGuest: 0.05 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.025 },
-    { name: 'Milk Powder', unit: 'kg', qtyPerGuest: 0.02 },
-    { name: 'Ghee', unit: 'kg', qtyPerGuest: 0.01 },
+  "Gulab Jamun": [
+    { name: "Flour (Maida)", unit: "kg", qtyPerGuest: 0.03 },
+    { name: "Sugar", unit: "kg", qtyPerGuest: 0.05 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.025 },
+    { name: "Milk Powder", unit: "kg", qtyPerGuest: 0.02 },
+    { name: "Ghee", unit: "kg", qtyPerGuest: 0.01 },
   ],
-  'Mixed Veg Curry': [
-    { name: 'Mixed Vegetables', unit: 'kg', qtyPerGuest: 0.12 },
-    { name: 'Cooking Oil (Sunflower)', unit: 'liter', qtyPerGuest: 0.015 },
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.04 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.04 },
-    { name: 'Ginger Garlic Paste', unit: 'kg', qtyPerGuest: 0.005 },
-    { name: 'Spices Mix', unit: 'kg', qtyPerGuest: 0.005 },
+  "Mixed Veg Curry": [
+    { name: "Mixed Vegetables", unit: "kg", qtyPerGuest: 0.12 },
+    { name: "Cooking Oil (Sunflower)", unit: "liter", qtyPerGuest: 0.015 },
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.04 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.04 },
+    { name: "Ginger Garlic Paste", unit: "kg", qtyPerGuest: 0.005 },
+    { name: "Spices Mix", unit: "kg", qtyPerGuest: 0.005 },
   ],
-  'Salad': [
-    { name: 'Onions', unit: 'kg', qtyPerGuest: 0.025 },
-    { name: 'Tomatoes', unit: 'kg', qtyPerGuest: 0.025 },
-    { name: 'Cucumber', unit: 'kg', qtyPerGuest: 0.03 },
-    { name: 'Lemon', unit: 'kg', qtyPerGuest: 0.01 },
-    { name: 'Fresh Coriander', unit: 'kg', qtyPerGuest: 0.003 },
+  Salad: [
+    { name: "Onions", unit: "kg", qtyPerGuest: 0.025 },
+    { name: "Tomatoes", unit: "kg", qtyPerGuest: 0.025 },
+    { name: "Cucumber", unit: "kg", qtyPerGuest: 0.03 },
+    { name: "Lemon", unit: "kg", qtyPerGuest: 0.01 },
+    { name: "Fresh Coriander", unit: "kg", qtyPerGuest: 0.003 },
   ],
 };
 
@@ -89,28 +91,50 @@ const RECIPE_MATERIAL_MAP = {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { franchise_id, branch_id, guest_count, menu_items, booking_id, event_name, dry_run, custom_deductions } = body;
+    const {
+      franchise_id,
+      branch_id,
+      guest_count,
+      menu_items,
+      booking_id,
+      event_name,
+      dry_run,
+      custom_deductions,
+    } = body;
 
-    if (!franchise_id || !guest_count || !menu_items || !Array.isArray(menu_items)) {
-      return NextResponse.json({
-        success: false,
-        error: 'Required: franchise_id, guest_count, menu_items (array of dish names)'
-      }, { status: 400 });
+    if (
+      !franchise_id ||
+      !guest_count ||
+      !menu_items ||
+      !Array.isArray(menu_items)
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Required: franchise_id, guest_count, menu_items (array of dish names)",
+        },
+        { status: 400 },
+      );
     }
 
     // If custom_deductions provided (user-edited quantities), use those directly
     // Otherwise calculate from recipe map
     let materialsNeeded = {};
 
-    if (custom_deductions && Array.isArray(custom_deductions) && custom_deductions.length > 0) {
+    if (
+      custom_deductions &&
+      Array.isArray(custom_deductions) &&
+      custom_deductions.length > 0
+    ) {
       // User has manually adjusted the deduction quantities
       for (const cd of custom_deductions) {
         if (cd.name && cd.totalQty > 0) {
           materialsNeeded[cd.name] = {
             name: cd.name,
-            unit: cd.unit || 'kg',
+            unit: cd.unit || "kg",
             totalQty: Math.round(parseFloat(cd.totalQty) * 100) / 100,
-            source: 'manual_override'
+            source: "manual_override",
           };
         }
       }
@@ -122,29 +146,37 @@ export async function POST(request) {
         for (const mat of recipe) {
           const key = mat.name;
           if (!materialsNeeded[key]) {
-            materialsNeeded[key] = { name: mat.name, unit: mat.unit, totalQty: 0 };
+            materialsNeeded[key] = {
+              name: mat.name,
+              unit: mat.unit,
+              totalQty: 0,
+            };
           }
           materialsNeeded[key].totalQty += mat.qtyPerGuest * guest_count;
         }
       }
 
       // Apply wastage buffer and round
-      Object.values(materialsNeeded).forEach(m => {
+      Object.values(materialsNeeded).forEach((m) => {
         m.totalQty = Math.round(m.totalQty * WASTAGE_FACTOR * 100) / 100;
-        m.qtyBeforeWastage = Math.round((m.totalQty / WASTAGE_FACTOR) * 100) / 100;
+        m.qtyBeforeWastage =
+          Math.round((m.totalQty / WASTAGE_FACTOR) * 100) / 100;
         m.wastagePct = Math.round((WASTAGE_FACTOR - 1) * 100);
       });
     }
 
     const db = getAdminDb();
-    const docRef = db.collection('kitchen-inventory').doc(franchise_id);
+    const docRef = db.collection("kitchen-inventory").doc(franchise_id);
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return NextResponse.json({
-        success: false,
-        error: 'No inventory found for this franchise'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No inventory found for this franchise",
+        },
+        { status: 404 },
+      );
     }
 
     const data = doc.data();
@@ -157,9 +189,10 @@ export async function POST(request) {
 
     for (const [, mat] of Object.entries(materialsNeeded)) {
       // Find matching inventory item (case-insensitive partial match)
-      const invItem = items.find(i =>
-        i.name.toLowerCase().includes(mat.name.toLowerCase()) ||
-        mat.name.toLowerCase().includes(i.name.toLowerCase())
+      const invItem = items.find(
+        (i) =>
+          i.name.toLowerCase().includes(mat.name.toLowerCase()) ||
+          mat.name.toLowerCase().includes(i.name.toLowerCase()),
       );
 
       if (!invItem) {
@@ -167,7 +200,7 @@ export async function POST(request) {
           material: mat.name,
           needed: mat.totalQty,
           unit: mat.unit,
-          reason: 'Not found in inventory'
+          reason: "Not found in inventory",
         });
         continue;
       }
@@ -178,8 +211,9 @@ export async function POST(request) {
           needed: mat.totalQty,
           available: invItem.currentStock,
           unit: mat.unit,
-          deficit: Math.round((mat.totalQty - invItem.currentStock) * 100) / 100,
-          reason: 'Insufficient stock'
+          deficit:
+            Math.round((mat.totalQty - invItem.currentStock) * 100) / 100,
+          reason: "Insufficient stock",
         });
       }
 
@@ -190,7 +224,7 @@ export async function POST(request) {
           newStock,
           minStock: invItem.minStock,
           unit: mat.unit,
-          message: `Will drop below minimum (${invItem.minStock} ${mat.unit})`
+          message: `Will drop below minimum (${invItem.minStock} ${mat.unit})`,
         });
       }
 
@@ -201,7 +235,7 @@ export async function POST(request) {
         deductQty: mat.totalQty,
         newStock,
         unit: mat.unit,
-        willBeLowStock: newStock <= invItem.minStock
+        willBeLowStock: newStock <= invItem.minStock,
       });
     }
 
@@ -210,7 +244,7 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         dry_run: true,
-        message: 'Stock deduction preview (no changes made)',
+        message: "Stock deduction preview (no changes made)",
         data: {
           guest_count,
           menu_items,
@@ -219,37 +253,40 @@ export async function POST(request) {
           shortages,
           warnings,
           hasShortages: shortages.length > 0,
-          totalItemsAffected: deductions.length
-        }
+          totalItemsAffected: deductions.length,
+        },
       });
     }
 
     // Apply deductions
     const updatedItems = [...items];
     for (const ded of deductions) {
-      const idx = updatedItems.findIndex(i => i.id === ded.itemId);
+      const idx = updatedItems.findIndex((i) => i.id === ded.itemId);
       if (idx !== -1) {
         updatedItems[idx] = {
           ...updatedItems[idx],
           currentStock: ded.newStock,
-          status: ded.newStock <= updatedItems[idx].minStock ? 'low-stock' : 'in-stock',
-          lastUsed: new Date().toISOString().split('T')[0],
-          updated: new Date().toISOString()
+          status:
+            ded.newStock <= updatedItems[idx].minStock
+              ? "low-stock"
+              : "in-stock",
+          lastUsed: new Date().toISOString().split("T")[0],
+          updated: new Date().toISOString(),
         };
       }
     }
 
     await docRef.update({
       items: updatedItems,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
 
     // Log the deduction event
     const deductionLog = {
       id: `SD-${Date.now().toString(36).toUpperCase()}`,
-      type: 'auto_deduction',
+      type: "auto_deduction",
       franchise_id,
-      branch_id: branch_id || '',
+      branch_id: branch_id || "",
       booking_id: booking_id || null,
       event_name: event_name || null,
       guest_count,
@@ -258,11 +295,11 @@ export async function POST(request) {
       shortages,
       warnings,
       created: new Date().toISOString(),
-      created_by: body.created_by || 'system'
+      created_by: body.created_by || "system",
     };
 
     // Store deduction log
-    const logDocRef = db.collection('stock-deduction-logs').doc(franchise_id);
+    const logDocRef = db.collection("stock-deduction-logs").doc(franchise_id);
     const logDoc = await logDocRef.get();
     if (logDoc.exists) {
       const logData = logDoc.data();
@@ -274,7 +311,7 @@ export async function POST(request) {
         franchise_id,
         logs: [deductionLog],
         created: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       });
     }
 
@@ -292,17 +329,28 @@ export async function POST(request) {
         deductions,
         shortages,
       });
-      sendInventoryEmail(notifyEmail, `Stock Deducted — ${guest_count} guests`, dedHtml).catch(() => {});
+      sendInventoryEmail(
+        notifyEmail,
+        `Stock Deducted — ${guest_count} guests`,
+        dedHtml,
+      ).catch(() => {});
 
       // Low stock warning for items that are now below min
-      const newLowItems = deductions.filter(d => d.willBeLowStock).map(d => ({
-        name: d.material, currentStock: d.newStock,
-        minStock: items.find(i => i.id === d.itemId)?.minStock || 0,
-        unit: d.unit,
-      }));
+      const newLowItems = deductions
+        .filter((d) => d.willBeLowStock)
+        .map((d) => ({
+          name: d.material,
+          currentStock: d.newStock,
+          minStock: items.find((i) => i.id === d.itemId)?.minStock || 0,
+          unit: d.unit,
+        }));
       if (newLowItems.length > 0) {
         const lowHtml = buildLowStockEmail({ items: newLowItems });
-        sendInventoryEmail(notifyEmail, `⚠️ ${newLowItems.length} items now below minimum stock`, lowHtml).catch(() => {});
+        sendInventoryEmail(
+          notifyEmail,
+          `⚠️ ${newLowItems.length} items now below minimum stock`,
+          lowHtml,
+        ).catch(() => {});
       }
     }
 
@@ -317,19 +365,22 @@ export async function POST(request) {
         shortages,
         warnings,
         hasShortages: shortages.length > 0,
-        totalItemsAffected: deductions.length
-      }
+        totalItemsAffected: deductions.length,
+      },
     });
 
     // ── Email Notifications (fire-and-forget) ──
     // We've already returned the response above; these run async
   } catch (error) {
-    console.error('Stock deduction error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to process stock deduction',
-      details: error.message
-    }, { status: 500 });
+    console.error("Stock deduction error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to process stock deduction",
+        details: error.message,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -337,42 +388,49 @@ export async function POST(request) {
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const franchise_id = searchParams.get('franchise_id');
+    const franchise_id = searchParams.get("franchise_id");
 
     if (!franchise_id) {
-      return NextResponse.json({
-        success: false,
-        error: 'franchise_id is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "franchise_id is required",
+        },
+        { status: 400 },
+      );
     }
 
     const db = getAdminDb();
-    const logDocRef = db.collection('stock-deduction-logs').doc(franchise_id);
+    const logDocRef = db.collection("stock-deduction-logs").doc(franchise_id);
     const logDoc = await logDocRef.get();
 
     if (!logDoc.exists) {
       return NextResponse.json({
         success: true,
         data: [],
-        message: 'No deduction logs found'
+        message: "No deduction logs found",
       });
     }
 
     const data = logDoc.data();
-    const logs = (data.logs || []).sort((a, b) => new Date(b.created) - new Date(a.created));
+    const logs = (data.logs || []).sort(
+      (a, b) => new Date(b.created) - new Date(a.created),
+    );
 
     return NextResponse.json({
       success: true,
       data: logs,
-      message: `${logs.length} deduction logs found`
+      message: `${logs.length} deduction logs found`,
     });
-
   } catch (error) {
-    console.error('Deduction logs GET error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch deduction logs',
-      details: error.message
-    }, { status: 500 });
+    console.error("Deduction logs GET error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch deduction logs",
+        details: error.message,
+      },
+      { status: 500 },
+    );
   }
 }
