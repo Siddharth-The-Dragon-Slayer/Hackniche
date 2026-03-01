@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
@@ -31,12 +31,20 @@ export default function BranchDashboard() {
   const [leads, setLeads]         = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchLeads = useCallback(() => {
     fetch(`/api/leads?franchise_id=${franchise_id}&branch_id=${branch_id}`)
       .then(r => r.json())
       .then(d => { setLeads(d.leads || []); setLeadsLoading(false); })
       .catch(() => setLeadsLoading(false));
   }, [franchise_id, branch_id]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Auto-poll every 30 s — keep branch dashboard in sync with lead conversions.
+  useEffect(() => {
+    const id = setInterval(fetchLeads, 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
 
   const activeLeads  = leads.filter(l => ACTIVE_STATUSES.includes(l.status) || l.status === 'new');
   const newLeads     = leads.filter(l => l.status === 'new');

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
@@ -43,12 +43,20 @@ export default function SalesExecutiveDashboard() {
   const [loading, setLoading]     = useState(true);
   const [activeTab, setActiveTab] = useState('mine');
 
-  useEffect(() => {
+  const fetchLeads = useCallback(() => {
     fetch(`/api/leads?franchise_id=${franchise_id}&branch_id=${branch_id}`)
       .then(r => r.json())
       .then(d => { setLeads(d.leads || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, [franchise_id, branch_id]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Auto-poll every 30 s — keep sales dashboard in sync with pipeline changes.
+  useEffect(() => {
+    const id = setInterval(fetchLeads, 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
 
   const myLeads     = leads.filter(l => l.assigned_to_uid === uid);
   const shownLeads  = activeTab === 'mine' ? myLeads : leads;

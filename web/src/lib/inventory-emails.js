@@ -2,10 +2,10 @@
  * Inventory email templates — server-side only.
  * Used by API routes to send alerts for stock events.
  */
-import { getResend, FROM_ADDRESS } from '@/lib/resend-client';
+import { getResend, FROM_ADDRESS } from "@/lib/resend-client";
 
-const BRAND_GRADIENT = 'linear-gradient(135deg,#c8962b 0%,#f0c040 100%)';
-const BRAND_COLOR = '#c8962b';
+const BRAND_GRADIENT = "linear-gradient(135deg,#c8962b 0%,#f0c040 100%)";
+const BRAND_COLOR = "#c8962b";
 
 function wrapEmail(title, bodyHtml) {
   return `<!DOCTYPE html>
@@ -32,25 +32,28 @@ function wrapEmail(title, bodyHtml) {
 function tableRow(label, value, color) {
   return `<tr>
     <td style="padding:6px 12px;font-size:13px;color:#666;border-bottom:1px solid #f0f0f0;">${label}</td>
-    <td style="padding:6px 12px;font-size:13px;font-weight:600;color:${color || '#1a1a2e'};border-bottom:1px solid #f0f0f0;text-align:right;">${value}</td>
+    <td style="padding:6px 12px;font-size:13px;font-weight:600;color:${color || "#1a1a2e"};border-bottom:1px solid #f0f0f0;text-align:right;">${value}</td>
   </tr>`;
 }
 
 // ─── Low Stock Alert ────────────────────
 export function buildLowStockEmail({ items, franchiseName }) {
-  const rows = items.map(i =>
-    `<tr>
+  const rows = items
+    .map(
+      (i) =>
+        `<tr>
       <td style="padding:6px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;">${i.name}</td>
       <td style="padding:6px 12px;font-size:13px;font-weight:600;color:#ef4444;text-align:center;border-bottom:1px solid #f0f0f0;">${i.currentStock} ${i.unit}</td>
       <td style="padding:6px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">${i.minStock} ${i.unit}</td>
-      <td style="padding:6px 12px;font-size:13px;font-weight:600;color:#f59e0b;text-align:center;border-bottom:1px solid #f0f0f0;">${i.deficit || (i.minStock - i.currentStock)} ${i.unit}</td>
-    </tr>`
-  ).join('');
+      <td style="padding:6px 12px;font-size:13px;font-weight:600;color:#f59e0b;text-align:center;border-bottom:1px solid #f0f0f0;">${i.deficit || i.minStock - i.currentStock} ${i.unit}</td>
+    </tr>`,
+    )
+    .join("");
 
   const body = `
     <h2 style="margin:0 0 8px;color:#1a1a2e;font-size:20px;">⚠️ Low Stock Alert</h2>
     <p style="margin:0 0 20px;color:#555;font-size:14px;line-height:1.6;">
-      ${items.length} raw material${items.length > 1 ? 's are' : ' is'} below minimum stock level${franchiseName ? ` at <strong>${franchiseName}</strong>` : ''}.
+      ${items.length} raw material${items.length > 1 ? "s are" : " is"} below minimum stock level${franchiseName ? ` at <strong>${franchiseName}</strong>` : ""}.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px;">
       <thead><tr style="background:#fef2f2;">
@@ -63,18 +66,21 @@ export function buildLowStockEmail({ items, franchiseName }) {
     </table>
     <p style="margin:0;font-size:13px;color:#888;">Please create a Purchase Order to restock these materials.</p>
   `;
-  return wrapEmail('Low Stock Alert', body);
+  return wrapEmail("Low Stock Alert", body);
 }
 
 // ─── Purchase Order Created ─────────────
 export function buildPOCreatedEmail({ po, vendorName }) {
-  const itemRows = (po.items || []).map(i =>
-    `<tr>
+  const itemRows = (po.items || [])
+    .map(
+      (i) =>
+        `<tr>
       <td style="padding:6px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;">${i.name}</td>
       <td style="padding:6px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">${i.quantity} ${i.unit}</td>
-      <td style="padding:6px 12px;font-size:13px;text-align:right;border-bottom:1px solid #f0f0f0;">₹${(i.total || 0).toLocaleString('en-IN')}</td>
-    </tr>`
-  ).join('');
+      <td style="padding:6px 12px;font-size:13px;text-align:right;border-bottom:1px solid #f0f0f0;">₹${(i.total || 0).toLocaleString("en-IN")}</td>
+    </tr>`,
+    )
+    .join("");
 
   const body = `
     <h2 style="margin:0 0 8px;color:#1a1a2e;font-size:20px;">📦 Purchase Order Created</h2>
@@ -82,11 +88,11 @@ export function buildPOCreatedEmail({ po, vendorName }) {
       A new purchase order has been raised.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-      ${tableRow('PO Number', po.id, BRAND_COLOR)}
-      ${tableRow('Vendor', vendorName || po.vendorName)}
-      ${tableRow('Expected Delivery', po.expectedDelivery || '—')}
-      ${tableRow('Payment Terms', po.paymentTerms || 'Net 30')}
-      ${tableRow('Total Amount', '₹' + (po.totalAmount || 0).toLocaleString('en-IN'), BRAND_COLOR)}
+      ${tableRow("PO Number", po.id, BRAND_COLOR)}
+      ${tableRow("Vendor", vendorName || po.vendorName)}
+      ${tableRow("Expected Delivery", po.expectedDelivery || "—")}
+      ${tableRow("Payment Terms", po.paymentTerms || "Net 30")}
+      ${tableRow("Total Amount", "₹" + (po.totalAmount || 0).toLocaleString("en-IN"), BRAND_COLOR)}
     </table>
     <h3 style="font-size:14px;color:#1a1a2e;margin:16px 0 8px;">Items Ordered</h3>
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
@@ -98,27 +104,30 @@ export function buildPOCreatedEmail({ po, vendorName }) {
       <tbody>${itemRows}</tbody>
     </table>
   `;
-  return wrapEmail('Purchase Order Created', body);
+  return wrapEmail("Purchase Order Created", body);
 }
 
 // ─── Stock Received ─────────────────────
 export function buildStockReceivedEmail({ poId, stockUpdates, vendorName }) {
-  const rows = (stockUpdates || []).map(u =>
-    `<tr>
+  const rows = (stockUpdates || [])
+    .map(
+      (u) =>
+        `<tr>
       <td style="padding:6px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;">${u.name}</td>
       <td style="padding:6px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">+${u.receivedQty} ${u.unit}</td>
       <td style="padding:6px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">${u.previousStock} → <strong style="color:#10b981;">${u.newStock}</strong></td>
-    </tr>`
-  ).join('');
+    </tr>`,
+    )
+    .join("");
 
   const body = `
     <h2 style="margin:0 0 8px;color:#1a1a2e;font-size:20px;">✅ Stock Received</h2>
     <p style="margin:0 0 20px;color:#555;font-size:14px;line-height:1.6;">
-      Stock from <strong>${vendorName || 'vendor'}</strong> has been received and inventory updated.
+      Stock from <strong>${vendorName || "vendor"}</strong> has been received and inventory updated.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-      ${tableRow('PO Number', poId, BRAND_COLOR)}
-      ${tableRow('Items Received', `${stockUpdates?.length || 0} materials`)}
+      ${tableRow("PO Number", poId, BRAND_COLOR)}
+      ${tableRow("Items Received", `${stockUpdates?.length || 0} materials`)}
     </table>
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#ecfdf5;">
@@ -129,33 +138,45 @@ export function buildStockReceivedEmail({ poId, stockUpdates, vendorName }) {
       <tbody>${rows}</tbody>
     </table>
   `;
-  return wrapEmail('Stock Received', body);
+  return wrapEmail("Stock Received", body);
 }
 
 // ─── Stock Deduction Summary ────────────
-export function buildStockDeductionEmail({ deductionId, eventName, guestCount, deductions, shortages }) {
-  const dedRows = (deductions || []).map(d =>
-    `<tr>
+export function buildStockDeductionEmail({
+  deductionId,
+  eventName,
+  guestCount,
+  deductions,
+  shortages,
+}) {
+  const dedRows = (deductions || [])
+    .map(
+      (d) =>
+        `<tr>
       <td style="padding:5px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;">${d.material}</td>
       <td style="padding:5px 12px;font-size:13px;color:#ef4444;text-align:center;border-bottom:1px solid #f0f0f0;">-${d.deductQty} ${d.unit}</td>
-      <td style="padding:5px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">${d.newStock} ${d.unit}${d.willBeLowStock ? ' ⚠️' : ''}</td>
-    </tr>`
-  ).join('');
+      <td style="padding:5px 12px;font-size:13px;text-align:center;border-bottom:1px solid #f0f0f0;">${d.newStock} ${d.unit}${d.willBeLowStock ? " ⚠️" : ""}</td>
+    </tr>`,
+    )
+    .join("");
 
-  const shortageBlock = shortages?.length > 0 ? `
+  const shortageBlock =
+    shortages?.length > 0
+      ? `
     <h3 style="font-size:14px;color:#ef4444;margin:20px 0 8px;">❌ Shortages (${shortages.length})</h3>
-    ${shortages.map(s => `<p style="font-size:13px;color:#991b1b;margin:4px 0;">• <strong>${s.material}</strong>: Need ${s.needed} ${s.unit}${s.available !== undefined ? ` (have ${s.available}, short by ${s.deficit})` : ''}</p>`).join('')}
-  ` : '';
+    ${shortages.map((s) => `<p style="font-size:13px;color:#991b1b;margin:4px 0;">• <strong>${s.material}</strong>: Need ${s.needed} ${s.unit}${s.available !== undefined ? ` (have ${s.available}, short by ${s.deficit})` : ""}</p>`).join("")}
+  `
+      : "";
 
   const body = `
     <h2 style="margin:0 0 8px;color:#1a1a2e;font-size:20px;">📉 Stock Deduction Processed</h2>
     <p style="margin:0 0 20px;color:#555;font-size:14px;line-height:1.6;">
-      Raw materials have been deducted for ${eventName ? `<strong>${eventName}</strong>` : 'an event'}.
+      Raw materials have been deducted for ${eventName ? `<strong>${eventName}</strong>` : "an event"}.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
-      ${tableRow('Deduction ID', deductionId, BRAND_COLOR)}
-      ${tableRow('Guest Count', guestCount)}
-      ${tableRow('Materials Affected', `${deductions?.length || 0} items`)}
+      ${tableRow("Deduction ID", deductionId, BRAND_COLOR)}
+      ${tableRow("Guest Count", guestCount)}
+      ${tableRow("Materials Affected", `${deductions?.length || 0} items`)}
     </table>
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#f8f9fa;">
@@ -167,7 +188,7 @@ export function buildStockDeductionEmail({ deductionId, eventName, guestCount, d
     </table>
     ${shortageBlock}
   `;
-  return wrapEmail('Stock Deduction Summary', body);
+  return wrapEmail("Stock Deduction Summary", body);
 }
 
 /**
@@ -180,8 +201,10 @@ export function buildStockDeductionEmail({ deductionId, eventName, guestCount, d
 export async function sendInventoryEmail(to, subject, html) {
   try {
     if (!to || !process.env.RESEND_API_KEY) {
-      console.log(`[Email Skipped] ${subject} → ${to || 'no recipient'} (API key: ${process.env.RESEND_API_KEY ? 'set' : 'not set'})`);
-      return { success: false, error: 'Email not configured' };
+      console.log(
+        `[Email Skipped] ${subject} → ${to || "no recipient"} (API key: ${process.env.RESEND_API_KEY ? "set" : "not set"})`,
+      );
+      return { success: false, error: "Email not configured" };
     }
     const resend = getResend();
     await resend.emails.send({

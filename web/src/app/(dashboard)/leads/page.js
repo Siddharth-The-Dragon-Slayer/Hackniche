@@ -121,18 +121,25 @@ export default function LeadsPage() {
   const [search, setSearch]       = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
-  const fetchLeads = useCallback(async () => {
-    setLoading(true); setError(null);
+  const fetchLeads = useCallback(async (silent = false) => {
+    if (!silent) { setLoading(true); setError(null); }
     try {
       const res  = await fetch(`/api/leads?franchise_id=${franchise_id}&branch_id=${branch_id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch');
       setLeads(data.leads || []);
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) setError(e.message); }
+    finally { if (!silent) setLoading(false); }
   }, [franchise_id, branch_id]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Auto-poll every 30 s — silently refresh so every user sees live updates
+  // (e.g. a lead converted to booking by another staff member).
+  useEffect(() => {
+    const id = setInterval(() => fetchLeads(true), 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
 
   // Filter by tab
   const tabFiltered = leads.filter(l => {

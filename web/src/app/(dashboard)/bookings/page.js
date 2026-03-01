@@ -45,17 +45,24 @@ export default function BookingsPage() {
   const [search, setSearch]     = useState('');
   const [tab, setTab]           = useState('all');
 
-  const fetch_ = useCallback(async () => {
-    setLoading(true); setError(null);
+  const fetch_ = useCallback(async (silent = false) => {
+    if (!silent) { setLoading(true); setError(null); }
     try {
       const r = await fetch(`/api/bookings?franchise_id=${fid}&branch_id=${bid}`);
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
       setBookings(d.bookings || []);
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) setError(e.message); }
+    finally { if (!silent) setLoading(false); }
   }, [fid, bid]);
   useEffect(() => { fetch_(); }, [fetch_]);
+
+  // Auto-poll every 30 s — silently refresh so newly converted bookings
+  // appear for every logged-in user without a manual refresh.
+  useEffect(() => {
+    const id = setInterval(() => fetch_(true), 30_000);
+    return () => clearInterval(id);
+  }, [fetch_]);
 
   const tabFiltered = bookings.filter(b => {
     if (tab === 'all') return true;
