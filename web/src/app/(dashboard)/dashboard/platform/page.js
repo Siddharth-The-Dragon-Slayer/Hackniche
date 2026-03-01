@@ -1,18 +1,78 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
-import { platformStats, franchiseData, branchData, chartData } from '@/lib/mock-data';
+import { apiFetch } from '@/lib/api-client';
+import { useAuth } from '@/contexts/auth-context';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Building2, GitBranch, TrendingUp, DollarSign, Users, AlertTriangle } from 'lucide-react';
+import { Building2, GitBranch, TrendingUp, DollarSign, Users, AlertTriangle, Loader } from 'lucide-react';
 
 export default function PlatformDashboard() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [platformStats, setPlatformStats] = useState(null);
+  const [franchiseData, setFranchiseData] = useState([]);
+  const [chartData, setChartData] = useState({ monthlyRevenue: [], branchRevenue: [] });
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiFetch('/api/dashboard/stats');
+        setPlatformStats(data.platformStats);
+        setFranchiseData(data.franchiseData);
+        setChartData(data.chartData);
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div style={{ padding: 32, textAlign: 'center' }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 32 }}>
+        <div className="card" style={{ padding: 24, borderLeft: '4px solid var(--color-danger)' }}>
+          <h3 style={{ color: 'var(--color-danger)', marginBottom: 8 }}>Error Loading Dashboard</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !platformStats) {
+    return (
+      <div style={{ padding: 32, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Loader size={40} style={{ marginBottom: 16, animation: 'spin 1s linear infinite' }} />
+          <p>Loading platform dashboard...</p>
+        </div>
+      </div>
+    );
+  }
   const kpis = [
     { icon: <Building2 size={20} />, label: 'Franchises', value: platformStats.totalFranchises, change: null },
     { icon: <GitBranch size={20} />, label: 'Branches', value: platformStats.totalBranches, change: null },
-    { icon: <DollarSign size={20} />, label: 'Revenue (MTD)', value: `₹${(platformStats.totalRevenueMTD / 100000).toFixed(1)}L`, change: '+12.5%' },
-    { icon: <TrendingUp size={20} />, label: 'Bookings (MTD)', value: platformStats.totalBookingsMTD, change: '+8 vs last month' },
-    { icon: <Users size={20} />, label: 'Conversion Rate', value: `${platformStats.globalConversionRate}%`, change: '+3.1%' },
+    { icon: <DollarSign size={20} />, label: 'Revenue (MTD)', value: `₹${(platformStats.totalRevenueMTD / 100000).toFixed(1)}L`, change: null },
+    { icon: <TrendingUp size={20} />, label: 'Bookings (MTD)', value: platformStats.totalBookingsMTD, change: null },
+    { icon: <Users size={20} />, label: 'Conversion Rate', value: `${platformStats.globalConversionRate}%`, change: null },
     { icon: <AlertTriangle size={20} />, label: 'Outstanding Dues', value: `₹${(platformStats.totalOutstandingDues / 100000).toFixed(1)}L`, change: null },
   ];
   const COLORS = ['var(--color-primary)', 'var(--color-accent)', 'var(--color-success)'];
