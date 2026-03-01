@@ -54,7 +54,10 @@ export default function DataTable({
                   {data.map((row, rowIdx) => (
                     <motion.tr
                       key={row[keyField] ?? rowIdx}
-                      onClick={() => onRowClick?.(row)}
+                      onClick={(e) => {
+                        if (e.target.closest('a, button')) return;
+                        onRowClick?.(row);
+                      }}
                       style={{ cursor: onRowClick ? 'pointer' : undefined }}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -90,7 +93,10 @@ export default function DataTable({
               <motion.div
                 key={row[keyField] ?? rowIdx}
                 className="mobile-card-item"
-                onClick={() => onRowClick?.(row)}
+                onClick={(e) => {
+                  if (e.target.closest('a, button')) return;
+                  onRowClick?.(row);
+                }}
                 style={{ cursor: onRowClick ? 'pointer' : undefined }}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}

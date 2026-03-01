@@ -1,11 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 export default function Preloader() {
+  const pathname = usePathname();
+  // Don't show preloader on event and billing detail pages
+  const shouldSkipPreloader = pathname?.includes('/events/') || pathname?.includes('/billing/');
+  
   const [phase, setPhase] = useState('draw');   // draw → logo → text → tagline → exit
   const [textState, setTextState] = useState('');
-  const [mounted, setMounted] = useState(true);
+  const [mounted, setMounted] = useState(!shouldSkipPreloader);
   const fullText = 'BANQUETEASE';
 
   useEffect(() => {
