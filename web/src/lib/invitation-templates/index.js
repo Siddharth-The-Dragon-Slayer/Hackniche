@@ -12,20 +12,21 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-// ─── Lazy-loaded template cache ────────────────────────────────────────────
+// ─── Lazy-loaded template cache (production only) ─────────────────────────
 
 let templateCache = {};
+const isDev = process.env.NODE_ENV !== "production";
 
 function loadTemplateJSON(filename) {
-  if (templateCache[filename]) return templateCache[filename];
+  // In dev mode, always re-read from disk so edits are picked up instantly
+  if (!isDev && templateCache[filename]) return templateCache[filename];
 
   try {
-    // Use process.cwd() (project root) to construct paths reliably in Next.js server context
     const projectRoot = process.cwd();
     const filepath = join(projectRoot, "src", "lib", "invitation-templates", "json", `${filename}.json`);
     const data = readFileSync(filepath, "utf-8");
     const template = JSON.parse(data);
-    templateCache[filename] = template;
+    if (!isDev) templateCache[filename] = template;
     return template;
   } catch (err) {
     throw new Error(`Failed to load template "${filename}": ${err.message}`);

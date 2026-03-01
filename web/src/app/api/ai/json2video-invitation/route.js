@@ -1,138 +1,125 @@
 /**
  * POST /api/ai/json2video-invitation
  *
- * Dynamically renders a video invitation for any supported event type
- * using pre-built, cinematically designed JSON templates.
+ * Renders a video invitation using the json2video REST API directly.
+ * Bypasses the SDK to send the full template JSON as-is, which avoids
+ * SDK property-whitelisting bugs (the SDK Scene object only supports
+ * comment / background-color / duration / cache; everything else was dropped).
  *
  * Request Body:
  * {
  *   "event_type": "birthday" | "wedding" | "anniversary" | "corporate" | "engagement",
- *   "variables": {
- *     // All required + any optional variables for the chosen event type
- *     // Birthday:    guestName, age?, hostName, eventDate, eventTime, venueName, venueAddress, rsvpContact, rsvpDate?
- *     // Wedding:     bride, groom, weddingDate, ceremonyTime, receptionTime, venueName, venueAddress, rsvpContact, rsvpDate?
- *     // Anniversary: coupleName, years, yearsLabel?, hostName, eventDate, eventTime, venueName, venueAddress, rsvpContact
- *     // Corporate:   eventTitle, companyName, eventDate, eventTime, venueName, venueAddress, speakerName?, theme?, registrationLink?, contactEmail
- *     // Engagement:  partner1, partner2, hostFamily1?, hostFamily2?, eventDate, eventTime, venueName, venueAddress, rsvpContact, rsvpDate?
- *   }
- * }
- *
- * Response (success):
- * {
- *   "success": true,
- *   "event_type": "birthday",
- *   "movieUrl": "https://....json2video.com/....mp4",
- *   "movie": { ...raw json2video result }
+ *   "variables": { ... }
  * }
  */
 
 import { NextResponse } from "next/server";
-import { loadTemplate, validateVariables, EVENT_TYPES, requiredVariables } from "@/lib/invitation-templates";
+import {
+  loadTemplate,
+  validateVariables,
+  EVENT_TYPES,
+  requiredVariables,
+} from "@/lib/invitation-templates";
 
-const API_KEY = process.env.JSON2VIDEO_API_KEY || "NecgE5iJRPAhoEBrH5KVvdAOCWO26MdFrJPxWd06";
+const API_KEY =
+  process.env.JSON2VIDEO_API_KEY ||
+  "NecgE5iJRPAhoEBrH5KVvdAOCWO26MdFrJPxWd06";
+const API_URL = "https://api.json2video.com/v2/movies";
 
+// ── helpers ────────────────────────────────────────────────────────────────
+async function submitRender(payload) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}
+
+async function pollStatus(project, maxWaitMs = 300_000) {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    await new Promise((r) => setTimeout(r, 4000)); // poll every 4s
+    const res = await fetch(`${API_URL}?project=${project}`, {
+      headers: { "x-api-key": API_KEY },
+    });
+    const data = await res.json();
+    const status = data?.movie?.status;
+    if (status === "done") return data;
+    if (status === "error") {
+      throw new Error(
+        data?.movie?.message || "json2video rendering failed"
+      );
+    }
+  }
+  throw new Error("Video rendering timed out after 5 minutes");
+}
+
+// ── POST handler ───────────────────────────────────────────────────────────
 export async function POST(request) {
   try {
-    // ── 1. Parse body ──────────────────────────────────────────────────────
+    // 1. Parse
     const body = await request.json().catch(() => ({}));
     const { event_type, variables = {} } = body;
 
-    // ── 2. Validate event_type ─────────────────────────────────────────────
+    // 2. Validate event_type
     if (!event_type) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Missing required field: event_type",
-          supported_types: EVENT_TYPES,
-        },
+        { success: false, error: "Missing required field: event_type", supported_types: EVENT_TYPES },
         { status: 400 }
       );
     }
-
     const normalized = event_type.toLowerCase().trim();
     if (!EVENT_TYPES.includes(normalized)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: `Unsupported event_type "${event_type}"`,
-          supported_types: EVENT_TYPES,
-        },
+        { success: false, error: `Unsupported event_type "${event_type}"`, supported_types: EVENT_TYPES },
         { status: 400 }
       );
     }
 
-    // ── 3. Validate required variables ─────────────────────────────────────
+    // 3. Validate required variables
     const { valid, missing } = validateVariables(normalized, variables);
     if (!valid) {
       return NextResponse.json(
-        {
-          success: false,
-          error: `Missing required variables for event type "${normalized}"`,
-          missing_variables: missing,
-        },
+        { success: false, error: `Missing required variables for "${normalized}"`, missing_variables: missing },
         { status: 422 }
       );
     }
 
-    // ── 4. Load template with merged variables ─────────────────────────────
+    // 4. Load & merge template
     const template = loadTemplate(normalized, variables);
 
-    // ── 5. Render with json2video SDK ──────────────────────────────────────
-    const { Movie } = await import("json2video-sdk");
+    // 5. Build the json2video payload — strip internal-only fields
+    const {
+      id: _templateId,
+      comment: _comment,
+      ...payload
+    } = template;
 
-    const movie = new Movie();
-    movie.setAPIKey(API_KEY);
+    console.log(
+      `[json2video] Submitting ${normalized} render — ${payload.scenes?.length} scenes`
+    );
 
-    // Apply all top-level template properties to the movie object
-    const { scenes, elements, variables: vars, ...movieProps } = template;
-
-    for (const [key, value] of Object.entries(movieProps)) {
-      movie.set(key, value);
+    // 6. Submit render
+    const renderResp = await submitRender(payload);
+    if (!renderResp?.success || !renderResp?.project) {
+      console.error("[json2video] Submit failed:", renderResp);
+      return NextResponse.json(
+        { success: false, error: renderResp?.message || "Failed to submit video render job" },
+        { status: 502 }
+      );
     }
 
-    // Set merged variables
-    if (vars && Object.keys(vars).length > 0) {
-      movie.set("variables", vars);
-    }
+    console.log(`[json2video] Project ${renderResp.project} — polling…`);
 
-    // Build scenes from the template JSON
-    const { Scene } = await import("json2video-sdk");
-    for (const sceneData of scenes || []) {
-      const { elements: sceneElements, id, comment, ...sceneProps } = sceneData;
-      const scene = new Scene();
-
-      // Only set properties that the SDK Scene.set() actually supports
-      // Skip id and comment as they may not be settable via .set()
-      if (comment) scene.set("comment", comment);
-      for (const [key, value] of Object.entries(sceneProps)) {
-        try {
-          scene.set(key, value);
-        } catch (err) {
-          // Silently skip unsupported properties
-          console.warn(`[json2video] Scene.set("${key}") not supported, skipping`);
-        }
-      }
-
-      // Add elements
-      for (const element of sceneElements || []) {
-        scene.addElement(element);
-      }
-
-      movie.addScene(scene);
-    }
-
-    // Add global elements (e.g. background music)
-    for (const element of elements || []) {
-      movie.addElement(element);
-    }
-
-    // ── 6. Submit render job ───────────────────────────────────────────────
-    await movie.render();
-
-    // ── 7. Wait for completion ─────────────────────────────────────────────
-    const result = await movie.waitToFinish();
-
+    // 7. Poll until done
+    const result = await pollStatus(renderResp.project);
     const movieUrl = result?.movie?.url || null;
+
+    console.log(`[json2video] Done — ${movieUrl ? "URL ready" : "no URL"}`);
 
     return NextResponse.json({
       success: true,
@@ -141,11 +128,7 @@ export async function POST(request) {
       movie: result?.movie || null,
     });
   } catch (err) {
-    console.error("[json2video-invitation] Error:", {
-      message: err?.message,
-      code: err?.code,
-      stack: err?.stack,
-    });
+    console.error("[json2video-invitation] Error:", err?.message, err?.stack);
     return NextResponse.json(
       {
         success: false,
@@ -157,7 +140,7 @@ export async function POST(request) {
   }
 }
 
-/** GET - Returns API documentation and supported event types */
+// ── GET — docs ─────────────────────────────────────────────────────────────
 export async function GET() {
   return NextResponse.json({
     success: true,

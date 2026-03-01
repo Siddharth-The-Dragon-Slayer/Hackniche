@@ -123,7 +123,19 @@ export async function POST(request) {
 
   <script src="https://js.puter.com/v2/"></script>
   <script>
-    (async () => {
+    function waitForPuter(maxWait) {
+      return new Promise(function(resolve, reject) {
+        if (typeof puter !== 'undefined' && puter.ai) { resolve(); return; }
+        var elapsed = 0;
+        var interval = setInterval(function() {
+          elapsed += 100;
+          if (typeof puter !== 'undefined' && puter.ai) { clearInterval(interval); resolve(); }
+          else if (elapsed >= maxWait) { clearInterval(interval); reject(new Error('Puter.js failed to load within ' + (maxWait/1000) + 's')); }
+        }, 100);
+      });
+    }
+
+    waitForPuter(15000).then(async function() {
       try {
         document.getElementById('status').textContent = 'Generating image with ${model}...';
         
@@ -141,7 +153,10 @@ export async function POST(request) {
         document.getElementById('imageContainer').innerHTML = '<p class="error">Error: ' + error.message + '</p>';
         console.error('Image generation error:', error);
       }
-    })();
+    }).catch(function(err) {
+      document.getElementById('status').className = 'error';
+      document.getElementById('status').textContent = '❌ ' + err.message;
+    });
   </script>
 </body>
 </html>
