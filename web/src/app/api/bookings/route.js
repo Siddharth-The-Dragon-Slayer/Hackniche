@@ -16,13 +16,42 @@ const invalidate = (pfx) =>
     .filter((k) => k.startsWith(pfx))
     .forEach((k) => cache.delete(k));
 
-/* ── GET: list bookings ── */
+/* ── Serialize lead to booking data ── */
+function serializeLead(d) {
+  const data = d.data();
+  const s = (v) => v?.toDate?.()?.toISOString() ?? v ?? null;
+  return {
+    id: d.id,
+    ...data,
+    created_at: s(data.created_at),
+    updated_at: s(data.updated_at),
+    next_followup_date: s(data.next_followup_date),
+    converted_at: s(data.converted_at),
+    last_contacted_at: s(data.last_contacted_at),
+  };
+}
+
+/* ── Map lead status to booking status ── */
+function mapLeadStatusToBookingStatus(leadStatus) {
+  const map = {
+    advance_paid: "confirmed",
+    decoration_scheduled: "confirmed",
+    paid: "confirmed",
+    in_progress: "in_progress",
+    completed: "completed",
+    settlement_complete: "completed",
+    closed: "completed",
+  };
+  return map[leadStatus] || "confirmed";
+}
+
+/* ── GET: list bookings (from leads collection) ── */
 export async function GET(req) {
   try {
     const adminDb = getAdminDb();
     const { searchParams } = new URL(req.url);
     const franchise_id = searchParams.get("franchise_id") || "pfd";
-    const branch_id = searchParams.get("branch_id") || null; // optional — omit for franchise-level
+    const branch_id = searchParams.get("branch_id") || null;
     const hall_id = searchParams.get("hall_id");
     const status = searchParams.get("status");
     const from_date = searchParams.get("from_date");
@@ -32,18 +61,38 @@ export async function GET(req) {
     const cached = cache.get(cacheKey);
     if (cached) return NextResponse.json(cached);
 
-    let q = adminDb
-      .collection("bookings")
-      .where("franchise_id", "==", franchise_id);
+    // Fetch leads that are bookings (have booking-related statuses)
+    const bookingStatuses = [
+      "advance_paid",
+      "decoration_scheduled",
+      "paid",
+      "in_progress",
+      "completed",
+      "settlement_complete",
+      "closed",
+    ];
+
+    let q = adminDb.collection("leads").where("franchise_id", "==", franchise_id);
     if (branch_id) q = q.where("branch_id", "==", branch_id);
-    if (status && BOOKING_STATUSES.includes(status))
-      q = q.where("status", "==", status);
     if (hall_id) q = q.where("hall_id", "==", hall_id);
 
-    const snap = await q.orderBy("event_date", "desc").limit(500).get();
-    let bookings = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const snap = await q.limit(500).get();
+    let bookings = snap.docs
+      .map(serializeLead)
+      // Filter to leads that are bookings (have booking statuses)
+      .filter((lead) => bookingStatuses.includes(lead.status))
+      // Map lead data to booking format with adjusted status
+      .map((lead) => ({
+        ...lead,
+        original_status: lead.status,
+        status: mapLeadStatusToBookingStatus(lead.status),
+      }))
+      .sort((a, b) => (b.event_date || "").localeCompare(a.event_date || ""));
 
-    // Client-side date filtering (Firestore doesn't support multi-range easily)
+    // Client-side filtering
+    if (status && BOOKING_STATUSES.includes(status)) {
+      bookings = bookings.filter((b) => b.status === status);
+    }
     if (from_date) bookings = bookings.filter((b) => b.event_date >= from_date);
     if (to_date) bookings = bookings.filter((b) => b.event_date <= to_date);
 

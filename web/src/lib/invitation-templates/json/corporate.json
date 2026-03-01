@@ -274,7 +274,7 @@
             "color": "#e8f4ff"
           },
           "position": "center-center",
-          "y": -300,
+          "y": -220,
           "width": 1600,
           "text": "📅  {{eventDate}}",
           "start": 1.5,
@@ -291,7 +291,7 @@
             "color": "#e8f4ff"
           },
           "position": "center-center",
-          "y": -190,
+          "y": -100,
           "width": 1600,
           "text": "⏰  {{eventTime}}",
           "start": 2.2,
@@ -308,7 +308,7 @@
             "color": "#e8f4ff"
           },
           "position": "center-center",
-          "y": -80,
+          "y": 15,
           "width": 1600,
           "text": "📍  {{venueName}}",
           "start": 2.9,

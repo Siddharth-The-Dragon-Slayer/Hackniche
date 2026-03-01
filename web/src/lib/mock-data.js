@@ -1251,6 +1251,7 @@ export const sidebarMenus = {
     { icon: "📅", label: "Calendar", href: "/calendar" },
     { icon: "🎁", label: "Coupons", href: "/offers" },
     { icon: "📊", label: "Analytics", href: "/analytics" },
+    { icon: "🧠", label: "AI Analytics", href: "/dashboard/sales_executive/ai-analytics" },
   ],
   kitchen_manager: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/branch" },
@@ -1307,7 +1308,7 @@ export const sidebarMenus = {
     { icon: "➕", label: "New Enquiry", href: "/leads/create" },
     { icon: "🎯", label: "My Enquiries", href: "/leads" },
     { icon: "📋", label: "My Bookings", href: "/bookings" },
-    { icon: "💳", label: "My Payments", href: "/payments" },
+    { icon: "💳", label: "My Payments", href: "/dashboard/customer/invoices" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
     { icon: "🎨", label: "Venues & Decor", href: "/decor" },
     { icon: "🎬", label: "Create Invitations", href: "/dashboard/customer/invitations" },

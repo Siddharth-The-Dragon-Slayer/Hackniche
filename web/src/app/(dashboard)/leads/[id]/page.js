@@ -15,6 +15,8 @@ import {
   CheckCircle2, XCircle, PauseCircle, ArrowRightCircle, Edit3,
   DollarSign, UserCheck, Utensils, Palette, Zap, ReceiptText,
   PlayCircle, CheckSquare, CreditCard, Award, PhoneCall, Layers,
+  TrendingUp, AlertTriangle, Sparkles, Shield, ThumbsUp, Minus,
+  Send,
 } from 'lucide-react';
 
 /* ══════════════════════════════════════════════════════════════════
@@ -123,6 +125,8 @@ export default function LeadDetailPage(){
   const [toast,setToast]           = useState(null);
   const [tab,setTab]               = useState('overview');
   const [dialog,setDialog]         = useState(null);
+  const [aiAnalyzing,setAiAnalyzing]= useState(false);
+  const [waSending,setWaSending]    = useState(false);
 
   /* ── Reference data for dropdowns ── */
   const [halls,setHalls]         = useState([]);
@@ -148,6 +152,45 @@ export default function LeadDetailPage(){
   const [statusOverride,setStatusOverride]      = useState({new_status:'',note:''});
 
   const showToast = (msg,isError)=>{setToast({msg,isError});setTimeout(()=>setToast(null),4500);};
+
+  /* ── WhatsApp Update via WATI ── */
+  const handleWhatsAppUpdate = async () => {
+    setWaSending(true);
+    try {
+      const res = await fetch(`/api/leads/${leadId}/whatsapp-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ franchise_id, branch_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send WhatsApp message');
+      showToast(`✅ WhatsApp sent to ${lead?.phone || 'customer'}`);
+    } catch(e) {
+      showToast(e.message, true);
+    } finally {
+      setWaSending(false);
+    }
+  };
+
+  /* ── AI Analysis ── */
+  const handleAiAnalyze = async () => {
+    setAiAnalyzing(true);
+    try {
+      const res = await fetch(`/api/leads/${leadId}/ai-analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ franchise_id, branch_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'AI analysis failed');
+      showToast('AI analysis complete!');
+      fetchLead();
+    } catch(e) {
+      showToast(e.message, true);
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
   const closeDialog = ()=>setDialog(null);
 
   /* ── Fetch ── */
@@ -363,6 +406,23 @@ export default function LeadDetailPage(){
         </motion.div>
       )}
 
+      {/* ── WhatsApp Update Button (always visible for staff) ── */}
+      {ALL_STAFF.includes(role)&&l.phone&&(
+        <motion.div variants={fadeUp} style={{marginBottom:20}}>
+          <button
+            className="btn btn-sm"
+            style={{background:waSending?'#dcfce7':'#25d366',color:'#fff',border:'none',display:'flex',alignItems:'center',gap:6,padding:'7px 16px',borderRadius:7,cursor:waSending?'not-allowed':'pointer',opacity:waSending?0.8:1,fontSize:13,fontWeight:600}}
+            onClick={handleWhatsAppUpdate}
+            disabled={waSending}
+          >
+            {waSending
+              ?<><Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/>Sending…</>
+              :<><Send size={13}/>Send WhatsApp Update to {l.phone}</>
+            }
+          </button>
+        </motion.div>
+      )}
+
       {/* ── Tab Bar ── */}
       <motion.div variants={fadeUp} style={{display:'flex',gap:2,borderBottom:'1px solid var(--color-border)',marginBottom:20,overflowX:'auto'}}>
         {TABS.map(t=>(
@@ -546,15 +606,112 @@ export default function LeadDetailPage(){
       {/* ═══════════ NOTES & AI TAB ═══════════ */}
       {tab==='notes'&&(
         <motion.div initial="hidden" animate="visible" variants={{hidden:{},visible:{transition:{staggerChildren:0.06}}}}>
+
+          {/* ── AI Insights Card ── */}
+          <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16,border:'1.5px solid #c4b5fd',background:'linear-gradient(135deg,rgba(139,92,246,0.04),rgba(99,102,241,0.04))'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <Sparkles size={16} style={{color:'#8b5cf6'}}/>
+                <span style={{fontWeight:700,fontSize:13,textTransform:'uppercase',letterSpacing:'0.06em',color:'#6d28d9'}}>AI Lead Intelligence</span>
+              </div>
+              <button
+                className="btn btn-sm"
+                style={{background:aiAnalyzing?'#e9d5ff':'#8b5cf6',color:'#fff',border:'none',display:'flex',alignItems:'center',gap:6,padding:'6px 14px',borderRadius:6,cursor:aiAnalyzing?'not-allowed':'pointer',opacity:aiAnalyzing?0.8:1}}
+                onClick={handleAiAnalyze}
+                disabled={aiAnalyzing}
+              >
+                {aiAnalyzing
+                  ?<><Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/>Analysing…</>
+                  :<><Zap size={13}/>{l.ai_score!=null?'Re-Analyse':'Analyse with AI'}</>
+                }
+              </button>
+            </div>
+
+            {l.ai_score!=null ? (
+              <div>
+                {/* Score row */}
+                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:14,flexWrap:'wrap'}}>
+                  <div style={{textAlign:'center',minWidth:72}}>
+                    <div style={{fontSize:36,fontWeight:900,lineHeight:1,color:l.ai_score>=75?'#16a34a':l.ai_score>=50?'#f59e0b':l.ai_score>=25?'#ea580c':'#dc2626'}}>{l.ai_score}</div>
+                    <div style={{fontSize:10,color:'var(--color-text-muted)',marginTop:2}}>/ 100</div>
+                  </div>
+                  <div style={{flex:1,minWidth:180}}>
+                    <div style={{height:8,background:'var(--color-border)',borderRadius:4,overflow:'hidden',marginBottom:6}}>
+                      <div style={{height:'100%',borderRadius:4,width:`${l.ai_score}%`,background:l.ai_score>=75?'#16a34a':l.ai_score>=50?'#f59e0b':l.ai_score>=25?'#ea580c':'#dc2626',transition:'width 0.6s ease'}}/>
+                    </div>
+                    <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                      {l.ai_score_label&&(
+                        <span style={{padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,
+                          background:l.ai_score>=75?'#dcfce7':l.ai_score>=50?'#fef3c7':l.ai_score>=25?'#ffedd5':'#fee2e2',
+                          color:l.ai_score>=75?'#16a34a':l.ai_score>=50?'#92400e':l.ai_score>=25?'#9a3412':'#991b1b'
+                        }}>{l.ai_score_label}</span>
+                      )}
+                      {l.ai_sentiment&&(
+                        <span style={{display:'flex',alignItems:'center',gap:4,fontSize:12,color:'var(--color-text-muted)'}}>
+                          {l.ai_sentiment==='positive'?<ThumbsUp size={12} style={{color:'#16a34a'}}/>:l.ai_sentiment==='negative'?<AlertTriangle size={12} style={{color:'#dc2626'}}/>:<Minus size={12} style={{color:'#64748b'}}/>}
+                          {l.ai_sentiment}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary */}
+                {l.ai_summary&&(
+                  <div style={{padding:'10px 14px',background:'var(--color-surface)',borderRadius:8,marginBottom:12,fontSize:13,color:'var(--color-text-body)',lineHeight:1.6,borderLeft:'3px solid #8b5cf6'}}>
+                    {l.ai_summary}
+                  </div>
+                )}
+
+                {/* Suggested action */}
+                {l.ai_suggested_action&&(
+                  <div style={{marginBottom:12}}>
+                    <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.05em',color:'var(--color-text-muted)',marginBottom:6,display:'flex',alignItems:'center',gap:4}}><TrendingUp size={11}/>Suggested Next Action</div>
+                    <div style={{padding:'10px 14px',background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:8,fontSize:13,color:'#1e40af',lineHeight:1.5,fontWeight:500}}>
+                      {l.ai_suggested_action}
+                    </div>
+                  </div>
+                )}
+
+                {/* Risk factors */}
+                <div style={{marginBottom:8}}>
+                  <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.05em',color:'var(--color-text-muted)',marginBottom:6,display:'flex',alignItems:'center',gap:4}}><Shield size={11}/>Risk Factors</div>
+                  {Array.isArray(l.ai_risk_factors) && l.ai_risk_factors.length > 0 ? (
+                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                      {l.ai_risk_factors.map((rf,i)=>(
+                        <div key={i} style={{display:'flex',alignItems:'flex-start',gap:6,fontSize:12,color:'#92400e',background:'#fffbeb',border:'1px solid #fde68a',borderRadius:6,padding:'5px 10px'}}>
+                          <AlertTriangle size={11} style={{color:'#f59e0b',flexShrink:0,marginTop:1}}/>{rf}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{fontSize:12,color:'#15803d',background:'#dcfce7',border:'1px solid #86efac',borderRadius:6,padding:'5px 10px',display:'flex',alignItems:'center',gap:6}}>
+                      <Shield size={11} style={{color:'#16a34a'}}/>No significant risk factors identified
+                    </div>
+                  )}
+                </div>
+
+                {l.ai_score_updated_at&&(
+                  <div style={{fontSize:11,color:'var(--color-text-muted)',marginTop:10,textAlign:'right'}}>
+                    Last analysed: {fmtDateTime(l.ai_score_updated_at)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{textAlign:'center',padding:'24px 0',color:'var(--color-text-muted)'}}>
+                <Bot size={32} style={{margin:'0 auto 10px',opacity:0.25}}/>
+                <p style={{fontSize:13}}>No AI analysis yet. Click <strong>Analyse with AI</strong> to get lead scoring, sentiment analysis, suggested actions, and risk factors.</p>
+              </div>
+            )}
+          </motion.div>
+
+          {/* ── Notes Card ── */}
           <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16}}>
             <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',marginBottom:10,color:'var(--color-text-muted)'}}>Notes</div>
-            <p style={{fontSize:14,color:'var(--color-text-body)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{l.notes||'No notes.'}</p>
+            <p style={{fontSize:14,color:'var(--color-text-body)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{l.notes||<span style={{color:'var(--color-text-muted)',fontStyle:'italic'}}>No notes.</span>}</p>
           </motion.div>
-          {(l.ai_score||l.ai_summary)&&(<motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16,border:'1px solid #c4b5fd'}}>
-            <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',marginBottom:10,color:'var(--color-text-muted)'}}><Bot size={13}/>AI Insights</div>
-            {l.ai_score!=null&&<div style={{marginBottom:8}}><span style={{fontSize:22,fontWeight:800,color:l.ai_score>=70?'#16a34a':l.ai_score>=40?'#f59e0b':'#dc2626'}}>{l.ai_score}/100</span></div>}
-            {l.ai_summary&&<p style={{fontSize:13,color:'var(--color-text-muted)',lineHeight:1.5}}>{l.ai_summary}</p>}
-          </motion.div>)}
+
+          {/* ── Status History ── */}
           {l.status_history?.length>0&&(<motion.div variants={fadeUp} className="card" style={{padding:20}}>
             <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',marginBottom:10,color:'var(--color-text-muted)'}}>Status History</div>
             {l.status_history.map((h,i)=>(
