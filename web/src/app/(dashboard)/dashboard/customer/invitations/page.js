@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Video, Image as ImageIcon, Sparkles, Play, Download,
@@ -110,16 +110,9 @@ const EVENT_TYPES = [
   },
 ];
 
-// poster suggestions per event type
-const POSTER_PRESETS = {
-  wedding: 'A luxurious wedding invitation poster, ivory and rose gold, ornate floral borders, elegant calligraphy, champagne background, soft bokeh lighting, ultra high quality digital art',
-  birthday: 'A vibrant birthday celebration invitation poster, deep purple and gold confetti, balloon art, festive and modern, ultra high quality digital art',
-  anniversary: 'An elegant anniversary celebration poster, warm amber and rose gold, vintage floral motifs, romantic script typography, ultra high quality digital art',
-  corporate: 'A sleek professional corporate event invitation, dark navy and silver, minimalist modern design, business conference style, ultra high quality digital art',
-  engagement: 'A romantic engagement invitation poster, blush pink and champagne gold, ring motif, floral overlay, soft dreamy lighting, ultra high quality digital art',
-};
 
-const TABS = ['🎬 Video Invitation', '🖼️ AI Poster'];
+
+const TABS = ['🎬 Video Invitation', '🖼️ Invitation Poster'];
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const Field = ({ f, value, onChange }) => (
@@ -149,13 +142,17 @@ export default function InvitationsPage() {
   const [videoResult, setVideoResult] = useState(null);
   const [videoError, setVideoError] = useState(null);
 
-  // ── ai poster state ────────────────────────────────────────────────────────
-  const [posterPrompt, setPosterPrompt] = useState('');
+  // ── invitation poster state ─────────────────────────────────────────────────
   const [posterEventType, setPosterEventType] = useState('wedding');
+  const [posterFormValues, setPosterFormValues] = useState(() => {
+    const weddingConf = EVENT_TYPES.find(e => e.key === 'wedding');
+    const defs = {};
+    (weddingConf?.fields || []).forEach(f => { if (f.placeholder) defs[f.key] = f.placeholder; });
+    return defs;
+  });
   const [posterLoading, setPosterLoading] = useState(false);
-  const [posterGenerated, setPosterGenerated] = useState(false);
+  const [posterImageBase64, setPosterImageBase64] = useState(null);
   const [posterError, setPosterError] = useState(null);
-  const puterContainerRef = useRef(null);
 
   const handleFieldChange = (key, val) => setFormValues(prev => ({ ...prev, [key]: val }));
 
@@ -196,26 +193,30 @@ export default function InvitationsPage() {
     }
   };
 
+  const handlePosterEventTypeSelect = (key) => {
+    setPosterEventType(key);
+    const conf = EVENT_TYPES.find(e => e.key === key);
+    const defs = {};
+    (conf?.fields || []).forEach(f => { if (f.placeholder) defs[f.key] = f.placeholder; });
+    setPosterFormValues(defs);
+    setPosterImageBase64(null);
+    setPosterError(null);
+  };
+
+  const handlePosterFieldChange = (key, val) => setPosterFormValues(prev => ({ ...prev, [key]: val }));
+
   const handleGeneratePoster = async () => {
-    if (!posterPrompt.trim()) { setPosterError('Please enter a description for your poster.'); return; }
     setPosterLoading(true);
     setPosterError(null);
-    setPosterGenerated(false);
-    if (puterContainerRef.current) puterContainerRef.current.innerHTML = '';
     try {
-      const res = await fetch('/api/ai/txt2img', {
+      const res = await fetch('/api/ai/generate-poster', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: posterPrompt, model: 'gpt-image-1', quality: 'high' }),
+        body: JSON.stringify({ eventType: posterEventType, formValues: posterFormValues }),
       });
       const data = await res.json();
-      if (data.success && data.htmlSnippet) {
-        const iframe = document.createElement('iframe');
-        iframe.srcdoc = data.htmlSnippet;
-        iframe.style.cssText = 'width:100%;height:560px;border:none;border-radius:16px;background:#111;display:block;';
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-        if (puterContainerRef.current) puterContainerRef.current.appendChild(iframe);
-        setPosterGenerated(true);
+      if (data.success && data.imageBase64) {
+        setPosterImageBase64(data.imageBase64);
       } else {
         setPosterError(data.error || 'Failed to generate poster. Please try again.');
       }
@@ -224,10 +225,6 @@ export default function InvitationsPage() {
     } finally {
       setPosterLoading(false);
     }
-  };
-
-  const handleApplyPreset = () => {
-    setPosterPrompt(POSTER_PRESETS[posterEventType] || POSTER_PRESETS.wedding);
   };
 
   const eventConf = EVENT_TYPES.find(e => e.key === selectedEventType);
@@ -423,7 +420,7 @@ export default function InvitationsPage() {
           </motion.div>
         )}
 
-        {/* ── TAB 1: AI POSTER ──────────────────────────────────────────── */}
+        {/* ── TAB 1: INVITATION POSTER ──────────────────────────────── */}
         {activeTab === 1 && (
           <motion.div key="poster" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
@@ -432,22 +429,22 @@ export default function InvitationsPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div className="card" style={{ padding: 28 }}>
                   <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 4 }}>
-                    AI Invitation Poster
+                    Invitation Poster
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 20 }}>
-                    Describe your poster or pick a style preset below.
+                    Choose your event type, fill in the details, and generate a beautiful printed invitation card.
                   </p>
 
-                  {/* Quick style presets */}
-                  <div style={{ marginBottom: 16 }}>
+                  {/* Event type selector */}
+                  <div style={{ marginBottom: 20 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
-                      Quick Style Presets
+                      Event Type
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {EVENT_TYPES.map(et => (
                         <button
                           key={et.key}
-                          onClick={() => { setPosterEventType(et.key); setPosterPrompt(POSTER_PRESETS[et.key]); }}
+                          onClick={() => handlePosterEventTypeSelect(et.key)}
                           style={{
                             padding: '6px 14px',
                             borderRadius: 20,
@@ -466,20 +463,17 @@ export default function InvitationsPage() {
                     </div>
                   </div>
 
-                  {/* Prompt Textarea */}
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
-                      Describe Your Poster
-                    </label>
-                    <textarea
-                      className="input"
-                      rows={5}
-                      style={{ width: '100%', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'var(--font-body)', lineHeight: 1.6 }}
-                      placeholder="A luxurious wedding invitation poster with rose gold ornate borders, ivory background, elegant typography…"
-                      value={posterPrompt}
-                      onChange={e => setPosterPrompt(e.target.value)}
-                    />
-                  </div>
+                  {/* Form fields */}
+                  {(() => {
+                    const pConf = EVENT_TYPES.find(e => e.key === posterEventType);
+                    return (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
+                        {(pConf?.fields || []).map(f => (
+                          <Field key={f.key} f={f} value={posterFormValues[f.key]} onChange={handlePosterFieldChange} />
+                        ))}
+                      </div>
+                    );
+                  })()}
 
                   {posterError && (
                     <div style={{ padding: '10px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', color: 'var(--color-danger)', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -494,36 +488,23 @@ export default function InvitationsPage() {
                     style={{ width: '100%', padding: '13px', justifyContent: 'center', gap: 8, fontSize: 15 }}
                   >
                     {posterLoading ? (
-                      <><Loader2 size={16} className="animate-spin" /> Generating your poster…</>
+                      <><Loader2 size={16} className="animate-spin" /> Generating poster…</>
                     ) : (
-                      <><Sparkles size={16} /> Generate Poster</>
+                      <><Sparkles size={16} /> Generate Invitation Poster</>
                     )}
                   </button>
                 </div>
-
-                {/* Tips */}
-                <div className="card" style={{ padding: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 12 }}>✨ Tips for Great Posters</div>
-                  {[
-                    'Mention specific colors: "rose gold", "ivory", "deep burgundy"',
-                    'Include style: "luxury", "minimalist", "bohemian", "vintage"',
-                    'Add elements: "floral border", "geometric frame", "bokeh lights"',
-                    'Specify use: "wedding invite", "birthday poster", "corporate event"',
-                  ].map((tip, i) => (
-                    <div key={i} style={{ fontSize: 12, color: 'var(--color-text-muted)', display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <span style={{ color: 'var(--color-primary)', flexShrink: 0 }}>•</span> {tip}
-                    </div>
-                  ))}
-                </div>
               </div>
 
-              {/* Right — Output */}
-              <div className="card" style={{ padding: 28, minHeight: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: posterGenerated ? 'flex-start' : 'center' }}>
-                {!posterGenerated && !posterLoading && (
+              {/* Right — Poster Output */}
+              <div className="card" style={{ padding: 28, minHeight: 480, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: posterImageBase64 ? 'flex-start' : 'center' }}>
+                {!posterImageBase64 && !posterLoading && (
                   <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                    <ImageIcon size={56} style={{ opacity: 0.2, marginBottom: 12 }} />
-                    <p style={{ fontSize: 14 }}>Your AI-generated poster will appear here.</p>
-                    <p style={{ fontSize: 12, marginTop: 4 }}>Choose a preset or write your own description.</p>
+                    <div style={{ fontSize: 64, marginBottom: 16, opacity: 0.25 }}>
+                      {EVENT_TYPES.find(e => e.key === posterEventType)?.icon || '🖼️'}
+                    </div>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>Your poster will appear here</p>
+                    <p style={{ fontSize: 12, marginTop: 4 }}>Fill in the details and click Generate</p>
                   </div>
                 )}
                 {posterLoading && (
@@ -533,17 +514,31 @@ export default function InvitationsPage() {
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       style={{ width: 56, height: 56, borderRadius: '50%', border: '3px solid var(--color-primary-ghost)', borderTopColor: 'var(--color-primary)', margin: '0 auto 16px' }}
                     />
-                    <p style={{ fontSize: 14, fontWeight: 600 }}>Creating your masterpiece…</p>
-                    <p style={{ fontSize: 12, marginTop: 4 }}>This usually takes 20–40 seconds.</p>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>Rendering your invitation card…</p>
+                    <p style={{ fontSize: 12, marginTop: 4 }}>This usually takes 5–10 seconds.</p>
                   </div>
                 )}
-                <div ref={puterContainerRef} style={{ width: '100%' }} />
-                {posterGenerated && (
-                  <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'center' }}>
-                    <button className="btn btn-primary btn-sm" onClick={handleGeneratePoster}>
-                      <RefreshCcw size={13} /> Regenerate
-                    </button>
-                  </div>
+                {posterImageBase64 && !posterLoading && (
+                  <>
+                    <img
+                      src={posterImageBase64}
+                      alt="Invitation Poster"
+                      style={{ width: '100%', borderRadius: 12, display: 'block', marginBottom: 16 }}
+                    />
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <a
+                        href={posterImageBase64}
+                        download={`${posterEventType}-invitation.png`}
+                        className="btn btn-primary btn-sm"
+                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Download size={13} /> Download Poster
+                      </a>
+                      <button className="btn btn-outline btn-sm" onClick={handleGeneratePoster} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <RefreshCcw size={13} /> Regenerate
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
