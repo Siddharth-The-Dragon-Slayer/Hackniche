@@ -473,7 +473,7 @@
             "color": "#FFD8DD"
           },
           "position": "center-center",
-          "y": -300,
+          "y": -215,
           "width": 1450,
           "text": "📅  {{eventDate}}",
           "start": 1.7,
@@ -490,7 +490,7 @@
             "color": "#FFD8DD"
           },
           "position": "center-center",
-          "y": -195,
+          "y": -100,
           "width": 1450,
           "text": "⏰  {{eventTime}} onwards",
           "start": 2.4,
@@ -507,7 +507,7 @@
             "color": "#FFD8DD"
           },
           "position": "center-center",
-          "y": -90,
+          "y": 5,
           "width": 1450,
           "text": "📍  {{venueName}}",
           "start": 3.1,
@@ -524,7 +524,7 @@
             "color": "#c06080"
           },
           "position": "center-center",
-          "y": -5,
+          "y": 100,
           "width": 1450,
           "text": "{{venueAddress}}",
           "start": 3.8,

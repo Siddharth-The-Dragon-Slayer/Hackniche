@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BackToTop from "@/components/layout/BackToTop";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -66,7 +67,9 @@ export default function DashboardLayout({ children }) {
         >
           BanquetEase
         </span>
-        <div style={{ width: 40 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <LanguageSelector />
+        </div>
       </div>
 
       {/* Desktop toggle button — visible only when sidebar is closed */}

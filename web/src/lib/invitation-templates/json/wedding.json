@@ -468,7 +468,7 @@
             "color": "#3d200a"
           },
           "position": "center-center",
-          "y": -345,
+          "y": -285,
           "width": 1420,
           "text": "{{weddingDate}}",
           "start": 1.7,
@@ -485,7 +485,7 @@
             "color": "#5c3d2e"
           },
           "position": "center-center",
-          "y": -255,
+          "y": -155,
           "width": 1420,
           "text": "⏰  Ceremony  ·  {{ceremonyTime}}",
           "start": 2.4,
@@ -502,7 +502,7 @@
             "color": "#7a5038"
           },
           "position": "center-center",
-          "y": -166,
+          "y": -45,
           "width": 1420,
           "text": "🥂  Reception  ·  {{receptionTime}}",
           "start": 3.1,
@@ -586,7 +586,7 @@
             "color": "#3d200a"
           },
           "position": "center-center",
-          "y": 70,
+          "y": 140,
           "width": 1420,
           "text": "{{venueName}}",
           "start": 4.5,

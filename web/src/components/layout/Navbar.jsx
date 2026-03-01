@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/contexts/auth-context";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 export default function Navbar() {
   const { theme, toggleTheme, isDark } = useTheme();
@@ -145,6 +146,9 @@ export default function Navbar() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Language Selector */}
+          <LanguageSelector />
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}

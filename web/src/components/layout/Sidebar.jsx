@@ -7,6 +7,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/contexts/auth-context";
 import { sidebarMenus } from "@/lib/mock-data";
 import { LogOut, X, KeyRound, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 /* ── Change-Password Modal ─────────────────────────────────────── */
 function ChangePwdModal({ onClose }) {
@@ -411,26 +412,36 @@ export default function Sidebar({ sidebarOpen, onClose }) {
             zIndex: 101,
           }}
         >
-          <button
-            onClick={toggleTheme}
-            style={{
-              width: "100%",
-              padding: "10px 16px",
-              borderRadius: 12,
-              background: "var(--color-primary-ghost)",
-              border: "none",
-              color: "var(--color-text-body)",
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {isDark ? "☀️" : "🌙"} {isDark ? "Light Mode" : "Dark Mode"}
-          </button>
+          <div style={{ display: "flex", gap: 8, alignItems: "stretch", minWidth: 0 }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <LanguageSelector />
+            </div>
+            <button
+              onClick={toggleTheme}
+              style={{
+                padding: "10px 16px",
+                borderRadius: 12,
+                background: "var(--color-primary-ghost)",
+                border: "none",
+                color: "var(--color-text-body)",
+                fontSize: 18,
+                fontWeight: 500,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0,
+                fontFamily: "var(--font-body)",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                minWidth: 44,
+                minHeight: 44,
+              }}
+              title={isDark ? "Light Mode" : "Dark Mode"}
+            >
+              {isDark ? "☀️" : "🌙"}
+            </button>
+          </div>
 
           {user && (
             <button
