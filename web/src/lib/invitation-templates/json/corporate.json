@@ -77,19 +77,21 @@
         {
           "id": "corp-company",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#4da6ff",
-            "letter-spacing": "0.8vw"
+            "letter-spacing": "0.8vw",
+            "text-align": "center"
           },
           "position": "center-center",
           "y": -240,
           "width": 1800,
           "text": "{{companyName}}  PRESENTS",
-          "start": 0.5
+          "start": 0.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-event-title",
@@ -105,33 +107,35 @@
           },
           "start": 0.8,
           "duration": 5,
-          "fade-out": 0.5
+          "fade-out": 0.8
         },
         {
           "id": "corp-theme-tag",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3vw",
             "font-family": "Lato",
             "font-weight": "300",
-            "color": "#00d4ff"
+            "color": "#00d4ff",
+            "text-align": "center"
           },
           "position": "center-center",
           "y": 280,
           "width": 1800,
           "text": "Theme: \"{{theme}}\"",
-          "start": 2.5
+          "start": 2.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-voice-1",
           "type": "voice",
           "voice": "en-US-TonyNeural",
           "text": "{{voiceScene1}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 5
+      "duration": 6
     },
     {
       "id": "corp-scene-2",
@@ -155,19 +159,21 @@
         {
           "id": "corp-speaker-label",
           "type": "text",
-          "style": "003",
           "settings": {
-            "font-size": "3vw",
+            "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#4da6ff",
-            "letter-spacing": "0.5vw"
+            "letter-spacing": "0.5vw",
+            "text-align": "center"
           },
           "position": "center-center",
-          "y": -220,
+          "y": -290,
           "width": 1600,
           "text": "KEYNOTE  SPEAKER",
-          "start": 0.3
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-speaker-name",
@@ -184,28 +190,28 @@
           },
           "start": 0.6,
           "duration": 5,
-          "fade-out": 0.5
+          "fade-out": 0.8
         },
         {
           "id": "corp-audiogram-2",
           "type": "audiogram",
           "x": 0,
-          "y": 980,
+          "y": 950,
           "width": 1920,
-          "height": 80,
+          "height": 50,
           "position": "custom",
           "color": "#0080ff",
-          "amplitude": 10
+          "amplitude": 8
         },
         {
           "id": "corp-voice-2",
           "type": "voice",
           "voice": "en-US-TonyNeural",
           "text": "{{voiceScene2}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 5
+      "duration": 7
     },
     {
       "id": "corp-scene-3",
@@ -244,111 +250,111 @@
         {
           "id": "corp-details-heading",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "4vw",
             "font-family": "Anton",
             "color": "#4da6ff",
             "letter-spacing": "0.3vw"
           },
-          "position": "custom",
-          "x": 200,
-          "y": 120,
+          "position": "center-center",
+          "y": -420,
           "width": 1600,
           "text": "EVENT DETAILS",
-          "start": 0.5
+          "start": 0.8,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-date-d",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#e8f4ff"
           },
-          "position": "custom",
-          "x": 200,
-          "y": 240,
+          "position": "center-center",
+          "y": -300,
           "width": 1600,
           "text": "📅  {{eventDate}}",
-          "start": 1.0
+          "start": 1.5,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-time-d",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#e8f4ff"
           },
-          "position": "custom",
-          "x": 200,
-          "y": 350,
+          "position": "center-center",
+          "y": -190,
           "width": 1600,
           "text": "⏰  {{eventTime}}",
-          "start": 1.4
+          "start": 2.2,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-venue-d",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#e8f4ff"
           },
-          "position": "custom",
-          "x": 200,
-          "y": 460,
+          "position": "center-center",
+          "y": -80,
           "width": 1600,
           "text": "📍  {{venueName}}",
-          "start": 1.8
+          "start": 2.9,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-addr-d",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "2.8vw",
             "font-family": "Lato",
             "font-weight": "300",
             "color": "#7ab8e8"
           },
-          "position": "custom",
-          "x": 250,
-          "y": 540,
+          "position": "center-center",
+          "y": 0,
           "width": 1600,
           "text": "{{venueAddress}}",
-          "start": 2.1
+          "start": 3.6,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-register-label",
           "type": "text",
-          "style": "003",
           "settings": {
             "font-size": "3vw",
             "font-family": "Lato",
             "color": "#00d4ff"
           },
-          "position": "custom",
-          "x": 200,
-          "y": 680,
+          "position": "center-center",
+          "y": 140,
           "width": 1600,
           "text": "🌐  {{registrationLink}}",
-          "start": 2.8
+          "start": 4.3,
+          "fade-out": 0.5,
+          "style": "003"
         },
         {
           "id": "corp-audiogram-3",
           "type": "audiogram",
           "x": 0,
-          "y": 1000,
+          "y": 950,
           "width": 1920,
-          "height": 80,
+          "height": 50,
           "position": "custom",
           "color": "#0080ff",
           "amplitude": 7
@@ -358,10 +364,10 @@
           "type": "voice",
           "voice": "en-US-TonyNeural",
           "text": "{{voiceScene3}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 6
+      "duration": 9
     },
     {
       "id": "corp-scene-4",
@@ -390,11 +396,13 @@
             "animation": {
               "text": "REGISTER<br>NOW",
               "font-family": "Anton",
-              "font-size": "14vw",
+              "font-size": "10vw",
               "color": "#ffffff"
             }
           },
-          "duration": 5
+          "comment": "2 lines × 10vw × 1.25 = 384px — centered y 348–732. Button at 790. Gap 58px.",
+          "duration": 5,
+          "fade-out": 0.8
         },
         {
           "id": "corp-email-btn",
@@ -412,9 +420,9 @@
             }
           },
           "x": 0,
-          "y": 700,
+          "y": 790,
           "width": 1920,
-          "height": 400,
+          "height": 140,
           "start": 1.5,
           "extra-time": 2
         },
@@ -422,22 +430,22 @@
           "id": "corp-audiogram-4",
           "type": "audiogram",
           "x": 0,
-          "y": 1000,
+          "y": 950,
           "width": 1920,
-          "height": 80,
+          "height": 50,
           "position": "custom",
           "color": "#00d4ff",
-          "amplitude": 12
+          "amplitude": 8
         },
         {
           "id": "corp-voice-4",
           "type": "voice",
           "voice": "en-US-TonyNeural",
           "text": "{{voiceScene4}}",
-          "start": 0.5
+          "start": 0.8
         }
       ],
-      "duration": 5
+      "duration": 7
     }
   ],
   "elements": [

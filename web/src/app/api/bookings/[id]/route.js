@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { cache } from '@/lib/cache';
+import { getResend, FROM_ADDRESS, buildPaymentConfirmationEmail } from '@/lib/resend-client';
 
 /* ══════════════════════════════════════════════════════════════════
    BOOKING DETAIL API — /api/bookings/[id]
@@ -66,6 +67,39 @@ export async function PUT(req, { params }) {
           payment_history: history,
         };
         message = `Payment of ₹${Number(amount).toLocaleString('en-IN')} recorded`;
+
+        // Send payment confirmation email (fire-and-forget)
+        if (booking.customer_email) {
+          try {
+            const resend = getResend();
+            const branchDoc = await adminDb.collection('branches').doc(branch_id).get();
+            const branchData = branchDoc.exists ? branchDoc.data() : {};
+
+            const emailHtml = buildPaymentConfirmationEmail({
+              customerName: booking.customer_name || 'Valued Customer',
+              eventType: booking.event_type || 'Event',
+              eventDate: booking.event_date || null,
+              paymentType: type,
+              amount: Number(amount),
+              totalAmount: quoteTotal,
+              balanceDue: quoteTotal - totalPaid,
+              paymentMode: mode || 'cash',
+              transactionRef: txnRef,
+              branchName: branchData.name || 'BanquetEase',
+              branchPhone: branchData.phone || branchData.contact_phone || 'N/A',
+              branchEmail: branchData.email || branchData.contact_email || 'N/A',
+            });
+
+            resend.emails.send({
+              from: FROM_ADDRESS,
+              to: booking.customer_email,
+              subject: `Payment Received - ₹${Number(amount).toLocaleString('en-IN')} | BanquetEase`,
+              html: emailHtml,
+            }).catch(err => console.error('[Payment Email]', err));
+          } catch (emailErr) {
+            console.error('[Payment Email Failed]', emailErr);
+          }
+        }
         break;
       }
 
