@@ -61,6 +61,13 @@ class MemoryCache {
   }
 
   /**
+   * Alias for del() - deletes a single cache key.
+   */
+  delete(key) {
+    this.del(key);
+  }
+
+  /**
    * Deletes all keys that START WITH the given prefix.
    * e.g. cache.delPattern('menus:pfd:') removes all branch caches for franchise pfd.
    */
@@ -80,6 +87,13 @@ class MemoryCache {
       if (now <= entry.expiresAt) alive++; else expired++;
     }
     return { total: this._store.size, alive, expired };
+  }
+
+  /**
+   * Returns an array of all cache keys.
+   */
+  keys() {
+    return Array.from(this._store.keys());
   }
 
   _sweep() {

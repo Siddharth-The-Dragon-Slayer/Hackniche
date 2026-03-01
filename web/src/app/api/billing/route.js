@@ -25,13 +25,20 @@ export async function GET(req) {
     const cached = cache.get(cacheKey);
     if (cached) return NextResponse.json(cached);
 
-    let q = adminDb.collection('invoices')
-      .where('franchise_id', '==', franchise_id)
-      .where('branch_id', '==', branch_id);
+    // Query only by branch_id to avoid composite index requirement
+    let q = adminDb.collection('invoices').where('branch_id', '==', branch_id);
     if (status && INV_STATUSES.includes(status)) q = q.where('status', '==', status);
 
-    const snap = await q.orderBy('created_at', 'desc').limit(500).get();
-    const invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await q.limit(500).get();
+    // Filter by franchise_id and sort in memory
+    const invoices = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(inv => inv.franchise_id === franchise_id)
+      .sort((a, b) => {
+        const aDate = a.created_at ? new Date(a.created_at) : new Date(0);
+        const bDate = b.created_at ? new Date(b.created_at) : new Date(0);
+        return bDate - aDate;
+      });
     const result = { invoices, total: invoices.length };
     cache.set(cacheKey, result, TTL);
     return NextResponse.json(result);
@@ -49,20 +56,10 @@ export async function POST(req) {
     const { franchise_id = 'pfd', branch_id = 'pfd_b1', booking_id, lead_id, ...rest } = body;
     const now = new Date().toISOString();
 
-    // Auto-generate invoice number
-    const countSnap = await adminDb.collection('invoices')
-      .where('franchise_id', '==', franchise_id)
-      .where('branch_id', '==', branch_id)
-      .orderBy('created_at', 'desc').limit(1).get();
-    let nextNum = 1001;
-    if (!countSnap.empty) {
-      const lastNum = countSnap.docs[0].data().invoice_number;
-      if (lastNum) {
-        const n = parseInt(String(lastNum).replace(/\D/g, ''));
-        if (!isNaN(n)) nextNum = n + 1;
-      }
-    }
-    const invoice_number = `INV-${String(nextNum).padStart(5, '0')}`;
+    // Use timestamp-based invoice number to avoid index requirement
+    const timestamp = Date.now();
+    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const invoice_number = `INV-${franchise_id.toUpperCase()}-${timestamp}${randomSuffix}`;
 
     let invoiceData = {};
 

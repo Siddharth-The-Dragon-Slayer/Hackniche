@@ -76,13 +76,43 @@ export default function InvoiceDetailPage(){
         </div>
         <div className="page-actions">
           <button className="btn btn-ghost btn-sm" onClick={fetchI} disabled={saving}><RefreshCw size={14}/></button>
+          <button className="btn btn-outline btn-sm" onClick={()=>window.print()} title="Print or save as PDF"><Printer size={13}/>Print/PDF</button>
           {i.status==='draft'&&<button className="btn btn-outline btn-sm" onClick={handleSend} disabled={saving}><Send size={13}/>Mark Sent</button>}
           {i.booking_id&&<Link href={`/bookings/${i.booking_id}?franchise_id=${fid}&branch_id=${bid}`} className="btn btn-outline btn-sm" style={{textDecoration:'none'}}>Booking</Link>}
           {i.lead_id&&<Link href={`/leads/${i.lead_id}?franchise_id=${fid}&branch_id=${bid}`} className="btn btn-outline btn-sm" style={{textDecoration:'none'}}>Lead</Link>}
           {i.status!=='paid'&&i.status!=='cancelled'&&<button className="btn btn-primary btn-sm" onClick={()=>setDialog('pay')}><Plus size={13}/>Record Payment</button>}
-          <button className="btn btn-ghost btn-sm" onClick={()=>window.print()}><Printer size={13}/></button>
         </div>
       </motion.div>
+
+      {/* Print-only invoice header */}
+      <div className="print-invoice-header">
+        <div style={{marginBottom:30,paddingBottom:20,borderBottom:'2px solid #333'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+            <div>
+              <div style={{fontSize:32,fontWeight:800,color:'#5b21b6',letterSpacing:'-1px',marginBottom:4}}>BanquetEase</div>
+              <div style={{fontSize:13,color:'#444',marginBottom:16}}>Banquet Management System</div>
+              <div style={{fontSize:12,color:'#000',lineHeight:1.7}}>
+                <div><strong>Franchise:</strong> {fid.toUpperCase()}</div>
+                <div><strong>Branch:</strong> {bid}</div>
+              </div>
+            </div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:28,fontWeight:700,marginBottom:8,color:'#000'}}>INVOICE</div>
+              <div style={{fontSize:14,marginBottom:4,color:'#000'}}><strong>Invoice #:</strong> {i.invoice_number}</div>
+              <div style={{fontSize:14,marginBottom:4,color:'#000'}}><strong>Date:</strong> {fmtDate(i.issue_date)}</div>
+              {i.due_date&&<div style={{fontSize:14,marginBottom:4,color:'#000'}}><strong>Due Date:</strong> {fmtDate(i.due_date)}</div>}
+              <div style={{fontSize:14,marginTop:8,padding:'4px 12px',background:'#e5e7eb',color:'#000',borderRadius:4,display:'inline-block',border:'1px solid #999'}}>{STATUS_L[i.status]||i.status}</div>
+            </div>
+          </div>
+        </div>
+        <div style={{marginBottom:30,padding:16,background:'#fff',border:'1px solid #999',borderRadius:8}}>
+          <div style={{fontSize:11,color:'#333',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:8,fontWeight:600}}>Bill To:</div>
+          <div style={{fontSize:16,fontWeight:700,marginBottom:4,color:'#000'}}>{i.customer_name}</div>
+          {i.phone&&<div style={{fontSize:13,color:'#000',marginBottom:2}}>Phone: {i.phone}</div>}
+          {i.email&&<div style={{fontSize:13,color:'#000',marginBottom:2}}>Email: {i.email}</div>}
+          {i.customer_address&&<div style={{fontSize:13,color:'#333',marginTop:4}}>{i.customer_address}</div>}
+        </div>
+      </div>
 
       {/* Summary card */}
       <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:20,background:i.balance<=0?'#f0fdf4':'#fffbeb',border:`1px solid ${i.balance<=0?'#86efac':'#fde68a'}`}}>
@@ -152,6 +182,17 @@ export default function InvoiceDetailPage(){
         }
       </motion.div>
 
+      {/* Print-only footer */}
+      <div className="print-invoice-footer">
+        <div style={{marginTop:40,paddingTop:20,borderTop:'1px solid #333',fontSize:12,color:'#000',textAlign:'center',lineHeight:1.8}}>
+          <div style={{marginBottom:8,fontWeight:600}}>Thank you for your business!</div>
+          <div>For any queries, please contact your branch manager.</div>
+          <div style={{marginTop:12,fontSize:11,color:'#333'}}>
+            This is a computer-generated invoice. Generated on {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+          </div>
+        </div>
+      </div>
+
       {/* Payment dialog */}
       {dialog==='pay'&&<Dlg title="Record Payment" onClose={closeD}>
         <div style={{background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:6,padding:'8px 12px',fontSize:12,color:'#1e40af',marginBottom:14}}>Balance: {fmt(i.balance)}</div>
@@ -159,7 +200,209 @@ export default function InvoiceDetailPage(){
         <DA saving={saving} onCancel={closeD} onOk={handlePay} ok="Record Payment"/>
       </Dlg>}
 
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <style jsx>{`
+        @keyframes spin{to{transform:rotate(360deg)}}
+        
+        /* Hide print elements on screen */
+        .print-invoice-header,
+        .print-invoice-footer {
+          display: none;
+        }
+        
+        @media print {
+          /* Show print-only elements */
+          .print-invoice-header,
+          .print-invoice-footer {
+            display: block !important;
+          }
+          
+          /* Hide navigation and actions */
+          :global(.sidebar), :global(.page-actions), 
+          :global(nav), :global(footer), :global(button),
+          :global(a[href*="billing"]) {
+            display: none !important;
+          }
+          
+          /* Hide page header (use print header instead) */
+          :global(.page-header) {
+            display: none !important;
+          }
+          
+          /* Page setup */
+          @page {
+            size: A4;
+            margin: 1.5cm 2cm;
+          }
+          
+          html, body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          /* Remove shadows */
+          * {
+            box-shadow: none !important;
+            text-shadow: none !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          /* Cards - white background with dark text */
+          :global(.card) {
+            border: 1px solid #ccc !important;
+            box-shadow: none !important;
+            page-break-inside: avoid;
+            background: #fff !important;
+            color: #000 !important;
+          }
+          
+          :global(.card) div,
+          :global(.card) span,
+          :global(.card) p,
+          :global(.card) td,
+          :global(.card) th {
+            color: #000 !important;
+          }
+          
+          /* Grid layout - convert to block for print */
+          div[style*="display:grid"] {
+            display: block !important;
+          }
+          
+          div[style*="display:grid"] > div {
+            margin-bottom: 1.5rem;
+            break-inside: avoid;
+          }
+          
+          /* Tables - ensure text visibility */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background: white !important;
+          }
+          
+          table th {
+            background: #e5e7eb !important;
+            color: #000 !important;
+            font-weight: 700;
+            border: 1px solid #999 !important;
+            padding: 10px 8px !important;
+          }
+          
+          table td {
+            background: white !important;
+            color: #000 !important;
+            border: 1px solid #999 !important;
+            padding: 8px !important;
+          }
+          
+          /* Badge styling for print */
+          :global(.badge), div[style*="badge"] {
+            border: 1px solid #333 !important;
+            background: #f3f4f6 !important;
+            color: #000 !important;
+            padding: 3px 10px !important;
+            border-radius: 4px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+          }
+          
+          /* Summary card - white bg with visible text */
+          div[style*="background:#f0fdf4"], div[style*="background:#fffbeb"] {
+            background: #fff !important;
+            border: 2px solid #333 !important;
+            padding: 20px !important;
+            margin-bottom: 2rem !important;
+            border-radius: 8px;
+          }
+          
+          div[style*="background:#f0fdf4"] span, 
+          div[style*="background:#fffbeb"] span {
+            font-size: 13px !important;
+            color: #000 !important;
+          }
+          
+          div[style*="background:#f0fdf4"] strong, 
+          div[style*="background:#fffbeb"] strong {
+            color: #000 !important;
+          }
+          
+          /* Payment history */
+          div[style*="flexDirection:column"] > div {
+            break-inside: avoid;
+            margin-bottom: 0.5rem;
+          }
+          
+          /* Avoid page breaks */
+          h1, h2, h3, h4,
+          div[style*="fontWeight:700"] {
+            page-break-after: avoid;
+          }
+          
+          /* Strong text */
+          strong {
+            font-weight: 700 !important;
+          }
+          
+          /* Preserve important colors for amounts */
+          div[style*="color:#16a34a"], 
+          span[style*="color:#16a34a"],
+          strong[style*="color:#16a34a"] {
+            color: #059669 !important;
+            font-weight: 700 !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          span[style*="color:#dc2626"], 
+          strong[style*="color:#dc2626"],
+          div[style*="color:#991b1b"] {
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          /* Footer text */
+          div[style*="fontSize:11"] {
+            font-size: 10px !important;
+          }
+          
+          /* Spacing improvements */
+          :global(.card) + :global(.card) {
+            margin-top: 1rem;
+          }
+          
+          /* Print header spacing */
+          .print-invoice-header {
+            margin-bottom: 2rem !important;
+            background: white !important;
+          }
+          
+          .print-invoice-header div {
+            color: #000 !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          .print-invoice-header div[style*="color:#5b21b6"] {
+            color: #5b21b6 !important;
+          }
+          
+          .print-invoice-footer {
+            margin-top: 2rem !important;
+            background: white !important;
+          }
+          
+          .print-invoice-footer div {
+            color: #000 !important;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

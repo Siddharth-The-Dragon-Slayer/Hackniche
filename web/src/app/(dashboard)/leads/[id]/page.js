@@ -129,14 +129,15 @@ export default function LeadDetailPage(){
   const [menus,setMenus]         = useState([]);
   const [staffList,setStaffList] = useState([]);
   const [vendors,setVendors]     = useState([]);
+  const [decorPackages,setDecorPackages] = useState([]);
 
   /* ── Dialog form states ── */
-  const [visitForm,setVisitForm]               = useState({visit_date:'',hall_name:'',notes:'',customer_rating:'',visited_by:''});
+  const [visitForm,setVisitForm]               = useState({visit_date:'',hall_id:'',hall_name:'',notes:'',customer_rating:'',visited_by:''});
   const [tastingSchForm,setTastingSchForm]      = useState({tasting_date:'',menu_options_to_present:'',notes:''});
   const [tastingDoneForm,setTastingDoneForm]    = useState({dishes_sampled:'',customer_feedback:'',preferred_menu:'',kitchen_manager:''});
   const [menuForm,setMenuForm]                  = useState({menu_name:'',per_plate_cost:'',expected_plates:'',hall_rent:'',decor_estimate:'',valid_till:''});
   const [advanceForm,setAdvanceForm]            = useState({advance_amount:'',payment_date:'',payment_mode:'cash',transaction_ref:'',confirmed_by:''});
-  const [decorForm,setDecorForm]                = useState({final_guest_count:'',decor_theme:'',decor_partner:'',decor_cost:'',setup_date:'',teardown_date:'',special_requests:''});
+  const [decorForm,setDecorForm]                = useState({final_guest_count:'',decor_theme:'',decor_partner:'',decor_cost:'',setup_date:'',teardown_date:'',special_requests:'',decor_package_id:'',decor_package_name:''});
   const [fullPayForm,setFullPayForm]            = useState({remaining_amount:'',payment_date:'',payment_mode:'cash',transaction_ref:''});
   const [completeEvtForm,setCompleteEvtForm]    = useState({actual_guest_count:'',start_time:'',end_time:'',problems_encountered:'',staff_feedback:'',photos_taken:''});
   const [settleForm,setSettleForm]              = useState({final_guest_count:'',final_plates_served:'',leftover_refund_amount:'',extra_charges_amount:'',extra_charges_reason:'',total_final_amount:'',amount_paid:'',final_settlement_amount:'',settled_date:''});
@@ -165,12 +166,12 @@ export default function LeadDetailPage(){
 
   /* ── Load reference data for dropdowns ── */
   useEffect(()=>{
-    if(!branch_id) return;
+    if(!branch_id||!franchise_id) return;
     getDocs(query(collection(db,'halls'),where('branch_id','==',branch_id)))
       .then(s=>setHalls(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''))))
       .catch(()=>{});
-    getDocs(query(collection(db,'menus'),where('branch_id','==',branch_id)))
-      .then(s=>setMenus(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''))))
+    getDocs(collection(db,'menus',franchise_id,'branches',branch_id,'menus'))
+      .then(s=>setMenus(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.menu_name||a.name||'').localeCompare(b.menu_name||b.name||''))))
       .catch(()=>{});
     getDocs(query(collection(db,'users'),where('branch_id','==',branch_id)))
       .then(s=>setStaffList(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''))))
@@ -178,7 +179,10 @@ export default function LeadDetailPage(){
     getDocs(query(collection(db,'vendors'),where('branch_id','==',branch_id)))
       .then(s=>setVendors(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||a.company_name||'').localeCompare(b.name||b.company_name||''))))
       .catch(()=>{});
-  },[branch_id]);
+    getDocs(query(collection(db,'decor'),where('franchise_id','==',franchise_id),where('status','==','active')))
+      .then(s=>setDecorPackages(s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''))))
+      .catch(()=>{});
+  },[branch_id,franchise_id]);
 
   /* ── Auto-fill dialog forms when opened ── */
   useEffect(()=>{
@@ -189,7 +193,7 @@ export default function LeadDetailPage(){
     const l=lead;
     switch(dialog){
       case 'log_visit':
-        setVisitForm({visit_date:now,hall_name:l.hall_name||'',notes:'',customer_rating:'',visited_by:uName});
+        setVisitForm({visit_date:now,hall_id:l.hall_id||'',hall_name:l.hall_name||'',notes:'',customer_rating:'',visited_by:uName});
         break;
       case 'schedule_tasting':
         setTastingSchForm({tasting_date:'',menu_options_to_present:'',notes:''});
@@ -569,7 +573,7 @@ export default function LeadDetailPage(){
       ══════════════════════════════════════════ */}
 
       {dialog==='log_visit'&&<Dlg title="Log Property Visit" onClose={closeDialog}>
-        <FG><Fld l="Visit Date *"><input className="input" type="datetime-local" value={visitForm.visit_date} onChange={e=>setVisitForm(p=>({...p,visit_date:e.target.value}))}/></Fld><Fld l="Hall Visited">{halls.length>0?<select className="input" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value}))}><option value="">Select hall…</option>{halls.map(h=><option key={h.id} value={h.name}>{h.name}{h.capacity_seating?` — Cap: ${h.capacity_seating}`:''}</option>)}</select>:<input className="input" placeholder="Hall name" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value}))}/>}</Fld><Fld l="Visited By">{staffList.length>0?<select className="input" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')})</option>)}</select>:<input className="input" placeholder="Name" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}/>}</Fld><Fld l="Interest (1-5)"><input className="input" type="number" min={1} max={5} value={visitForm.customer_rating} onChange={e=>setVisitForm(p=>({...p,customer_rating:e.target.value}))}/></Fld><Fld l="Notes" s><textarea className="input" rows={2} value={visitForm.notes} onChange={e=>setVisitForm(p=>({...p,notes:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
+        <FG><Fld l="Visit Date *"><input className="input" type="datetime-local" value={visitForm.visit_date} onChange={e=>setVisitForm(p=>({...p,visit_date:e.target.value}))}/></Fld><Fld l="Hall Visited">{halls.length>0?<select className="input" value={visitForm.hall_id} onChange={e=>{const h=halls.find(x=>x.id===e.target.value);setVisitForm(p=>({...p,hall_id:e.target.value,hall_name:h?.name||''}));}}><option value="">Select hall…</option>{halls.map(h=><option key={h.id} value={h.id}>{h.name}{h.capacity_seating?` — Cap: ${h.capacity_seating}`:''}</option>)}</select>:<input className="input" placeholder="Hall name" value={visitForm.hall_name} onChange={e=>setVisitForm(p=>({...p,hall_name:e.target.value,hall_id:''}))}/>}</Fld><Fld l="Visited By">{staffList.length>0?<select className="input" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}><option value="">Select staff…</option>{staffList.map(s=><option key={s.id} value={s.name}>{s.name} ({s.role?.replace(/_/g,' ')})</option>)}</select>:<input className="input" placeholder="Name" value={visitForm.visited_by} onChange={e=>setVisitForm(p=>({...p,visited_by:e.target.value}))}/>}</Fld><Fld l="Interest (1-5)"><input className="input" type="number" min={1} max={5} value={visitForm.customer_rating} onChange={e=>setVisitForm(p=>({...p,customer_rating:e.target.value}))}/></Fld><Fld l="Notes" s><textarea className="input" rows={2} value={visitForm.notes} onChange={e=>setVisitForm(p=>({...p,notes:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
         <DA saving={saving} onCancel={closeDialog} onOk={handleLogVisit} ok="Mark Visited"/>
       </Dlg>}
 
@@ -580,12 +584,12 @@ export default function LeadDetailPage(){
       </Dlg>}
 
       {dialog==='complete_tasting'&&<Dlg title="Complete Food Tasting" onClose={closeDialog}>
-        <FG><Fld l="Dishes Sampled" s><input className="input" placeholder="Paneer tikka, Dal makhani (comma)" value={tastingDoneForm.dishes_sampled} onChange={e=>setTastingDoneForm(p=>({...p,dishes_sampled:e.target.value}))}/></Fld><Fld l="Preferred Menu">{menus.length>0?<select className="input" value={tastingDoneForm.preferred_menu} onChange={e=>setTastingDoneForm(p=>({...p,preferred_menu:e.target.value}))}><option value="">Select menu…</option>{menus.map(m=><option key={m.id} value={m.name||m.menu_name}>{m.name||m.menu_name}{m.per_plate_cost?` — ${fmt(m.per_plate_cost)}/plate`:''}</option>)}</select>:<input className="input" placeholder="Veg Premium" value={tastingDoneForm.preferred_menu} onChange={e=>setTastingDoneForm(p=>({...p,preferred_menu:e.target.value}))}/>}</Fld><Fld l="Kitchen Manager">{staffList.filter(s=>s.role==='kitchen_manager').length>0?<select className="input" value={tastingDoneForm.kitchen_manager} onChange={e=>setTastingDoneForm(p=>({...p,kitchen_manager:e.target.value}))}><option value="">Select…</option>{staffList.filter(s=>s.role==='kitchen_manager').map(s=><option key={s.id} value={s.name}>{s.name}</option>)}</select>:<input className="input" value={tastingDoneForm.kitchen_manager} onChange={e=>setTastingDoneForm(p=>({...p,kitchen_manager:e.target.value}))}/>}</Fld><Fld l="Customer Feedback" s><textarea className="input" rows={2} value={tastingDoneForm.customer_feedback} onChange={e=>setTastingDoneForm(p=>({...p,customer_feedback:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
+        <FG><Fld l="Dishes Sampled" s><input className="input" placeholder="Paneer tikka, Dal makhani (comma)" value={tastingDoneForm.dishes_sampled} onChange={e=>setTastingDoneForm(p=>({...p,dishes_sampled:e.target.value}))}/></Fld><Fld l="Preferred Menu">{menus.length>0?<select className="input" value={tastingDoneForm.preferred_menu} onChange={e=>setTastingDoneForm(p=>({...p,preferred_menu:e.target.value}))}><option value="">Select menu…</option>{menus.map(m=><option key={m.id} value={m.menu_name||m.name}>{m.menu_name||m.name}{m.per_plate_cost?` — ${fmt(m.per_plate_cost)}/plate`:''}</option>)}</select>:<input className="input" placeholder="Veg Premium" value={tastingDoneForm.preferred_menu} onChange={e=>setTastingDoneForm(p=>({...p,preferred_menu:e.target.value}))}/>}</Fld><Fld l="Kitchen Manager">{staffList.filter(s=>s.role==='kitchen_manager').length>0?<select className="input" value={tastingDoneForm.kitchen_manager} onChange={e=>setTastingDoneForm(p=>({...p,kitchen_manager:e.target.value}))}><option value="">Select…</option>{staffList.filter(s=>s.role==='kitchen_manager').map(s=><option key={s.id} value={s.name}>{s.name}</option>)}</select>:<input className="input" value={tastingDoneForm.kitchen_manager} onChange={e=>setTastingDoneForm(p=>({...p,kitchen_manager:e.target.value}))}/>}</Fld><Fld l="Customer Feedback" s><textarea className="input" rows={2} value={tastingDoneForm.customer_feedback} onChange={e=>setTastingDoneForm(p=>({...p,customer_feedback:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
         <DA saving={saving} onCancel={closeDialog} onOk={handleCompleteTasting} ok="Mark Done"/>
       </Dlg>}
 
       {dialog==='finalize_menu'&&<Dlg title="Finalize Menu & Generate Quote" onClose={closeDialog}>
-        <FG><Fld l="Menu Name *">{menus.length>0?<select className="input" value={menuForm.menu_name} onChange={e=>{const m=menus.find(x=>(x.name||x.menu_name)===e.target.value);setMenuForm(p=>({...p,menu_name:e.target.value,per_plate_cost:m?.per_plate_cost?String(m.per_plate_cost):p.per_plate_cost}));}}><option value="">Select menu…</option>{menus.map(m=><option key={m.id} value={m.name||m.menu_name}>{m.name||m.menu_name}{m.per_plate_cost?` — ${fmt(m.per_plate_cost)}/plate`:''}</option>)}</select>:<input className="input" placeholder="Veg Grand" value={menuForm.menu_name} onChange={e=>setMenuForm(p=>({...p,menu_name:e.target.value}))}/>}</Fld><Fld l="₹/Plate *"><input className="input" type="number" placeholder="850" value={menuForm.per_plate_cost} onChange={e=>setMenuForm(p=>({...p,per_plate_cost:e.target.value}))}/></Fld><Fld l="Plates"><input className="input" type="number" placeholder={String(l.expected_guest_count||250)} value={menuForm.expected_plates} onChange={e=>setMenuForm(p=>({...p,expected_plates:e.target.value}))}/></Fld><Fld l="Hall Rent (₹)"><input className="input" type="number" placeholder="50000" value={menuForm.hall_rent} onChange={e=>setMenuForm(p=>({...p,hall_rent:e.target.value}))}/></Fld><Fld l="Decor Est. (₹)"><input className="input" type="number" placeholder="30000" value={menuForm.decor_estimate} onChange={e=>setMenuForm(p=>({...p,decor_estimate:e.target.value}))}/></Fld><Fld l="Valid Till"><input className="input" type="date" value={menuForm.valid_till} onChange={e=>setMenuForm(p=>({...p,valid_till:e.target.value}))}/></Fld></FG>
+        <FG><Fld l="Menu Name *">{menus.length>0?<select className="input" value={menuForm.menu_name} onChange={e=>{const m=menus.find(x=>(x.menu_name||x.name)===e.target.value);setMenuForm(p=>({...p,menu_name:e.target.value,per_plate_cost:m?.per_plate_cost?String(m.per_plate_cost):p.per_plate_cost}));}}><option value="">Select menu…</option>{menus.map(m=><option key={m.id} value={m.menu_name||m.name}>{m.menu_name||m.name}{m.per_plate_cost?` — ${fmt(m.per_plate_cost)}/plate`:''}</option>)}</select>:<input className="input" placeholder="Veg Grand" value={menuForm.menu_name} onChange={e=>setMenuForm(p=>({...p,menu_name:e.target.value}))}/>}</Fld><Fld l="₹/Plate *"><input className="input" type="number" placeholder="850" value={menuForm.per_plate_cost} onChange={e=>setMenuForm(p=>({...p,per_plate_cost:e.target.value}))}/></Fld><Fld l="Plates"><input className="input" type="number" placeholder={String(l.expected_guest_count||250)} value={menuForm.expected_plates} onChange={e=>setMenuForm(p=>({...p,expected_plates:e.target.value}))}/></Fld><Fld l="Hall Rent (₹)"><input className="input" type="number" placeholder="50000" value={menuForm.hall_rent} onChange={e=>setMenuForm(p=>({...p,hall_rent:e.target.value}))}/></Fld><Fld l="Decor Est. (₹)"><input className="input" type="number" placeholder="30000" value={menuForm.decor_estimate} onChange={e=>setMenuForm(p=>({...p,decor_estimate:e.target.value}))}/></Fld><Fld l="Valid Till"><input className="input" type="date" value={menuForm.valid_till} onChange={e=>setMenuForm(p=>({...p,valid_till:e.target.value}))}/></Fld></FG>
         {menuForm.per_plate_cost&&menuForm.expected_plates&&<div style={{background:'#f0fdf4',border:'1px solid #86efac',borderRadius:6,padding:'8px 12px',fontSize:13,marginBottom:12,color:'#15803d'}}>Est: {fmt((Number(menuForm.per_plate_cost)*Number(menuForm.expected_plates))+Number(menuForm.hall_rent||0)+Number(menuForm.decor_estimate||0))}</div>}
         <DA saving={saving} onCancel={closeDialog} onOk={handleFinalizeMenu} ok="Finalize & Quote"/>
       </Dlg>}
@@ -596,7 +600,41 @@ export default function LeadDetailPage(){
         <DA saving={saving} onCancel={closeDialog} onOk={handleRecordAdvance} ok="Record Advance"/>
       </Dlg>}
 
-      {dialog==='finalize_decoration'&&<Dlg title="Finalize Decoration & Event" onClose={closeDialog}>
+      {dialog==='finalize_decoration'&&<Dlg title="Finalize Decoration & Event" onClose={closeDialog} wide>
+        {/* Decor Package Selector */}
+        {decorPackages.length>0&&(
+          <div style={{marginBottom:20}}>
+            <div style={{fontWeight:600,fontSize:13,marginBottom:10,color:'var(--color-text-h)'}}>Select Decor Package (Optional)</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12,maxHeight:360,overflowY:'auto',padding:4}}>
+              {decorPackages.map(pkg=>{
+                const isSelected=decorForm.decor_package_id===pkg.id;
+                const total=pkg.items?.reduce((s,it)=>s+Number(it.unit_price||0)*Number(it.qty||1),0)||Number(pkg.base_price||0);
+                const itemCount=pkg.items?.length||0;
+                const imageCount=pkg.image_urls?.length||0;
+                const THEME_COLORS={Royal:{bg:'rgba(142,68,173,0.10)',color:'#8e44ad'},Minimalist:{bg:'rgba(52,73,94,0.08)',color:'#2c3e50'},Garden:{bg:'rgba(39,174,96,0.10)',color:'#27ae60'},Traditional:{bg:'rgba(211,84,0,0.10)',color:'#d35400'},Modern:{bg:'rgba(41,128,185,0.10)',color:'#2980b9'},Rustic:{bg:'rgba(127,96,0,0.10)',color:'#7f6000'},Floral:{bg:'rgba(231,76,60,0.10)',color:'#e74c3c'},Bollywood:{bg:'rgba(243,156,18,0.12)',color:'#f39c12'},Custom:{bg:'var(--color-primary-ghost)',color:'var(--color-primary)'}};
+                const tc=THEME_COLORS[pkg.theme]||THEME_COLORS.Custom;
+                return(
+                  <div key={pkg.id} onClick={()=>setDecorForm(p=>({...p,decor_package_id:pkg.id,decor_package_name:pkg.name,decor_theme:pkg.theme||'',decor_cost:String(total)}))} style={{border:isSelected?'2px solid var(--color-primary)':'1px solid var(--color-border)',borderRadius:8,padding:10,cursor:'pointer',background:isSelected?'var(--color-primary-ghost)':'var(--color-surface)',transition:'all 0.2s',position:'relative'}}>
+                    {isSelected&&<div style={{position:'absolute',top:6,right:6,background:'var(--color-primary)',color:'#fff',borderRadius:12,width:20,height:20,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,zIndex:1}}>✓</div>}
+                    <div style={{width:'100%',height:100,borderRadius:6,background:tc.bg,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',fontSize:24,position:'relative'}}>
+                      {pkg.image_urls?.[0]?<img src={pkg.image_urls[0]} alt={pkg.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:'🎨'}
+                      {imageCount>1&&<div style={{position:'absolute',bottom:4,right:4,background:'rgba(0,0,0,0.7)',color:'#fff',fontSize:9,padding:'2px 5px',borderRadius:4}}>🖼 {imageCount}</div>}
+                    </div>
+                    <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:'var(--color-text-h)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{pkg.name}</div>
+                    <div style={{display:'flex',gap:4,marginBottom:6,flexWrap:'wrap'}}>
+                      <div style={{fontSize:10,color:tc.color,background:tc.bg,padding:'2px 6px',borderRadius:4,fontWeight:600}}>{pkg.theme||'Custom'}</div>
+                      {itemCount>0&&<div style={{fontSize:10,color:'#059669',background:'rgba(16,185,129,0.1)',padding:'2px 6px',borderRadius:4,fontWeight:600}}>📦 {itemCount} items</div>}
+                    </div>
+                    <div style={{fontWeight:800,fontSize:15,color:'var(--color-primary)',marginBottom:6}}>{fmt(total)}</div>
+                    {pkg.suitable_for&&Array.isArray(pkg.suitable_for)&&pkg.suitable_for.length>0&&<div style={{fontSize:9,color:'var(--color-text-muted)',marginBottom:4,display:'flex',gap:3,flexWrap:'wrap'}}>{pkg.suitable_for.slice(0,3).map((ev,i)=><span key={i} style={{background:'var(--color-bg-alt)',padding:'1px 4px',borderRadius:3}}>{ev}</span>)}{pkg.suitable_for.length>3&&<span style={{color:'var(--color-primary)'}}>+{pkg.suitable_for.length-3}</span>}</div>}
+                    {pkg.description&&<div style={{fontSize:10,color:'var(--color-text-muted)',lineHeight:1.4,overflow:'hidden',textOverflow:'ellipsis',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{pkg.description}</div>}
+                  </div>
+                );
+              })}
+            </div>
+            {decorForm.decor_package_id&&<div style={{marginTop:10,padding:'8px 12px',background:'var(--color-primary-ghost)',border:'1px solid var(--color-primary)',borderRadius:6,fontSize:12,color:'var(--color-primary)',fontWeight:600}}>✓ Selected: {decorForm.decor_package_name} — {fmt(decorForm.decor_cost)}</div>}
+          </div>
+        )}
         <FG><Fld l="Final Guests *"><input className="input" type="number" value={decorForm.final_guest_count} onChange={e=>setDecorForm(p=>({...p,final_guest_count:e.target.value}))}/></Fld><Fld l="Theme"><input className="input" placeholder="Floral, Royal…" value={decorForm.decor_theme} onChange={e=>setDecorForm(p=>({...p,decor_theme:e.target.value}))}/></Fld><Fld l="Partner">{vendors.length>0?<select className="input" value={decorForm.decor_partner} onChange={e=>setDecorForm(p=>({...p,decor_partner:e.target.value}))}><option value="">Select vendor…</option>{vendors.map(v=><option key={v.id} value={v.name||v.company_name}>{v.name||v.company_name}{v.category?` — ${v.category}`:''}</option>)}</select>:<input className="input" placeholder="Vendor name" value={decorForm.decor_partner} onChange={e=>setDecorForm(p=>({...p,decor_partner:e.target.value}))}/>}</Fld><Fld l="Cost (₹)"><input className="input" type="number" value={decorForm.decor_cost} onChange={e=>setDecorForm(p=>({...p,decor_cost:e.target.value}))}/></Fld><Fld l="Setup Date"><input className="input" type="date" value={decorForm.setup_date} onChange={e=>setDecorForm(p=>({...p,setup_date:e.target.value}))}/></Fld><Fld l="Teardown"><input className="input" type="date" value={decorForm.teardown_date} onChange={e=>setDecorForm(p=>({...p,teardown_date:e.target.value}))}/></Fld><Fld l="Special Requests" s><textarea className="input" rows={2} value={decorForm.special_requests} onChange={e=>setDecorForm(p=>({...p,special_requests:e.target.value}))} style={{resize:'vertical'}}/></Fld></FG>
         <DA saving={saving} onCancel={closeDialog} onOk={handleFinalizeDecor} ok="Finalize Decor"/>
       </Dlg>}
@@ -662,10 +700,10 @@ function DA({saving,onCancel,onOk,ok,danger}){
     <button className="btn btn-primary" style={danger?{background:'#dc2626'}:{}} disabled={saving} onClick={onOk}>{saving?<Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/>:null}{ok}</button>
   </div>);
 }
-function Dlg({title,children,onClose}){
+function Dlg({title,children,onClose,wide}){
   return(<div style={{position:'fixed',inset:0,zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
     <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.45)'}}/>
-    <div style={{position:'relative',background:'var(--color-bg-card)',borderRadius:12,padding:24,maxWidth:520,width:'92%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.25)',zIndex:1}} onClick={e=>e.stopPropagation()}>
+    <div style={{position:'relative',background:'var(--color-bg-card)',borderRadius:12,padding:24,maxWidth:wide?720:520,width:'92%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.25)',zIndex:1}} onClick={e=>e.stopPropagation()}>
       <h3 style={{fontSize:16,fontWeight:700,marginBottom:16}}>{title}</h3>{children}
     </div>
   </div>);
