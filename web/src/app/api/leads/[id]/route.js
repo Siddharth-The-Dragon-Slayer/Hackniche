@@ -32,6 +32,7 @@ import { getAdminDb } from '@/lib/firebase-admin';
 import admin from 'firebase-admin';
 import { NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
+import { getResend, FROM_ADDRESS, buildMenuConfirmationEmail, buildDecorConfirmationEmail, buildPaymentConfirmationEmail } from '@/lib/resend-client';
 
 const listKey   = (fid, bid)       => `leads:${fid}:${bid}:list`;
 const statusKey = (fid, bid, s)    => `leads:${fid}:${bid}:${s}`;
@@ -280,6 +281,42 @@ export async function PUT(request, { params }) {
         puid, pname, { menu_name, per_plate_cost, plates, total_estimated: totalEstimated });
       branchStat(adminDb, batch, branch_id, current.status, 'menu_selected', now);
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
+
+      // Send menu confirmation email (fire-and-forget)
+      if (current.email) {
+        try {
+          const resend = getResend();
+          const branchDoc = await adminDb.collection('branches').doc(branch_id).get();
+          const branchData = branchDoc.exists ? branchDoc.data() : {};
+
+          const emailHtml = buildMenuConfirmationEmail({
+            customerName: current.customer_name || 'Valued Customer',
+            eventType: current.event_type || 'Event',
+            eventDate: current.event_date || null,
+            menuName: menu_name,
+            perPlateCost: Number(per_plate_cost),
+            expectedPlates: plates,
+            totalFoodCost: foodTotal,
+            customizations: customizations || [],
+            hallRent: hallRent,
+            decorEstimate: decorEst,
+            totalEstimated: totalEstimated,
+            branchName: branchData.name || 'BanquetEase',
+            branchPhone: branchData.phone || branchData.contact_phone || 'N/A',
+            branchEmail: branchData.email || branchData.contact_email || 'N/A',
+          });
+
+          resend.emails.send({
+            from: FROM_ADDRESS,
+            to: current.email,
+            subject: `Menu Confirmed - ${menu_name} | BanquetEase`,
+            html: emailHtml,
+          }).catch(err => console.error('[Menu Email]', err));
+        } catch (emailErr) {
+          console.error('[Menu Email Failed]', emailErr);
+        }
+      }
+
       return NextResponse.json({ success: true, message: `Menu finalized. Quote: ₹${totalEstimated.toLocaleString()}` });
     }
 
@@ -446,6 +483,40 @@ export async function PUT(request, { params }) {
       });
 
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
+
+      // Send payment confirmation email (fire-and-forget)
+      if (current.email) {
+        try {
+          const resend = getResend();
+          const branchDoc = await adminDb.collection('branches').doc(branch_id).get();
+          const branchData = branchDoc.exists ? branchDoc.data() : {};
+
+          const emailHtml = buildPaymentConfirmationEmail({
+            customerName: current.customer_name || 'Valued Customer',
+            eventType: current.event_type || 'Event',
+            eventDate: current.event_date || null,
+            paymentType: 'advance',
+            amount: advAmt,
+            totalAmount: quoteTotal,
+            balanceDue: Math.max(quoteTotal - advAmt, 0),
+            paymentMode: payment_mode || 'cash',
+            transactionRef: transaction_ref,
+            branchName: branchData.name || 'BanquetEase',
+            branchPhone: branchData.phone || branchData.contact_phone || 'N/A',
+            branchEmail: branchData.email || branchData.contact_email || 'N/A',
+          });
+
+          resend.emails.send({
+            from: FROM_ADDRESS,
+            to: current.email,
+            subject: `Advance Payment Received - ₹${advAmt.toLocaleString('en-IN')} | BanquetEase`,
+            html: emailHtml,
+          }).catch(err => console.error('[Advance Payment Email]', err));
+        } catch (emailErr) {
+          console.error('[Advance Payment Email Failed]', emailErr);
+        }
+      }
+
       return NextResponse.json({
         success: true,
         booking_id: bookingRef.id,
@@ -490,6 +561,41 @@ export async function PUT(request, { params }) {
         puid, pname, { final_guest_count: plates, decor_theme, decor_partner });
       branchStat(adminDb, batch, branch_id, current.status, 'decoration_scheduled', now);
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
+
+      // Send decoration confirmation email (fire-and-forget)
+      if (current.email) {
+        try {
+          const resend = getResend();
+          const branchDoc = await adminDb.collection('branches').doc(branch_id).get();
+          const branchData = branchDoc.exists ? branchDoc.data() : {};
+
+          const emailHtml = buildDecorConfirmationEmail({
+            customerName: current.customer_name || 'Valued Customer',
+            eventType: current.event_type || 'Event',
+            eventDate: current.event_date || null,
+            decorTheme: decor_theme || 'Custom Theme',
+            decorPartner: decor_partner || null,
+            decorCost: Number(decor_cost || 0),
+            finalGuestCount: plates,
+            setupDate: setup_date || null,
+            teardownDate: teardown_date || null,
+            specialRequests: special_requests || null,
+            branchName: branchData.name || 'BanquetEase',
+            branchPhone: branchData.phone || branchData.contact_phone || 'N/A',
+            branchEmail: branchData.email || branchData.contact_email || 'N/A',
+          });
+
+          resend.emails.send({
+            from: FROM_ADDRESS,
+            to: current.email,
+            subject: `Decoration Confirmed - ${decor_theme || 'Custom Theme'} | BanquetEase`,
+            html: emailHtml,
+          }).catch(err => console.error('[Decor Email]', err));
+        } catch (emailErr) {
+          console.error('[Decor Email Failed]', emailErr);
+        }
+      }
+
       return NextResponse.json({ success: true, message: 'Decoration & event finalized → Decoration Scheduled' });
     }
 
@@ -532,6 +638,43 @@ export async function PUT(request, { params }) {
       });
 
       await batch.commit(); invalidate(franchise_id, branch_id, lead_id);
+
+      // Send full payment confirmation email (fire-and-forget)
+      if (current.email) {
+        try {
+          const resend = getResend();
+          const branchDoc = await adminDb.collection('branches').doc(branch_id).get();
+          const branchData = branchDoc.exists ? branchDoc.data() : {};
+
+          const quoteTotal = Number(current.quote?.total_estimated || 0);
+          const advAmt = Number(current.booking_confirmed?.advance_amount || 0);
+
+          const emailHtml = buildPaymentConfirmationEmail({
+            customerName: current.customer_name || 'Valued Customer',
+            eventType: current.event_type || 'Event',
+            eventDate: current.event_date || null,
+            paymentType: 'full',
+            amount: Number(remaining_amount),
+            totalAmount: quoteTotal,
+            balanceDue: 0,
+            paymentMode: payment_mode || 'cash',
+            transactionRef: transaction_ref,
+            branchName: branchData.name || 'BanquetEase',
+            branchPhone: branchData.phone || branchData.contact_phone || 'N/A',
+            branchEmail: branchData.email || branchData.contact_email || 'N/A',
+          });
+
+          resend.emails.send({
+            from: FROM_ADDRESS,
+            to: current.email,
+            subject: `Full Payment Received - Event Confirmed! | BanquetEase`,
+            html: emailHtml,
+          }).catch(err => console.error('[Full Payment Email]', err));
+        } catch (emailErr) {
+          console.error('[Full Payment Email Failed]', emailErr);
+        }
+      }
+
       return NextResponse.json({ success: true, message: `Full payment ₹${Number(remaining_amount).toLocaleString()} recorded → Paid & Locked` });
     }
 
