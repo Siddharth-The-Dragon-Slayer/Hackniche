@@ -26,7 +26,6 @@ export async function GET(req, { params }) {
     // Fetch lead by ID (bookings are leads with booking statuses)
     const snap = await adminDb.collection('leads').doc(id).get();
     if (!snap.exists) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
-<<<<<<< HEAD
 
     const lead = snap.data();
 

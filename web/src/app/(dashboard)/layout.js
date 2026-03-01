@@ -4,8 +4,10 @@ import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BackToTop from "@/components/layout/BackToTop";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import OfflineBanner from "@/components/shared/OfflineBanner";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { initSyncManager } from "@/lib/sync-manager";
 
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -17,6 +19,15 @@ export default function DashboardLayout({ children }) {
     if (loading) return;
     if (!user) router.replace("/login");
   }, [user, loading, router]);
+
+  // Initialise offline sync once the user profile is available
+  useEffect(() => {
+    if (!user) return;
+    initSyncManager({
+      franchiseId: user.franchise_id ?? user.franchiseId,
+      branchId: user.branch_id ?? user.branchId,
+    });
+  }, [user]);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -47,6 +58,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
+      <OfflineBanner />
       <Sidebar sidebarOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Mobile topbar */}

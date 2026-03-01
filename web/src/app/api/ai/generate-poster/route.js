@@ -67,7 +67,6 @@ async function loadOneFontBuffer(family, weight) {
 async function loadFonts() {
   if (_fonts) return _fonts;
 
-<<<<<<< HEAD
   const results = await Promise.allSettled([
     loadOneFontBuffer('Playfair Display', 700),
     loadOneFontBuffer('Playfair Display', 400),
@@ -99,44 +98,6 @@ async function loadFonts() {
   }
 
   _fonts = fonts;
-=======
-  const fetchFont = async (family, weight) => {
-    const css = await fetch(
-      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:ital,wght@0,${weight}&display=swap`,
-      { headers: { "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" } },
-    ).then((r) => r.text());
-    const match = css.match(
-      /src: url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/,
-    );
-    if (!match) throw new Error(`Font URL not found for ${family} ${weight}`);
-    return fetch(match[1]).then((r) => r.arrayBuffer());
-  };
-
-  const [playfairBold, playfairReg, ralewayBold, ralewayReg] =
-    await Promise.all([
-      fetchFont("Playfair+Display", 700),
-      fetchFont("Playfair+Display", 400),
-      fetchFont("Raleway", 700),
-      fetchFont("Raleway", 400),
-    ]);
-
-  _fonts = [
-    {
-      name: "Playfair Display",
-      data: playfairBold,
-      weight: 700,
-      style: "normal",
-    },
-    {
-      name: "Playfair Display",
-      data: playfairReg,
-      weight: 400,
-      style: "normal",
-    },
-    { name: "Raleway", data: ralewayBold, weight: 700, style: "normal" },
-    { name: "Raleway", data: ralewayReg, weight: 400, style: "normal" },
-  ];
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
   return _fonts;
 }
 
@@ -433,7 +394,6 @@ function WeddingPoster({ f }) {
       ),
 
       /* Date block */
-<<<<<<< HEAD
       React.createElement('div', { style: { background: `rgba(201,168,76,0.08)`, border: `1px solid rgba(201,168,76,0.35)`, borderRadius: 8, padding: '16px 40px', marginBottom: 22, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' } },
         React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: darkGold, marginBottom: 6, marginTop: 0 } }, 'DATE & TIME'),
         React.createElement('p', { style: { fontFamily: '"Playfair Display"', fontSize: 22, fontWeight: 700, color: '#3A2A0A', textAlign: 'center', marginBottom: 4, marginTop: 0 } }, date),
@@ -445,118 +405,6 @@ function WeddingPoster({ f }) {
         React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: darkGold, marginBottom: 6, marginTop: 0 } }, 'VENUE'),
         React.createElement('p', { style: { fontFamily: '"Playfair Display"', fontSize: 26, fontWeight: 700, color: '#3A2A0A', textAlign: 'center', marginBottom: 4, marginTop: 0 } }, venue),
         React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 14, fontWeight: 400, color: '#7A6A4A', textAlign: 'center', marginBottom: 0, marginTop: 0 } }, addr),
-=======
-      React.createElement(
-        "div",
-        {
-          style: {
-            background: `rgba(201,168,76,0.08)`,
-            border: `1px solid rgba(201,168,76,0.35)`,
-            borderRadius: 8,
-            padding: "16px 40px",
-            marginBottom: 22,
-            textAlign: "center",
-          },
-        },
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: darkGold,
-              marginBottom: 6,
-              marginTop: 0,
-            },
-          },
-          "DATE & TIME",
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Playfair Display"',
-              fontSize: 22,
-              fontWeight: 700,
-              color: "#3A2A0A",
-              textAlign: "center",
-              marginBottom: 4,
-              marginTop: 0,
-            },
-          },
-          date,
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 14,
-              fontWeight: 400,
-              color: "#5A4A2A",
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
-          },
-          `Ceremony: ${cTime}  ·  Reception: ${rTime}`,
-        ),
-      ),
-
-      /* Venue block */
-      React.createElement(
-        "div",
-        { style: { textAlign: "center", marginBottom: 28 } },
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: darkGold,
-              marginBottom: 6,
-              marginTop: 0,
-            },
-          },
-          "VENUE",
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Playfair Display"',
-              fontSize: 26,
-              fontWeight: 700,
-              color: "#3A2A0A",
-              textAlign: "center",
-              marginBottom: 4,
-              marginTop: 0,
-            },
-          },
-          venue,
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 14,
-              fontWeight: 400,
-              color: "#7A6A4A",
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
-          },
-          addr,
-        ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
       ),
 
       /* RSVP */
@@ -841,7 +689,6 @@ function BirthdayPoster({ f }) {
       ),
 
       /* Details card */
-<<<<<<< HEAD
       React.createElement('div', { style: { background: 'rgba(255,215,0,0.07)', border: `1px solid rgba(255,215,0,0.3)`, borderRadius: 12, padding: '28px 44px', width: '100%', boxSizing: 'border-box', marginBottom: 28, display: 'flex', flexDirection: 'column' } },
         /* Date */
         React.createElement('div', { style: { display: 'flex', alignItems: 'center', marginBottom: 18, gap: 14 } },
@@ -867,217 +714,6 @@ function BirthdayPoster({ f }) {
             React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginBottom: 3, marginTop: 0 } }, venue),
             React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 400, color: '#C0A8E0', marginBottom: 0, marginTop: 0 } }, addr),
           )
-=======
-      React.createElement(
-        "div",
-        {
-          style: {
-            background: "rgba(255,215,0,0.07)",
-            border: `1px solid rgba(255,215,0,0.3)`,
-            borderRadius: 12,
-            padding: "28px 44px",
-            width: "100%",
-            boxSizing: "border-box",
-            marginBottom: 28,
-          },
-        },
-        /* Date */
-        React.createElement(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 18,
-              gap: 14,
-            },
-          },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: "rgba(255,215,0,0.15)",
-                border: `1px solid ${gold}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-              },
-            },
-            "📅",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: gold,
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              "DATE",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              date,
-            ),
-          ),
-        ),
-        /* Time */
-        React.createElement(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 18,
-              gap: 14,
-            },
-          },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: "rgba(255,215,0,0.15)",
-                border: `1px solid ${gold}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-              },
-            },
-            "🕖",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: gold,
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              "TIME",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              time,
-            ),
-          ),
-        ),
-        /* Venue */
-        React.createElement(
-          "div",
-          { style: { display: "flex", alignItems: "flex-start", gap: 14 } },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: "rgba(255,215,0,0.15)",
-                border: `1px solid ${gold}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                flexShrink: 0,
-              },
-            },
-            "📍",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: gold,
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              "VENUE",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              venue,
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 13,
-                  fontWeight: 400,
-                  color: "#C0A8E0",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              addr,
-            ),
-          ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
         ),
       ),
 
@@ -1408,7 +1044,6 @@ function AnniversaryPoster({ f }) {
       ),
 
       /* Details box */
-<<<<<<< HEAD
       React.createElement('div', { style: { background: `rgba(184,115,51,0.07)`, border: `1px solid rgba(184,115,51,0.3)`, borderRadius: 10, padding: '22px 40px', width: '100%', boxSizing: 'border-box', marginBottom: 24 } },
         React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', gap: 20, marginBottom: 16 } },
           React.createElement('div', { style: { textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' } },
@@ -1426,161 +1061,6 @@ function AnniversaryPoster({ f }) {
           React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: bronze, marginBottom: 5, marginTop: 0 } }, 'VENUE'),
           React.createElement('p', { style: { fontFamily: '"Playfair Display"', fontSize: 20, fontWeight: 700, color: darkBrown, textAlign: 'center', marginBottom: 4, marginTop: 0 } }, venue),
           React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 400, color: '#8B6030', textAlign: 'center', marginBottom: 0, marginTop: 0 } }, addr),
-=======
-      React.createElement(
-        "div",
-        {
-          style: {
-            background: `rgba(184,115,51,0.07)`,
-            border: `1px solid rgba(184,115,51,0.3)`,
-            borderRadius: 10,
-            padding: "22px 40px",
-            width: "100%",
-            boxSizing: "border-box",
-            marginBottom: 24,
-          },
-        },
-        React.createElement(
-          "div",
-          {
-            style: {
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 20,
-              marginBottom: 16,
-            },
-          },
-          React.createElement(
-            "div",
-            { style: { textAlign: "center", flex: 1 } },
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: bronze,
-                  marginBottom: 5,
-                  marginTop: 0,
-                },
-              },
-              "DATE",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Playfair Display"',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: darkBrown,
-                  textAlign: "center",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              date,
-            ),
-          ),
-          React.createElement("div", {
-            style: { width: 1, background: `rgba(184,115,51,0.3)` },
-          }),
-          React.createElement(
-            "div",
-            { style: { textAlign: "center", flex: 0, minWidth: 80 } },
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: bronze,
-                  marginBottom: 5,
-                  marginTop: 0,
-                },
-              },
-              "TIME",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Playfair Display"',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: darkBrown,
-                  textAlign: "center",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              time,
-            ),
-          ),
-        ),
-        React.createElement("div", {
-          style: {
-            height: 1,
-            background: `rgba(184,115,51,0.2)`,
-            marginBottom: 16,
-          },
-        }),
-        React.createElement(
-          "div",
-          { style: { textAlign: "center" } },
-          React.createElement(
-            "p",
-            {
-              style: {
-                fontFamily: '"Raleway"',
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 2,
-                textTransform: "uppercase",
-                color: bronze,
-                marginBottom: 5,
-                marginTop: 0,
-              },
-            },
-            "VENUE",
-          ),
-          React.createElement(
-            "p",
-            {
-              style: {
-                fontFamily: '"Playfair Display"',
-                fontSize: 20,
-                fontWeight: 700,
-                color: darkBrown,
-                textAlign: "center",
-                marginBottom: 4,
-                marginTop: 0,
-              },
-            },
-            venue,
-          ),
-          React.createElement(
-            "p",
-            {
-              style: {
-                fontFamily: '"Raleway"',
-                fontSize: 13,
-                fontWeight: 400,
-                color: "#8B6030",
-                textAlign: "center",
-                marginBottom: 0,
-                marginTop: 0,
-              },
-            },
-            addr,
-          ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
         ),
       ),
 
@@ -1823,7 +1303,6 @@ function CorporatePoster({ f }) {
         ),
 
       /* Speaker highlight */
-<<<<<<< HEAD
       speaker && React.createElement('div', { style: { background: 'rgba(59,130,246,0.1)', border: `1px solid rgba(59,130,246,0.3)`, borderRadius: 10, padding: '16px 24px', marginBottom: 32, display: 'flex', alignItems: 'center', gap: 14 } },
         React.createElement('div', { style: { width: 48, height: 48, borderRadius: '50%', background: 'rgba(59,130,246,0.2)', border: `2px solid ${blue}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 } }, '🎤'),
         React.createElement('div', { style: { display: 'flex', flexDirection: 'column' } },
@@ -1848,267 +1327,14 @@ function CorporatePoster({ f }) {
             React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 17, fontWeight: 700, color: '#FFFFFF', marginBottom: 3, marginTop: 0 } }, venue),
             React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 400, color: silver, marginBottom: 0, marginTop: 0 } }, addr),
           )
-=======
-      speaker &&
-        React.createElement(
-          "div",
-          {
-            style: {
-              background: "rgba(59,130,246,0.1)",
-              border: `1px solid rgba(59,130,246,0.3)`,
-              borderRadius: 10,
-              padding: "16px 24px",
-              marginBottom: 32,
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-            },
-          },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "rgba(59,130,246,0.2)",
-                border: `2px solid ${blue}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-                flexShrink: 0,
-              },
-            },
-            "🎤",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: lightBlue,
-                  marginBottom: 4,
-                  marginTop: 0,
-                },
-              },
-              "FEATURED SPEAKER",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Playfair Display"',
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              speaker,
-            ),
-          ),
-        ),
-
-      /* Details grid */
-      React.createElement(
-        "div",
-        {
-          style: {
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            marginBottom: 32,
-          },
-        },
-        React.createElement(
-          "div",
-          { style: { display: "flex", gap: 12, alignItems: "flex-start" } },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 40,
-                height: 40,
-                borderRadius: 8,
-                background: "rgba(59,130,246,0.15)",
-                border: `1px solid rgba(59,130,246,0.4)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                flexShrink: 0,
-              },
-            },
-            "📅",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: lightBlue,
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              "DATE & TIME",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              `${date}  |  ${time}`,
-            ),
-          ),
-        ),
-        React.createElement(
-          "div",
-          { style: { display: "flex", gap: 12, alignItems: "flex-start" } },
-          React.createElement(
-            "div",
-            {
-              style: {
-                width: 40,
-                height: 40,
-                borderRadius: 8,
-                background: "rgba(59,130,246,0.15)",
-                border: `1px solid rgba(59,130,246,0.4)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                flexShrink: 0,
-              },
-            },
-            "📍",
-          ),
-          React.createElement(
-            "div",
-            null,
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: lightBlue,
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              "VENUE",
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  marginBottom: 3,
-                  marginTop: 0,
-                },
-              },
-              venue,
-            ),
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 13,
-                  fontWeight: 400,
-                  color: silver,
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              addr,
-            ),
-          ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
         ),
       ),
 
       /* Registration / Contact */
-<<<<<<< HEAD
       (regLink || email) && React.createElement('div', { style: { background: 'rgba(59,130,246,0.07)', border: `1px solid rgba(59,130,246,0.25)`, borderRadius: 8, padding: '14px 22px', marginBottom: 16, display: 'flex', flexDirection: 'column' } },
         regLink && React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 600, color: lightBlue, marginBottom: email ? 6 : 0, marginTop: 0 } }, `Register: ${regLink}`),
         email && React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 400, color: silver, marginBottom: 0, marginTop: 0 } }, `Contact: ${email}`),
       ),
-=======
-      (regLink || email) &&
-        React.createElement(
-          "div",
-          {
-            style: {
-              background: "rgba(59,130,246,0.07)",
-              border: `1px solid rgba(59,130,246,0.25)`,
-              borderRadius: 8,
-              padding: "14px 22px",
-              marginBottom: 16,
-            },
-          },
-          regLink &&
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: lightBlue,
-                  marginBottom: email ? 6 : 0,
-                  marginTop: 0,
-                },
-              },
-              `Register: ${regLink}`,
-            ),
-          email &&
-            React.createElement(
-              "p",
-              {
-                style: {
-                  fontFamily: '"Raleway"',
-                  fontSize: 13,
-                  fontWeight: 400,
-                  color: silver,
-                  marginBottom: 0,
-                  marginTop: 0,
-                },
-              },
-              `Contact: ${email}`,
-            ),
-        ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
 
       React.createElement(
         "div",
@@ -2433,7 +1659,6 @@ function EngagementPoster({ f }) {
       ),
 
       /* Details box */
-<<<<<<< HEAD
       React.createElement('div', { style: { background: `rgba(232,99,122,0.06)`, border: `1px solid rgba(232,99,122,0.25)`, borderRadius: 12, padding: '22px 44px', width: '100%', boxSizing: 'border-box', marginBottom: 24, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' } },
         React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 10, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: rose, marginBottom: 6, marginTop: 0 } }, 'JOIN US'),
         React.createElement('p', { style: { fontFamily: '"Playfair Display"', fontSize: 22, fontWeight: 700, color: pinkDeep, textAlign: 'center', marginBottom: 4, marginTop: 0 } }, date),
@@ -2441,105 +1666,6 @@ function EngagementPoster({ f }) {
         React.createElement('div', { style: { height: 1, background: `rgba(232,99,122,0.2)`, marginBottom: 16 } }),
         React.createElement('p', { style: { fontFamily: '"Playfair Display"', fontSize: 22, fontWeight: 700, color: pinkDeep, textAlign: 'center', marginBottom: 4, marginTop: 0 } }, venue),
         React.createElement('p', { style: { fontFamily: '"Raleway"', fontSize: 13, fontWeight: 400, color: '#A07080', textAlign: 'center', marginBottom: 0, marginTop: 0 } }, addr),
-=======
-      React.createElement(
-        "div",
-        {
-          style: {
-            background: `rgba(232,99,122,0.06)`,
-            border: `1px solid rgba(232,99,122,0.25)`,
-            borderRadius: 12,
-            padding: "22px 44px",
-            width: "100%",
-            boxSizing: "border-box",
-            marginBottom: 24,
-            textAlign: "center",
-          },
-        },
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: rose,
-              marginBottom: 6,
-              marginTop: 0,
-            },
-          },
-          "JOIN US",
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Playfair Display"',
-              fontSize: 22,
-              fontWeight: 700,
-              color: pinkDeep,
-              textAlign: "center",
-              marginBottom: 4,
-              marginTop: 0,
-            },
-          },
-          date,
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 15,
-              fontWeight: 400,
-              color: "#9A6070",
-              textAlign: "center",
-              marginBottom: 16,
-              marginTop: 0,
-            },
-          },
-          time,
-        ),
-        React.createElement("div", {
-          style: {
-            height: 1,
-            background: `rgba(232,99,122,0.2)`,
-            marginBottom: 16,
-          },
-        }),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Playfair Display"',
-              fontSize: 22,
-              fontWeight: 700,
-              color: pinkDeep,
-              textAlign: "center",
-              marginBottom: 4,
-              marginTop: 0,
-            },
-          },
-          venue,
-        ),
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 13,
-              fontWeight: 400,
-              color: "#A07080",
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
-          },
-          addr,
-        ),
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
       ),
 
       rsvp &&
@@ -2595,20 +1721,8 @@ export async function POST(request) {
     const body = await request.json();
     const { eventType = "wedding", formValues = {} } = body;
 
-<<<<<<< HEAD
     // Load fonts — loadFonts() never throws; always returns ≥1 font
     const fonts = await loadFonts();
-=======
-    // Load fonts
-    let fonts;
-    try {
-      fonts = await loadFonts();
-    } catch (fontErr) {
-      console.error("Font loading failed:", fontErr);
-      // Fallback: use empty fonts array (satori will use fallback)
-      fonts = [];
-    }
->>>>>>> 107fc2583234521d5abf3906e8857c2ebc92e3b7
 
     // Select template element
     let element;

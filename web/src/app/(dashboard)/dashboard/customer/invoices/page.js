@@ -39,6 +39,139 @@ function StatusBadge({ status }) {
   );
 }
 
+/* ── pdf export ──────────────────────────────────────────────── */
+function exportPDF(inv) {
+  const statusLabel = STATUS_COLORS[inv.status]?.label || inv.status || "Draft";
+  const statusColor = STATUS_COLORS[inv.status]?.text || "#7f8c8d";
+
+  const lineItemsHtml = inv.line_items?.length
+    ? `<table class="items">
+        <thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>
+          ${inv.line_items.map(li => `
+            <tr>
+              <td>${li.description || ""}</td>
+              <td style="text-align:right">${li.qty ?? ""}</td>
+              <td style="text-align:right">${fmt(li.rate)}</td>
+              <td style="text-align:right;font-weight:600">${fmt(li.amount)}</td>
+            </tr>`).join("")}
+          <tr class="subtotal-row"><td colspan="3" style="text-align:right;font-weight:600">Subtotal</td><td style="text-align:right;font-weight:600">${fmt(inv.subtotal)}</td></tr>
+          ${inv.discount > 0 ? `<tr><td colspan="3" style="text-align:right;color:#27ae60">Discount</td><td style="text-align:right;color:#27ae60">– ${fmt(inv.discount)}</td></tr>` : ""}
+          ${inv.tax_amount > 0 ? `<tr><td colspan="3" style="text-align:right">Tax (${((inv.tax_rate || 0) * 100).toFixed(0)}%)</td><td style="text-align:right">${fmt(inv.tax_amount)}</td></tr>` : ""}
+          <tr class="total-row"><td colspan="3" style="text-align:right;font-weight:700;color:#7B1C1C">Total</td><td style="text-align:right;font-weight:700;color:#7B1C1C;font-size:15px">${fmt(inv.total)}</td></tr>
+        </tbody>
+      </table>`
+    : "";
+
+  const payHistHtml = inv.payment_history?.length
+    ? `<div class="section-title">Payment History</div>
+       <table class="items">
+         <thead><tr><th>Date</th><th>Mode</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead>
+         <tbody>
+           ${inv.payment_history.map(p => `
+             <tr>
+               <td>${fmtDate(p.date)}</td>
+               <td>${p.mode || "—"}</td>
+               <td>${p.type || "—"}</td>
+               <td style="text-align:right;font-weight:600;color:#27ae60">${fmt(p.amount)}</td>
+             </tr>`).join("")}
+         </tbody>
+       </table>`
+    : "";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice ${inv.invoice_number || inv.id}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #2c2c2c; background: #fff; padding: 32px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #7B1C1C; }
+    .brand { font-size: 22px; font-weight: 800; color: #7B1C1C; letter-spacing: -0.5px; }
+    .brand-sub { font-size: 11px; color: #888; margin-top: 2px; }
+    .inv-meta { text-align: right; }
+    .inv-num { font-size: 20px; font-weight: 700; color: #7B1C1C; }
+    .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 6px; color: ${statusColor}; border: 1.5px solid ${statusColor}; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .info-block { background: #fdf5f5; border-radius: 8px; padding: 14px 18px; }
+    .info-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 6px; }
+    .info-value { font-size: 13px; font-weight: 600; color: #2c2c2c; }
+    .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7B1C1C; margin: 20px 0 10px; }
+    .items { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .items thead tr { background: #fdf5f5; }
+    .items th { padding: 8px 12px; text-align: left; font-weight: 600; color: #444; border-bottom: 1px solid #e8d5d5; }
+    .items td { padding: 8px 12px; border-bottom: 1px solid #f0e8e8; }
+    .subtotal-row td { background: #fdf5f5; }
+    .total-row td { background: #7B1C1C11; font-size: 14px; }
+    .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .summary-box { border: 1px solid #e8d5d5; border-radius: 8px; padding: 12px 16px; text-align: center; }
+    .summary-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
+    .summary-value { font-size: 16px; font-weight: 700; }
+    .notes { margin-top: 20px; padding: 12px 16px; background: #fdf5f5; border-radius: 8px; font-size: 12px; color: #555; font-style: italic; }
+    .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e8d5d5; text-align: center; font-size: 11px; color: #aaa; }
+    @media print { body { padding: 20px; } @page { margin: 16mm; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">BanquetEase</div>
+      <div class="brand-sub">Event Management Platform</div>
+    </div>
+    <div class="inv-meta">
+      <div class="inv-num">${inv.invoice_number || inv.id}</div>
+      <div class="badge">${statusLabel}</div>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-block">
+      <div class="info-label">Billed To</div>
+      <div class="info-value">${inv.customer_name || "—"}</div>
+      ${inv.customer_email ? `<div style="font-size:12px;color:#666;margin-top:3px">${inv.customer_email}</div>` : ""}
+      ${inv.customer_phone ? `<div style="font-size:12px;color:#666;margin-top:2px">${inv.customer_phone}</div>` : ""}
+    </div>
+    <div class="info-block">
+      <div class="info-label">Event Details</div>
+      ${inv.event_type ? `<div class="info-value">${inv.event_type}</div>` : ""}
+      ${inv.event_date ? `<div style="font-size:12px;color:#666;margin-top:3px">📅 ${fmtDate(inv.event_date)}</div>` : ""}
+      ${inv.due_date ? `<div style="font-size:12px;color:#666;margin-top:2px">Due: ${fmtDate(inv.due_date)}</div>` : ""}
+    </div>
+  </div>
+
+  ${inv.line_items?.length ? `<div class="section-title">Items</div>${lineItemsHtml}` : ""}
+
+  <div class="summary">
+    <div class="summary-box">
+      <div class="summary-label">Total</div>
+      <div class="summary-value" style="color:#7B1C1C">${fmt(inv.total)}</div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-label">Paid</div>
+      <div class="summary-value" style="color:#27ae60">${fmt(inv.amount_paid)}</div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-label">Balance Due</div>
+      <div class="summary-value" style="color:${(inv.balance_due || 0) > 0 ? "#c0392b" : "#27ae60"}">${fmt(inv.balance_due)}</div>
+    </div>
+  </div>
+
+  ${payHistHtml}
+  ${inv.notes ? `<div class="notes">📝 ${inv.notes}</div>` : ""}
+
+  <div class="footer">Generated by BanquetEase · ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</div>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank", "width=900,height=700");
+  if (!win) { alert("Please allow popups to download the PDF."); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
+}
+
 /* ── invoice card ─────────────────────────────────────────────── */
 function InvoiceCard({ inv }) {
   const [expanded, setExpanded] = useState(false);
@@ -50,8 +183,11 @@ function InvoiceCard({ inv }) {
       style={{ marginBottom: 0, overflow: "hidden" }}
     >
       {/* Header row */}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setExpanded((p) => !p)}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setExpanded((p) => !p)}
         style={{
           width: "100%",
           background: "none",
@@ -106,11 +242,32 @@ function InvoiceCard({ inv }) {
               <span style={{ fontSize: 12, color: "var(--color-danger)" }}>⏳ {fmt(inv.balance_due)}</span>
             )}
           </div>
-          <div style={{ marginTop: 6, fontSize: 13, color: "var(--color-text-body)", opacity: 0.7 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); exportPDF(inv); }}
+            title="Download PDF"
+            style={{
+              marginTop: 8,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "5px 12px",
+              borderRadius: 20,
+              border: "1.5px solid var(--color-primary)",
+              background: "var(--color-primary-ghost)",
+              color: "var(--color-primary)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            ⬇ PDF
+          </button>
+          <div style={{ marginTop: 6, fontSize: 12, color: "var(--color-text-body)", opacity: 0.6 }}>
             {expanded ? "▲ Hide details" : "▼ View details"}
           </div>
         </div>
-      </button>
+      </div>
 
       {/* Expandable body */}
       <AnimatePresence initial={false}>
@@ -252,6 +409,29 @@ function InvoiceCard({ inv }) {
                   📝 {inv.notes}
                 </p>
               )}
+
+              {/* Export button */}
+              <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: 16 }}>
+                <button
+                  onClick={() => exportPDF(inv)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 22px",
+                    borderRadius: 10,
+                    border: "none",
+                    background: "var(--color-primary)",
+                    color: "white",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    letterSpacing: 0.3,
+                  }}
+                >
+                  ⬇ Download Invoice PDF
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -339,7 +519,7 @@ export default function CustomerInvoicesPage() {
     <motion.div
       variants={staggerContainer}
       initial="hidden"
-      animate="show"
+      animate="visible"
       style={{ padding: "24px 20px", maxWidth: 860, margin: "0 auto" }}
     >
       {/* Header */}
@@ -362,6 +542,8 @@ export default function CustomerInvoicesPage() {
       {!loading && invoices.length > 0 && (
         <motion.div
           variants={fadeUp}
+          initial="hidden"
+          animate="visible"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
@@ -392,6 +574,8 @@ export default function CustomerInvoicesPage() {
       {!loading && invoices.length > 0 && (
         <motion.div
           variants={fadeUp}
+          initial="hidden"
+          animate="visible"
           style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}
         >
           {statuses.map((s) => {
@@ -474,7 +658,7 @@ export default function CustomerInvoicesPage() {
         <motion.div
           variants={staggerContainer}
           initial="hidden"
-          animate="show"
+          animate="visible"
           style={{ display: "flex", flexDirection: "column", gap: 14 }}
         >
           {filtered.map((inv) => (

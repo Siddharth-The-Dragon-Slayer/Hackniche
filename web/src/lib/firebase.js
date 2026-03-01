@@ -1,6 +1,11 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,6 +19,33 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
-const db = getFirestore(app);
+
+/**
+ * Firestore with persistent offline cache (IndexedDB).
+ *
+ * Firebase 10+ API: `persistentLocalCache` replaces the deprecated
+ * `enableIndexedDbPersistence()`.  This gives the app a second layer of
+ * offline support: Firestore itself buffers reads/writes server-side
+ * while the Android Room DB (via OfflinePlugin) handles structured local
+ * queries.
+ *
+ * Falls back to memory cache on SSR / environments where IndexedDB is
+ * unavailable (e.g. Next.js server-side rendering).
+ */
+let db;
+if (typeof window !== 'undefined') {
+  try {
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    // Already initialised (hot-reload) — just grab the existing instance
+    db = getFirestore(app);
+  }
+} else {
+  db = getFirestore(app);
+}
 
 export { app, auth, db };
