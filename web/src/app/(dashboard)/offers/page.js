@@ -1024,7 +1024,7 @@ export default function OffersPage() {
         .oc-actions { display:flex;flex-wrap:wrap;gap:7px;padding-top:8px;border-top:1px solid var(--color-border); }
 
         .kpi-strip { display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px; }
-        .kpi-chip  { display:flex;flex-direction:column;align-items:flex-start;padding:12px 16px;border-radius:10px;cursor:pointer;border:1.5px solid var(--color-border);background:var(--color-card);transition:border-color .15s; flex:1 1 100px;min-width:90px; }
+        .kpi-chip  { display:flex;flex-direction:column;align-items:flex-start;padding:12px 16px;border-radius:10px;cursor:pointer;border:1.5px solid var(--color-border);background:var(--color-bg-card);transition:border-color .15s; flex:1 1 100px;min-width:90px; }
         .kpi-chip:hover { border-color:var(--color-primary); }
         .kpi-active { border-color:var(--color-primary) !important;background:var(--color-primary-ghost); }
 

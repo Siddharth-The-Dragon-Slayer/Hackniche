@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
@@ -31,12 +31,20 @@ export default function ReceptionistDashboard() {
   const [leads, setLeads]     = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchLeads = useCallback(() => {
     fetch(`/api/leads?franchise_id=${franchise_id}&branch_id=${branch_id}`)
       .then(r => r.json())
       .then(d => { setLeads(d.leads || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, [franchise_id, branch_id]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Auto-poll every 30 s — keep receptionist dashboard live.
+  useEffect(() => {
+    const id = setInterval(fetchLeads, 30_000);
+    return () => clearInterval(id);
+  }, [fetchLeads]);
 
   const newLeads      = leads.filter(l => l.status === 'new');
   const activeLeads   = leads.filter(l => ['new','visited','tasting_scheduled','tasting_done','menu_selected'].includes(l.status));

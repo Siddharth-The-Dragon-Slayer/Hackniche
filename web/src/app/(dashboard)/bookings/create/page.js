@@ -1,207 +1,109 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer } from '@/lib/motion-variants';
+import { useAuth } from '@/contexts/auth-context';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, Save } from 'lucide-react';
+
+const EVENT_TYPES = ['Wedding','Engagement','Reception','Birthday','Corporate','Conference','Anniversary','Social Gathering','Other'];
+const PAYMENT_MODES = ['cash','upi','bank_transfer','cheque','card','other'];
 
 export default function CreateBookingPage() {
   const router = useRouter();
+  const sp     = useSearchParams();
+  const { userProfile } = useAuth();
+  const fid = sp?.get('franchise_id') || userProfile?.franchise_id || 'pfd';
+  const bid = sp?.get('branch_id')    || userProfile?.branch_id    || 'pfd_b1';
+  const lead_id = sp?.get('lead_id');
+
   const [form, setForm] = useState({
-    leadId: '', clientName: '', phone: '', email: '', eventType: 'Wedding',
-    eventDate: '', timeSlot: 'Full Day', hall: '', guests: '',
-    packageId: '', menuId: '', dietaryNotes: '',
-    decorPackage: '', colorPref: '', decorNotes: '',
-    basePrice: '', cateringTotal: '', decorTotal: '',
-    festivalBadge: 'Diwali Season +20%',
-    discount: '', discountReason: '', taxPct: '10',
-    advanceAmount: '', advanceMode: 'Bank Transfer', paymentRef: '',
-    specialReqs: '', accessibility: '', parking: '',
+    customer_name:'', phone:'', email:'',
+    event_type:'Wedding', event_date:'', event_start_time:'', event_end_time:'',
+    hall_id:'', hall_name:'',
+    expected_guest_count:'',
+    quote_total:'', advance_amount:'', advance_date:'', advance_mode:'cash', advance_ref:'',
+    notes:'',
   });
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState(null);
+
+  const set = (k,v) => setForm(p => ({...p, [k]:v}));
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!form.customer_name || !form.phone || !form.event_date) { setError('Customer name, phone, and event date are required'); return; }
+    setSaving(true); setError(null);
+    try {
+      const payload = {
+        ...form,
+        franchise_id: fid, branch_id: bid,
+        ...(lead_id ? { lead_id } : {}),
+        expected_guest_count: form.expected_guest_count ? Number(form.expected_guest_count) : null,
+        quote_total: form.quote_total ? Number(form.quote_total) : 0,
+        advance_amount: form.advance_amount ? Number(form.advance_amount) : 0,
+      };
+      const r = await fetch('/api/bookings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      router.push(`/bookings/${d.booking_id}?franchise_id=${fid}&branch_id=${bid}`);
+    } catch (e) { setError(e.message); }
+    finally { setSaving(false); }
+  };
 
   return (
-    <div>
-      <div className="page-header" style={{ marginBottom: 24 }}>
-        <div className="page-header-left">
-          <Link href="/bookings" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 8, textDecoration: 'none' }}>
-            <ArrowLeft size={14} /> Back to Bookings
-          </Link>
-          <h1>Create Booking</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Convert a lead or create a direct booking</p>
-        </div>
-        <div className="page-actions">
-          <button className="btn btn-ghost" onClick={() => router.push('/bookings')}>Cancel</button>
-          <button className="btn btn-primary" onClick={() => router.push('/bookings')}><Save size={15} /> Create Booking</button>
-        </div>
-      </div>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible" style={{maxWidth:720,margin:'0 auto'}}>
+      <motion.div variants={fadeUp} style={{marginBottom:20}}>
+        <Link href="/bookings" style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'var(--color-text-muted)',textDecoration:'none',marginBottom:8}}><ArrowLeft size={14}/>Back to Bookings</Link>
+        <h1>New Booking</h1>
+        {lead_id && <p style={{fontSize:13,color:'var(--color-text-muted)'}}>Creating from Lead: {lead_id}</p>}
+      </motion.div>
 
-      <div className="form-card">
-        {/* Section 1: Client & Event */}
-        <div className="form-section-title">Client & Event</div>
-        <div className="form-grid">
-          <div className="form-field form-span-2">
-            <label className="form-label">Link to Lead</label>
-            <select className="input" value={form.leadId} onChange={e => set('leadId', e.target.value)}>
-              <option value="">Select lead (optional)...</option>
-              {['Rajesh Kumar (L001)','Priya Sharma (L002)','Suresh Menon (L003)'].map(l => <option key={l}>{l}</option>)}
-            </select>
-            <span className="form-hint">Linking auto-fills client details</span>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Client Name *</label>
-            <input className="input" placeholder="Rajesh Kumar" value={form.clientName} onChange={e => set('clientName', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Phone *</label>
-            <input className="input" placeholder="+91-9876543210" value={form.phone} onChange={e => set('phone', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Email</label>
-            <input className="input" type="email" placeholder="client@email.com" value={form.email} onChange={e => set('email', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Event Type *</label>
-            <select className="input" value={form.eventType} onChange={e => set('eventType', e.target.value)}>
-              {['Wedding','Reception','Engagement','Birthday','Corporate','Sangeet','Anniversary','Other'].map(t => <option key={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Event Date *</label>
-            <input className="input" type="date" value={form.eventDate} onChange={e => set('eventDate', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Time Slot</label>
-            <select className="input" value={form.timeSlot} onChange={e => set('timeSlot', e.target.value)}>
-              {['Full Day','Morning (6am–2pm)','Afternoon (12pm–8pm)','Evening (5pm–11pm)'].map(s => <option key={s}>{s}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Hall *</label>
-            <select className="input" value={form.hall} onChange={e => set('hall', e.target.value)}>
-              <option value="">Select hall...</option>
-              {['Grand Ballroom','Open Air Lawn','Royal Hall','Rooftop Terrace','Crystal Room'].map(h => <option key={h}>{h}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Expected Guests</label>
-            <input className="input" type="number" placeholder="500" value={form.guests} onChange={e => set('guests', e.target.value)} />
-          </div>
-        </div>
+      {error && <motion.div variants={fadeUp} style={{background:'#fee2e2',border:'1px solid #fca5a5',borderRadius:8,padding:'12px 16px',marginBottom:16,color:'#991b1b',fontSize:13}}>{error}</motion.div>}
 
-        {/* Section 2: Package & Menu */}
-        <div className="form-section-title" style={{ marginTop: 24 }}>Package & Menu</div>
-        <div className="form-grid">
-          <div className="form-field">
-            <label className="form-label">Package</label>
-            <select className="input" value={form.packageId} onChange={e => set('packageId', e.target.value)}>
-              <option value="">Select package...</option>
-              {['Silver Package','Gold Package','Platinum Package','Diamond Package'].map(p => <option key={p}>{p}</option>)}
-            </select>
+      <form onSubmit={handleSubmit}>
+        <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16}}>
+          <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',color:'var(--color-text-muted)',marginBottom:12}}>Customer</div>
+          <div className="form-grid">
+            <div className="form-field"><label className="form-label">Name *</label><input className="input" required value={form.customer_name} onChange={e=>set('customer_name',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Phone *</label><input className="input" required value={form.phone} onChange={e=>set('phone',e.target.value)}/></div>
+            <div className="form-field form-span-2"><label className="form-label">Email</label><input className="input" type="email" value={form.email} onChange={e=>set('email',e.target.value)}/></div>
           </div>
-          <div className="form-field">
-            <label className="form-label">Menu</label>
-            <select className="input" value={form.menuId} onChange={e => set('menuId', e.target.value)}>
-              <option value="">Select menu...</option>
-              {['Grand South Indian Feast','Royal Mughlai Banquet','Continental Buffet','Vegan Delight','Live Counter Package'].map(m => <option key={m}>{m}</option>)}
-            </select>
-          </div>
-          <div className="form-field form-span-2">
-            <label className="form-label">Dietary Notes</label>
-            <input className="input" placeholder="e.g. Full Jain, No Onion/Garlic for 50 guests" value={form.dietaryNotes} onChange={e => set('dietaryNotes', e.target.value)} />
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Section 3: Decor Selection */}
-        <div className="form-section-title" style={{ marginTop: 24 }}>Decor Selection</div>
-        <div className="form-grid">
-          <div className="form-field">
-            <label className="form-label">Decor Package</label>
-            <select className="input" value={form.decorPackage} onChange={e => set('decorPackage', e.target.value)}>
-              <option value="">No decor / TBD</option>
-              {['Royal Floral Wedding','Minimal Elegance','Rustic Charm','Grand Festive','Modern Chic'].map(d => <option key={d}>{d}</option>)}
-            </select>
+        <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16}}>
+          <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',color:'var(--color-text-muted)',marginBottom:12}}>Event</div>
+          <div className="form-grid">
+            <div className="form-field"><label className="form-label">Type</label><select className="input" value={form.event_type} onChange={e=>set('event_type',e.target.value)}>{EVENT_TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
+            <div className="form-field"><label className="form-label">Date *</label><input className="input" type="date" required value={form.event_date} onChange={e=>set('event_date',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Start Time</label><input className="input" type="time" value={form.event_start_time} onChange={e=>set('event_start_time',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">End Time</label><input className="input" type="time" value={form.event_end_time} onChange={e=>set('event_end_time',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Hall Name</label><input className="input" value={form.hall_name} onChange={e=>{set('hall_name',e.target.value);set('hall_id',e.target.value.toLowerCase().replace(/\s+/g,'_'));}}/></div>
+            <div className="form-field"><label className="form-label">Expected Guests</label><input className="input" type="number" value={form.expected_guest_count} onChange={e=>set('expected_guest_count',e.target.value)}/></div>
           </div>
-          <div className="form-field">
-            <label className="form-label">Color Preference</label>
-            <input className="input" placeholder="e.g. Gold & Ivory, Royal Blue" value={form.colorPref} onChange={e => set('colorPref', e.target.value)} />
-          </div>
-          <div className="form-field form-span-2">
-            <label className="form-label">Custom Decor Notes</label>
-            <textarea className="input" rows={2} placeholder="Any specific requirements for stage, entrance, table settings..." value={form.decorNotes} onChange={e => set('decorNotes', e.target.value)} />
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Section 4: Financials */}
-        <div className="form-section-title" style={{ marginTop: 24 }}>Financials</div>
-        {form.festivalBadge && (
-          <div style={{ display: 'inline-block', background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
-            ⚡ Dynamic Pricing Active: {form.festivalBadge}
+        <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:16}}>
+          <div style={{fontWeight:700,fontSize:12,textTransform:'uppercase',color:'var(--color-text-muted)',marginBottom:12}}>Payment</div>
+          <div className="form-grid">
+            <div className="form-field"><label className="form-label">Total Quote (₹)</label><input className="input" type="number" value={form.quote_total} onChange={e=>set('quote_total',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Advance (₹)</label><input className="input" type="number" value={form.advance_amount} onChange={e=>set('advance_amount',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Advance Date</label><input className="input" type="date" value={form.advance_date} onChange={e=>set('advance_date',e.target.value)}/></div>
+            <div className="form-field"><label className="form-label">Mode</label><select className="input" value={form.advance_mode} onChange={e=>set('advance_mode',e.target.value)}>{PAYMENT_MODES.map(m=><option key={m} value={m}>{m.replace(/_/g,' ')}</option>)}</select></div>
           </div>
-        )}
-        <div className="form-grid">
-          <div className="form-field">
-            <label className="form-label">Hall / Base Price (₹)</label>
-            <input className="input" type="number" placeholder="150000" value={form.basePrice} onChange={e => set('basePrice', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Catering Total (₹)</label>
-            <input className="input" type="number" placeholder="200000" value={form.cateringTotal} onChange={e => set('cateringTotal', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Decor Total (₹)</label>
-            <input className="input" type="number" placeholder="85000" value={form.decorTotal} onChange={e => set('decorTotal', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Discount (₹)</label>
-            <input className="input" type="number" placeholder="0" value={form.discount} onChange={e => set('discount', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Discount Reason</label>
-            <input className="input" placeholder="e.g. Loyal customer, Referral" value={form.discountReason} onChange={e => set('discountReason', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Tax %</label>
-            <input className="input" type="number" placeholder="10" value={form.taxPct} onChange={e => set('taxPct', e.target.value)} />
-            <span className="form-hint">Auto-filled from branch settings</span>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Advance Amount (₹)</label>
-            <input className="input" type="number" placeholder="100000" value={form.advanceAmount} onChange={e => set('advanceAmount', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Advance Payment Mode</label>
-            <select className="input" value={form.advanceMode} onChange={e => set('advanceMode', e.target.value)}>
-              {['Cash','Cheque','NEFT / IMPS','UPI','Credit Card','Debit Card'].map(m => <option key={m}>{m}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Payment Reference / UTR</label>
-            <input className="input" placeholder="TXN / UTR / Cheque No." value={form.paymentRef} onChange={e => set('paymentRef', e.target.value)} />
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Section 5: Requirements */}
-        <div className="form-section-title" style={{ marginTop: 24 }}>Requirements</div>
-        <div className="form-grid">
-          <div className="form-field form-span-2">
-            <label className="form-label">Special Requests</label>
-            <textarea className="input" rows={3} placeholder="Stage setup, theme, orchestra, photo booth, etc." value={form.specialReqs} onChange={e => set('specialReqs', e.target.value)} style={{ resize: 'vertical' }} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Accessibility Needs</label>
-            <input className="input" placeholder="Wheelchair ramps, low stage, etc." value={form.accessibility} onChange={e => set('accessibility', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Parking Requirements</label>
-            <input className="input" placeholder="e.g. Valet for 50 cars" value={form.parking} onChange={e => set('parking', e.target.value)} />
-          </div>
-        </div>
+        <motion.div variants={fadeUp} className="card" style={{padding:20,marginBottom:20}}>
+          <div className="form-field form-span-2"><label className="form-label">Notes</label><textarea className="input" rows={3} value={form.notes} onChange={e=>set('notes',e.target.value)} style={{resize:'vertical'}}/></div>
+        </motion.div>
 
-        <div className="form-actions">
-          <button className="btn btn-ghost" onClick={() => router.push('/bookings')}>Cancel</button>
-          <button className="btn btn-primary" onClick={() => router.push('/bookings')}><Save size={15} /> Create Booking</button>
-        </div>
-      </div>
-    </div>
+        <motion.div variants={fadeUp} style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+          <Link href="/bookings" className="btn btn-ghost" style={{textDecoration:'none'}}>Cancel</Link>
+          <button type="submit" className="btn btn-primary" disabled={saving}>{saving?<Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/>:<Save size={14}/>}{saving?'Creating…':'Create Booking'}</button>
+        </motion.div>
+      </form>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </motion.div>
   );
 }
