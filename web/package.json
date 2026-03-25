@@ -27,7 +27,9 @@
     "langchain": "^1.2.28",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
+    "nodemailer": "^8.0.4",
     "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.2",
@@ -38,6 +40,7 @@
     "sonner": "^2.0.7",
     "three": "^0.183.2",
     "three-stdlib": "^2.36.1",
+    "twilio": "^5.13.1",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },

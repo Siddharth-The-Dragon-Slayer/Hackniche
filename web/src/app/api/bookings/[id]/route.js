@@ -23,9 +23,32 @@ export async function GET(req, { params }) {
     const cached = cache.get(cacheKey);
     if (cached) return NextResponse.json(cached);
 
-    // Fetch lead by ID (bookings are leads with booking statuses)
-    const snap = await adminDb.collection('leads').doc(id).get();
+    // Try leads collection first (primary source), then bookings collection
+    let snap = await adminDb.collection('leads').doc(id).get();
+    let isStandaloneBooking = false;
+
+    if (!snap.exists) {
+      snap = await adminDb.collection('bookings').doc(id).get();
+      isStandaloneBooking = true;
+    }
+
     if (!snap.exists) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+
+    // If it's a standalone booking doc, return it directly
+    if (isStandaloneBooking) {
+      const data = snap.data();
+      const booking = {
+        id: snap.id,
+        ...data,
+        checklist: data.checklist || data.booking_checklist || [],
+        vendors: data.vendors || data.booking_vendors || [],
+        staff_assigned: data.staff_assigned || data.booking_staff_assigned || [],
+        event_locked: data.event_locked || false,
+      };
+      const result = { booking };
+      cache.set(cacheKey, result, 120);
+      return NextResponse.json(result);
+    }
 
     const lead = snap.data();
 
@@ -116,9 +139,13 @@ export async function PUT(req, { params }) {
     const body = await req.json();
     const { action, franchise_id = 'pfd', branch_id = 'pfd_b1', ...data } = body;
 
-    // Fetch lead (bookings are leads)
-    const ref = adminDb.collection('leads').doc(id);
-    const snap = await ref.get();
+    // Fetch lead (bookings are leads), fallback to bookings collection
+    let ref = adminDb.collection('leads').doc(id);
+    let snap = await ref.get();
+    if (!snap.exists) {
+      ref = adminDb.collection('bookings').doc(id);
+      snap = await ref.get();
+    }
     if (!snap.exists) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
 
     const lead = snap.data();

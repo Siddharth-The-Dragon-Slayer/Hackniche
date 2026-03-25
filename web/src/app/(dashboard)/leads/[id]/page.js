@@ -8,6 +8,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import Badge from '@/components/ui/Badge';
+import RazorpayButton from '@/components/shared/RazorpayButton';
 import {
   ArrowLeft, Phone, Mail, Calendar, Users, Building2, RefreshCw,
   Loader2, AlertCircle, Trash2, MessageSquare, Plus, Save,

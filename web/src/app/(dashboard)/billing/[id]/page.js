@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import { useAuth } from '@/contexts/auth-context';
 import Badge from '@/components/ui/Badge';
+import RazorpayButton from '@/components/shared/RazorpayButton';
 import {
   ArrowLeft, RefreshCw, Loader2, AlertCircle, FileText, DollarSign,
   CreditCard, Plus, Send, Printer, Clock,
@@ -81,6 +82,27 @@ export default function InvoiceDetailPage(){
           {i.booking_id&&<Link href={`/bookings/${i.booking_id}?franchise_id=${fid}&branch_id=${bid}`} className="btn btn-outline btn-sm" style={{textDecoration:'none'}}>Booking</Link>}
           {i.lead_id&&<Link href={`/leads/${i.lead_id}?franchise_id=${fid}&branch_id=${bid}`} className="btn btn-outline btn-sm" style={{textDecoration:'none'}}>Lead</Link>}
           {i.status!=='paid'&&i.status!=='cancelled'&&<button className="btn btn-primary btn-sm" onClick={()=>setDialog('pay')}><Plus size={13}/>Record Payment</button>}
+          {i.status!=='paid'&&i.status!=='cancelled'&&i.balance>0&&(
+            <RazorpayButton
+              amount={i.balance}
+              invoiceId={id}
+              leadId={i.lead_id}
+              customerName={i.customer_name}
+              customerEmail={i.email}
+              customerPhone={i.phone}
+              description={`Payment for ${i.invoice_number}`}
+              paymentType={i.amount_paid > 0 ? 'balance' : 'advance'}
+              franchiseId={fid}
+              branchId={bid}
+              recordedByUid={userProfile?.uid}
+              recordedByName={userProfile?.name}
+              className="btn-sm"
+              onSuccess={(paymentId) => { show(`✅ Payment successful! ID: ${paymentId}`); fetchI(); }}
+              onError={(msg) => show(msg, true)}
+            >
+              Pay Online ₹{Number(i.balance).toLocaleString('en-IN')}
+            </RazorpayButton>
+          )}
         </div>
       </motion.div>
 
