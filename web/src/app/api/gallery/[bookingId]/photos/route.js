@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { analyzeImage } from "@/lib/ai-oversight";
 
 export async function GET(request, { params }) {
   try {
@@ -11,13 +12,14 @@ export async function GET(request, { params }) {
     const adminDb = getAdminDb();
     const photosRef = adminDb.collection("bookings").doc(bookingId).collection("photos");
 
+    const isAdmin = searchParams.get("admin") === "true";
+
     // Fetch all and paginate in memory.
-    // Notice: removed .where("status", "==", "approved") to avoid composite index error.
     const snap = await photosRef.orderBy("uploaded_at", "desc").get();
     let allPhotos = [];
     snap.forEach((doc) => {
       const data = doc.data();
-      if (data.status === "approved") {
+      if (isAdmin || data.status === "approved") {
         allPhotos.push({ id: doc.id, ...data });
       }
     });
@@ -109,6 +111,23 @@ export async function POST(request, { params }) {
     );
 
     const adminDb = getAdminDb();
+    
+    // Get event details for AI context
+    const bookingDoc = await adminDb.collection("bookings").doc(bookingId).get();
+    const eventDetails = bookingDoc.exists ? bookingDoc.data() : {};
+
+    // AI Oversight Check (await it for the mock-up, can be backgrounded in production)
+    let aiOversight = null;
+    try {
+      aiOversight = await analyzeImage(url, {
+        customerName: eventDetails.customer_name,
+        eventDate: eventDetails.event_date,
+        venue: eventDetails.hall_name || eventDetails.branch_id,
+      });
+    } catch (err) {
+      console.warn("AI Analysis skipped due to error:", err.message);
+    }
+
     const ref = adminDb.collection("bookings").doc(bookingId).collection("photos").doc();
     const photoData = {
       url,
@@ -116,9 +135,16 @@ export async function POST(request, { params }) {
       thumbnail_url,
       uploaded_at: new Date().toISOString(),
       uploader_name: uploader_name || "Guest",
-      status: "approved", // In a real app, this might be 'pending' for manager review
+      status: aiOversight?.is_inappropriate ? "flagged" : "approved",
+      ai_result: aiOversight || null,
+      ai_flagged: !!aiOversight?.is_inappropriate,
     };
     await ref.set(photoData);
+
+    // If flagged, notify admin (for a hackathon, we could trigger an email or just store it)
+    if (aiOversight?.is_inappropriate) {
+      console.log(`[AI OVERSIGHT] Photo ${ref.id} flagged in booking ${bookingId}: ${aiOversight.reason}`);
+    }
 
     return NextResponse.json({ success: true, id: ref.id, ...photoData });
   } catch (error) {

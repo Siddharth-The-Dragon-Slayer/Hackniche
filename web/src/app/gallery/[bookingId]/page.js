@@ -125,24 +125,65 @@ export default function GuestGalleryPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen mb-6 flex flex-col bg-[var(--color-bg)] text-[var(--color-text-body)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-text-body)]">
       {/* Header */}
-      <div className="sticky top-0 z-[var(--z-sticky)] bg-[var(--color-bg-nav)] shadow-sm backdrop-blur-xl border-b border-[var(--color-border)] px-4 py-4 md:py-6">
-        <div className="container mx-auto text-center flex flex-col items-center justify-center">
-          <h1 className="h1 text-gradient inline-flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-2">
-            <Camera className="w-8 h-8 md:w-10 md:h-10 text-[var(--color-accent)] shrink-0" />
-            <span>{bookingDetails?.customerName || "Event"} Gallery</span>
-          </h1>
-          {bookingDetails?.eventDate && (
-            <p className="text-[var(--color-text-body)] text-sm md:text-base font-medium">
-              {bookingDetails.eventDate} <span className="text-[var(--color-accent)] mx-2">•</span> {bookingDetails.venue || "Our Venue"}
-            </p>
-          )}
+      <div className="sticky top-0 z-[var(--z-sticky)] bg-[var(--color-bg-nav)] shadow-[var(--shadow-nav)] backdrop-blur-md border-b border-[var(--color-border)]">
+        <div className="container mx-auto py-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4">
+            <div className="mb-2 md:mb-0">
+              <h1 className="h2 text-gradient flex flex-wrap items-center gap-2 mb-1">
+                <Camera className="w-7 h-7 text-[var(--color-accent)] shrink-0" />
+                <span>{bookingDetails?.customerName || "Event"} Gallery</span>
+              </h1>
+              {bookingDetails?.eventDate && (
+                <p className="text-[var(--color-text-muted)] flex flex-wrap items-center gap-2 font-medium text-sm md:text-base">
+                  {bookingDetails.eventDate} <span className="text-[var(--color-accent)] hidden sm:inline">•</span> <span className="w-full sm:w-auto block sm:inline">{bookingDetails.venue || "Our Venue"}</span>
+                </p>
+              )}
+            </div>
+
+            {/* Upload Area */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto mt-2 md:mt-0">
+              <input
+                type="text"
+                placeholder="Your Name (optional)"
+                className="input w-full sm:w-48"
+                value={uploaderName}
+                onChange={(e) => setUploaderName(e.target.value)}
+                disabled={uploading}
+              />
+              <input
+                type="file"
+                accept="image/jpeg, image/png, image/webp"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="btn btn-primary flex-1 sm:flex-none justify-center whitespace-nowrap"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="container mt-5 flex-1 py-6 px-4 md:px-8 pb-32">
+      <main className="container flex-1 py-6 px-4 md:px-8 mb-10">
         {error && (
           <div className="mb-6 mt-5 px-4 py-3 rounded-md bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/20 text-[var(--color-danger)]">
             {error}
@@ -235,61 +276,6 @@ export default function GuestGalleryPage({ params }) {
           </>
         )}
       </main>
-
-      {/* Floating Action Bar (Upload) */}
-      <AnimatePresence>
-        {!loading && (
-          <motion.div
-            initial={{ y: 100, opacity: 0, x: "-50%" }}
-            animate={{ y: 0, opacity: 1, x: "-50%" }}
-            exit={{ y: 100, opacity: 0, x: "-50%" }}
-            className="fixed bottom-6 md:bottom-10 left-1/2 z-[var(--z-modal)] w-[calc(100%-2rem)] sm:w-auto max-w-xl"
-          >
-            <div className="bg-[var(--color-bg-card)]/90 backdrop-blur-2xl shadow-[var(--shadow-modal)] border border-[var(--color-border)] rounded-full p-2 pl-4 sm:pl-6 flex flex-row items-center gap-2 sm:gap-4 justify-between">
-
-              <div className="flex-1 min-w-[120px]">
-                <input
-                  type="text"
-                  placeholder="Your Name..."
-                  className="w-full bg-transparent text-[var(--color-text-body)] placeholder:text-[var(--color-text-muted)] focus:outline-none text-sm sm:text-base font-medium"
-                  value={uploaderName}
-                  onChange={(e) => setUploaderName(e.target.value)}
-                  disabled={uploading}
-                />
-              </div>
-
-              <div className="w-[1px] h-8 bg-[var(--color-border)] mx-1 hidden sm:block"></div>
-
-              <input
-                type="file"
-                accept="image/jpeg, image/png, image/webp"
-                className="hidden"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="btn btn-primary !rounded-full shrink-0 group hover:shadow-[var(--shadow-btn-hover)] transition-all !px-4 sm:!px-6"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-0 sm:mr-2" />
-                    <span className="hidden sm:inline">Uploading...</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 mr-0 sm:mr-2 transition-transform group-hover:-translate-y-1" />
-                    <span className="hidden sm:inline font-bold">Upload Photo</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
     </div>
   );
 }

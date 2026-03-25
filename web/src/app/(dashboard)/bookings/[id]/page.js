@@ -7,12 +7,13 @@ import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import { useAuth } from '@/contexts/auth-context';
 import Badge from '@/components/ui/Badge';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { toast } from 'sonner';
+import { onSnapshot, collection, query, where, getDocs, doc as fireDoc } from 'firebase/firestore';
 import {
   ArrowLeft, RefreshCw, Loader2, AlertCircle, Calendar, Users,
   Building2, CreditCard, Plus, Trash2, CheckCircle2, PlayCircle,
   CheckSquare, UserPlus, Truck, FileText, DollarSign, Clock,
-  Phone, Mail, MapPin,
+  Phone, Mail, MapPin, Image as ImageIcon, ShieldAlert,
 } from 'lucide-react';
 
 const STATUS_V = { confirmed:'green', in_progress:'primary', completed:'accent', cancelled:'red' };
@@ -105,6 +106,7 @@ export default function BookingDetailPage(){
     {key:'checklist', label:'Checklist', icon:<CheckSquare size={13}/>,count:b.checklist?.length||0},
     {key:'vendors',   label:'Vendors',   icon:<Truck size={13}/>,count:b.vendors?.length||0},
     {key:'staff',     label:'Staff',     icon:<UserPlus size={13}/>,count:b.staff_assigned?.length||0},
+    {key:'gallery',   label:'Photo Gallery', icon:<ImageIcon size={13}/>},
   ];
 
   return(
@@ -292,6 +294,9 @@ export default function BookingDetailPage(){
         </div>
       )}
 
+      {/* ═══ GALLERY ═══ */}
+      {tab==='gallery' && <GalleryTab bookingId={b.booking_id || id} />}
+
       {/* ══════ DIALOGS ══════ */}
       {dialog==='pay'&&<Dlg title="Record Payment" onClose={closeD}>
         <FG><Fld l="Amount (₹) *"><input className="input" type="number" value={payForm.amount} onChange={e=>setPayForm(p=>({...p,amount:e.target.value}))}/></Fld><Fld l="Date"><input className="input" type="date" value={payForm.date} onChange={e=>setPayForm(p=>({...p,date:e.target.value}))}/></Fld><Fld l="Mode"><select className="input" value={payForm.mode} onChange={e=>setPayForm(p=>({...p,mode:e.target.value}))}>{PAYMENT_MODES.map(m=><option key={m} value={m}>{m.replace(/_/g,' ')}</option>)}</select></Fld><Fld l="Ref #"><input className="input" value={payForm.ref} onChange={e=>setPayForm(p=>({...p,ref:e.target.value}))}/></Fld><Fld l="Note" s><input className="input" value={payForm.note} onChange={e=>setPayForm(p=>({...p,note:e.target.value}))}/></Fld></FG>
@@ -320,3 +325,139 @@ function FG({children}){return <div className="form-grid" style={{marginBottom:1
 function Fld({l,s,children}){return <div className={`form-field${s?' form-span-2':''}`}><label className="form-label">{l}</label>{children}</div>;}
 function DA({saving,onCancel,onOk,ok}){return <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}><button className="btn btn-ghost" onClick={onCancel} disabled={saving}>Cancel</button><button className="btn btn-primary" onClick={onOk} disabled={saving}>{saving?<Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/>:null}{ok}</button></div>;}
 function Dlg({title,children,onClose}){return <div style={{position:'fixed',inset:0,zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}><div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.45)'}}/><div style={{position:'relative',background:'var(--color-bg-card)',borderRadius:12,padding:24,maxWidth:520,width:'92%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.25)',zIndex:1}} onClick={e=>e.stopPropagation()}><h3 style={{fontSize:16,fontWeight:700,marginBottom:16}}>{title}</h3>{children}</div></div>;}
+
+function GalleryTab({ bookingId }) {
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState(null);
+
+  useEffect(() => {
+    // Real-time listener for photos subcollection
+    const photosRef = collection(db, 'bookings', bookingId, 'photos');
+    const q = query(photosRef);
+    
+    setLoading(true);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const pData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                           .sort((a,b) => (b.uploaded_at || '').localeCompare(a.uploaded_at || ''));
+      
+      // Notify admin if a NEW flagged photo is detected
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const newPhoto = change.doc.data();
+          if (newPhoto.status === 'flagged') {
+            console.log("🚩 [AI OVERSIGHT] Flagged image received by Admin:", {
+              id: change.doc.id,
+              url: newPhoto.url,
+              reason: newPhoto.ai_result?.reason,
+              recommendation: newPhoto.ai_result?.recommendation
+            });
+            toast.error(`AI OVERSIGHT: New flagged photo detected! Reason: ${newPhoto.ai_result?.reason || 'Policy violation'}`, {
+              duration: 8000,
+              position: 'top-right',
+            });
+          } else {
+            toast.success(`New photo uploaded by ${newPhoto.uploader_name || 'a guest'}`);
+          }
+        }
+      });
+
+      setPhotos(pData);
+      setLoading(false);
+    }, (err) => {
+      console.error("Gallery listener failed:", err);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [bookingId]);
+
+  const handleAction = async (photoId, action) => {
+    setActing(photoId);
+    try {
+      const res = await fetch(`/api/gallery/${bookingId}/photos/${photoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      if (!res.ok) throw new Error('Action failed');
+      // No need to call fetchPhotos() here, onSnapshot handles the real-time update
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setActing(null);
+    }
+  };
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0' }}><Loader2 className="animate-spin inline mr-2" />Loading gallery...</div>;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600 }}>Guest Photo Gallery ({photos.length})</h3>
+        <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>AI Oversight is active. Check flagged items below.</p>
+      </div>
+
+      {photos.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', border: '2px dashed var(--color-border)', borderRadius: 12 }}>
+          <ImageIcon size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
+          <p style={{ color: 'var(--color-text-muted)' }}>No photos uploaded yet.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+          {photos.map(p => (
+            <div key={p.id} className="card" style={{ overflow: 'hidden', border: p.status === 'flagged' ? '2px solid #ef4444' : '1px solid var(--color-border)' }}>
+              <div style={{ position: 'relative', aspectHeight: '4/3' }}>
+                <img src={p.thumbnail_url} alt="" style={{ width: '100%', height: 180, objectFit: 'cover' }} />
+                {p.status === 'flagged' && (
+                  <div style={{ position: 'absolute', top: 8, left: 8, background: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <ShieldAlert size={12} /> AI FLAG: {p.ai_result?.recommendation?.toUpperCase() || 'REVIEW'}
+                  </div>
+                )}
+              </div>
+              <div style={{ padding: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>By {p.uploader_name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>{new Date(p.uploaded_at).toLocaleString()}</div>
+                  </div>
+                  <Badge variant={p.status === 'approved' ? 'green' : p.status === 'flagged' ? 'red' : 'neutral'}>
+                    {p.status}
+                  </Badge>
+                </div>
+
+                {p.ai_result && (
+                  <div style={{ fontSize: 11, background: 'var(--color-bg-alt)', padding: 8, borderRadius: 6, marginBottom: 12, borderLeft: `3px solid ${p.ai_flagged ? '#ef4444' : '#22c55e'}` }}>
+                    <strong>AI Note:</strong> {p.ai_result.reason}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {p.status !== 'approved' && (
+                    <button 
+                      className="btn btn-primary btn-sm" 
+                      style={{ flex: 1, fontSize: 11 }}
+                      onClick={() => handleAction(p.id, 'approve')}
+                      disabled={acting === p.id}
+                    >
+                      Approve
+                    </button>
+                  )}
+                  <button 
+                    className="btn btn-outline btn-sm" 
+                    style={{ flex: 1, fontSize: 11, color: '#dc2626' }}
+                    onClick={() => handleAction(p.id, 'delete')}
+                    disabled={acting === p.id}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
