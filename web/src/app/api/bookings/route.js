@@ -45,7 +45,7 @@ function mapLeadStatusToBookingStatus(leadStatus) {
   return map[leadStatus] || "confirmed";
 }
 
-/* ── GET: list bookings (from leads collection) ── */
+/* ── GET: list bookings (from leads + bookings collections) ── */
 export async function GET(req) {
   try {
     const adminDb = getAdminDb();
@@ -76,17 +76,44 @@ export async function GET(req) {
     if (branch_id) q = q.where("branch_id", "==", branch_id);
     if (hall_id) q = q.where("hall_id", "==", hall_id);
 
-    const snap = await q.limit(500).get();
-    let bookings = snap.docs
+    // Also fetch standalone bookings collection
+    let bq = adminDb.collection("bookings").where("franchise_id", "==", franchise_id);
+    if (branch_id) bq = bq.where("branch_id", "==", branch_id);
+    if (hall_id) bq = bq.where("hall_id", "==", hall_id);
+
+    const [leadsSnap, bookingsSnap] = await Promise.all([
+      q.limit(500).get(),
+      bq.limit(500).get(),
+    ]);
+
+    // From leads collection — filter to booking statuses only
+    const fromLeads = leadsSnap.docs
       .map(serializeLead)
-      // Filter to leads that are bookings (have booking statuses)
       .filter((lead) => bookingStatuses.includes(lead.status))
-      // Map lead data to booking format with adjusted status
       .map((lead) => ({
         ...lead,
         original_status: lead.status,
         status: mapLeadStatusToBookingStatus(lead.status),
-      }))
+        _source: "lead",
+      }));
+
+    // From bookings collection — already in booking format
+    const fromBookings = bookingsSnap.docs.map((d) => {
+      const data = d.data();
+      const s = (v) => v?.toDate?.()?.toISOString() ?? v ?? null;
+      return {
+        id: d.id,
+        ...data,
+        created_at: s(data.created_at),
+        updated_at: s(data.updated_at),
+        _source: "booking",
+      };
+    });
+
+    // Merge, deduplicate by id
+    const seen = new Set();
+    let bookings = [...fromLeads, ...fromBookings]
+      .filter((b) => { if (seen.has(b.id)) return false; seen.add(b.id); return true; })
       .sort((a, b) => (b.event_date || "").localeCompare(a.event_date || ""));
 
     // Client-side filtering
@@ -214,6 +241,7 @@ export async function POST(req) {
         lead_id: null,
         franchise_id,
         branch_id,
+        customer_uid: rest.customer_uid || null,
         customer_name: rest.customer_name,
         phone: rest.phone,
         email: rest.email || null,
@@ -253,6 +281,7 @@ export async function POST(req) {
         checklist: [],
         vendors: [],
         staff_assigned: [],
+        balance_due_date: rest.balance_due_date || null,
         notes: rest.notes || "",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

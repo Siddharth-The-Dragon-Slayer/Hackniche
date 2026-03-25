@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/motion-variants";
 import { useAuth } from "@/contexts/auth-context";
 import Badge from "@/components/ui/Badge";
+import RazorpayButton from "@/components/shared/RazorpayButton";
 import {
   RefreshCw,
   AlertCircle,
@@ -1124,6 +1125,30 @@ BanquetEase`;
                           ))}
                         </div>
                       )}
+                      {/* Pay Online button for customers with balance due */}
+                      {lead.balance_due > 0 && (
+                        <div style={{ marginTop: 12 }}>
+                          <RazorpayButton
+                            amount={lead.balance_due}
+                            invoiceId={lead.invoice_id}
+                            leadId={lead.id}
+                            customerName={userProfile?.displayName || userProfile?.name}
+                            customerEmail={userProfile?.email}
+                            customerPhone={userProfile?.phone}
+                            description={`${lead.event_type || "Event"} — ${lead.invoice_number || lead.id}`}
+                            paymentType={lead.total_paid > 0 ? "balance" : "advance"}
+                            franchiseId={fid}
+                            branchId={bid}
+                            recordedByUid={uid}
+                            recordedByName={userProfile?.displayName || userProfile?.name}
+                            className="btn-sm"
+                            onSuccess={() => { fetch_(); }}
+                            onError={(msg) => setError(msg)}
+                          >
+                            Pay Now ₹{Number(lead.balance_due).toLocaleString("en-IN")}
+                          </RazorpayButton>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1461,6 +1486,30 @@ BanquetEase`;
                       </div>
                     ))}
                   </div>
+                  {/* Pay Online button for balance due */}
+                  {booking.balance_due > 0 && (
+                    <div style={{ marginTop: 12 }}>
+                      <RazorpayButton
+                        amount={booking.balance_due}
+                        invoiceId={booking.invoice_id}
+                        leadId={booking.lead_id}
+                        customerName={userProfile?.displayName || userProfile?.name}
+                        customerEmail={userProfile?.email}
+                        customerPhone={userProfile?.phone}
+                        description={`${booking.event_type || "Event"} — ${booking.invoice_number || ""}`}
+                        paymentType={booking.total_paid > 0 ? "balance" : "advance"}
+                        franchiseId={fid}
+                        branchId={bid}
+                        recordedByUid={uid}
+                        recordedByName={userProfile?.displayName || userProfile?.name}
+                        className="btn-sm"
+                        onSuccess={() => fetch_()}
+                        onError={(msg) => setError(msg)}
+                      >
+                        Pay Now ₹{Number(booking.balance_due).toLocaleString("en-IN")}
+                      </RazorpayButton>
+                    </div>
+                  )}
                   {/* Payment history breakdown */}
                   {booking.payment_history?.length > 0 && (
                     <div

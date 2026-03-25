@@ -40,20 +40,31 @@ export async function GET(req) {
       .where("customer_uid", "==", customerUid)
       .get();
 
-    if (leadsSnap.empty) {
+    // ── 1b. Standalone bookings for this customer ──────────────────────
+    const bookingsSnap = await adminDb
+      .collection("bookings")
+      .where("customer_uid", "==", customerUid)
+      .get();
+
+    const standaloneBookings = bookingsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    // If no leads AND no standalone bookings, return empty
+    if (leadsSnap.empty && standaloneBookings.length === 0) {
       return NextResponse.json({
         payments: [],
         bookings: [],
+        enquiries: [],
         summary: {
           totalPaid: 0,
           totalDue: 0,
           transactionCount: 0,
           bookingCount: 0,
+          enquiryCount: 0,
         },
       });
     }
 
-    const leadsData = leadsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const leadsData = leadsSnap.empty ? [] : leadsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
     const leadIds = leadsData.map((l) => l.id);
 
     // ── 2. Invoices by lead_id (authoritative payment source) ─────────
@@ -191,6 +202,77 @@ export async function GET(req) {
         new Date(b.date || b.recorded_at || 0) -
         new Date(a.date || a.recorded_at || 0),
     );
+
+    // ── 5. Add standalone bookings (not linked to any lead) ───────────
+    standaloneBookings.forEach((bk) => {
+      // Skip if already covered via lead
+      if (leadsData.some((l) => l.booking_id === bk.id)) return;
+
+      const pay = bk.payments || {};
+      const paymentList = pay.payment_history || [];
+      const quoteTotal = pay.quote_total || bk.quote_total || 0;
+      const amountPaid = pay.total_paid || bk.total_paid || 0;
+      const balanceDue = pay.balance_due ?? (quoteTotal - amountPaid);
+      const invoiceNumber = bk.invoice_number || bk.id.substring(0, 8).toUpperCase();
+
+      totalPaid += Number(amountPaid);
+      totalDue += Number(balanceDue);
+
+      // Add to enquiries list
+      enquiries.push({
+        id: bk.id,
+        event_type: bk.event_type || "Event",
+        event_date: bk.event_date,
+        hall_name: bk.hall_name || null,
+        guest_count: bk.expected_guest_count || bk.final_guest_count || null,
+        status: bk.status || "confirmed",
+        created_at: bk.created_at,
+        booking_id: bk.id,
+        invoice_id: bk.invoice_id || null,
+        invoice_number: invoiceNumber,
+        quote_total: quoteTotal,
+        total_paid: amountPaid,
+        balance_due: balanceDue,
+        is_converted: true,
+        event_locked: bk.event_locked || false,
+      });
+
+      // Add individual payment records
+      paymentList.forEach((p) => {
+        payments.push({
+          ...p,
+          booking_id: bk.id,
+          invoice_id: bk.invoice_id || null,
+          lead_id: null,
+          event_type: bk.event_type || "Event",
+          event_date: bk.event_date,
+          customer_name: bk.customer_name,
+          hall_name: bk.hall_name,
+          guest_count: bk.expected_guest_count,
+          quote_total: quoteTotal,
+          balance_due: balanceDue,
+          total_paid: amountPaid,
+          invoice_number: invoiceNumber,
+        });
+      });
+
+      summaryBookings.push({
+        id: bk.id,
+        lead_id: null,
+        invoice_id: bk.invoice_id || null,
+        event_type: bk.event_type || "Event",
+        event_date: bk.event_date,
+        customer_name: bk.customer_name,
+        hall_name: bk.hall_name,
+        guest_count: bk.expected_guest_count,
+        quote_total: quoteTotal,
+        total_paid: amountPaid,
+        balance_due: balanceDue,
+        invoice_number: invoiceNumber,
+        payment_history: paymentList,
+        lead_status: bk.status || "confirmed",
+      });
+    });
 
     return NextResponse.json({
       payments,

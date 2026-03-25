@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import { useAuth } from '@/contexts/auth-context';
 import Badge from '@/components/ui/Badge';
+import RazorpayButton from '@/components/shared/RazorpayButton';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import {
@@ -94,6 +95,15 @@ export default function BookingDetailPage(){
     }catch(e){show(e.message,true);}finally{setSaving(false);}
   };
 
+  const handleSendReminder = async()=>{
+    setSaving(true);
+    try{
+      const r=await fetch('/api/payments/send-balance-reminder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:id,franchise_id:fid,branch_id:bid})});
+      const d=await r.json(); if(!r.ok)throw new Error(d.error);
+      show(`✅ Reminder sent! Email: ${d.results?.email}`);
+    }catch(e){show(e.message,true);}finally{setSaving(false);}
+  };
+
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:300,gap:12,color:'var(--color-text-muted)'}}><Loader2 size={24} style={{animation:'spin 1s linear infinite'}}/>Loading…</div>;
   if(error) return <div style={{textAlign:'center',padding:'64px 0',color:'var(--color-text-muted)'}}><AlertCircle size={40} style={{margin:'0 auto 12px',color:'#ef4444',opacity:.7}}/><p>{error}</p><button className="btn btn-ghost" onClick={fetchB}>Retry</button></div>;
 
@@ -127,6 +137,28 @@ export default function BookingDetailPage(){
           {b.status==='confirmed'&&<button className="btn btn-primary btn-sm" onClick={()=>doAction({action:'update_status',new_status:'in_progress'})} disabled={saving}><PlayCircle size={13}/>Start Event</button>}
           {b.status==='in_progress'&&<button className="btn btn-primary btn-sm" onClick={()=>doAction({action:'update_status',new_status:'completed'})} disabled={saving}><CheckCircle2 size={13}/>Complete</button>}
           <button className="btn btn-accent btn-sm" onClick={handleCreateInvoice} disabled={saving}><FileText size={13}/>Invoice</button>
+          {pay.balance_due>0&&<button className="btn btn-outline btn-sm" onClick={handleSendReminder} disabled={saving}><Mail size={13}/>Send Reminder</button>}
+          {pay.balance_due>0&&(
+            <RazorpayButton
+              amount={pay.balance_due}
+              invoiceId={b.invoice_id}
+              leadId={b.lead_id||id}
+              customerName={b.customer_name}
+              customerEmail={b.email}
+              customerPhone={b.phone}
+              description={`${b.event_type||'Event'} — ${b.customer_name}`}
+              paymentType={pay.total_paid>0?'balance':'advance'}
+              franchiseId={fid}
+              branchId={bid}
+              recordedByUid={userProfile?.uid}
+              recordedByName={userProfile?.name}
+              className="btn-sm"
+              onSuccess={(pid)=>{show(`✅ Payment successful! ID: ${pid}`);fetchB();}}
+              onError={(msg)=>show(msg,true)}
+            >
+              Pay ₹{Number(pay.balance_due).toLocaleString('en-IN')}
+            </RazorpayButton>
+          )}
         </div>
       </motion.div>
 
@@ -191,7 +223,30 @@ export default function BookingDetailPage(){
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
             <div style={{fontSize:14,fontWeight:600}}>Payment History ({pay.payment_history?.length||0})</div>
-            <button className="btn btn-primary btn-sm" onClick={()=>setDialog('pay')}><Plus size={13}/>Record Payment</button>
+            <div style={{display:'flex',gap:8}}>
+              {pay.balance_due>0&&(
+                <RazorpayButton
+                  amount={pay.balance_due}
+                  invoiceId={b.invoice_id}
+                  leadId={b.lead_id||id}
+                  customerName={b.customer_name}
+                  customerEmail={b.email}
+                  customerPhone={b.phone}
+                  description={`${b.event_type||'Event'} — ${b.customer_name}`}
+                  paymentType={pay.total_paid>0?'balance':'advance'}
+                  franchiseId={fid}
+                  branchId={bid}
+                  recordedByUid={userProfile?.uid}
+                  recordedByName={userProfile?.name}
+                  className="btn-sm"
+                  onSuccess={(pid)=>{show(`✅ Payment successful! ID: ${pid}`);fetchB();}}
+                  onError={(msg)=>show(msg,true)}
+                >
+                  Pay Online ₹{Number(pay.balance_due).toLocaleString('en-IN')}
+                </RazorpayButton>
+              )}
+              <button className="btn btn-outline btn-sm" onClick={()=>setDialog('pay')}><Plus size={13}/>Record Cash/UPI</button>
+            </div>
           </div>
           <div className="card" style={{padding:16,marginBottom:16,background:'#f0fdf4',border:'1px solid #86efac'}}>
             <div style={{display:'flex',gap:24,fontSize:13,flexWrap:'wrap'}}>
