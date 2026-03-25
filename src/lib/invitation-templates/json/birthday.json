@@ -1,0 +1,671 @@
+{
+  "id": "banquetease-birthday-v1",
+  "comment": "BanquetEase Birthday Invitation — Premium Dark Violet & Champagne Gold",
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "variables": {
+    "guestName": "Rahul Sharma",
+    "age": "30",
+    "hostName": "The Sharma Family",
+    "eventDate": "Saturday, March 15, 2026",
+    "eventTime": "7:00 PM",
+    "venueName": "Grand Celebration Hall",
+    "venueAddress": "12, MG Road, Bengaluru",
+    "rsvpContact": "+91 98765 43210",
+    "rsvpDate": "March 10, 2026",
+    "voiceScene1": "You are cordially invited to a spectacular celebration!",
+    "voiceScene2": "Join us as we celebrate a very special birthday!",
+    "voiceScene3": "Mark your calendars for this unforgettable evening.",
+    "voiceScene4": "We can't wait to celebrate with you. Please RSVP soon!"
+  },
+  "scenes": [
+    {
+      "id": "bday-scene-1",
+      "comment": "Opening — Premium Dark Violet Reveal",
+      "elements": [
+        {
+          "id": "bday-bg-1",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(145deg, #0d0221 0%, #1e0845 35%, #340d6e 65%, #1e0845 100%)"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-stars-left",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-5%",
+              "top": "10%",
+              "width": "40%",
+              "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.18) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-stars-right",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "60%",
+              "top": "40%",
+              "width": "50%",
+              "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,100,150,0.15) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-corner-tl",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "3%",
+              "top": "3%",
+              "width": "8vw",
+              "height": "8vw",
+              "background": "transparent",
+              "border-top-width": "0.25vw",
+              "border-left-width": "0.25vw",
+              "border-color": "rgba(255,215,0,0.5)"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-corner-br",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "89%",
+              "top": "86%",
+              "width": "8vw",
+              "height": "8vw",
+              "background": "transparent",
+              "border-bottom-width": "0.25vw",
+              "border-right-width": "0.25vw",
+              "border-color": "rgba(255,215,0,0.5)"
+            }
+          },
+          "duration": 4
+        },
+        {
+          "id": "bday-title",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "YOU ARE<br>INVITED!",
+              "font-family": "Playfair Display",
+              "font-size": "11vw",
+              "color": "#FFD700",
+              "font-style": "italic"
+            }
+          },
+          "comment": "2 lines × 11vw × 1.25 = 528px — centered y 276–804. No other text. Clear.",
+          "duration": 4,
+          "fade-out": 0.8
+        },
+        {
+          "id": "bday-voice-1",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene1}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 6
+    },
+    {
+      "id": "bday-scene-2",
+      "comment": "Name Reveal — Golden Spotlight",
+      "elements": [
+        {
+          "id": "bday-bg-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(180deg, #080116 0%, #130330 45%, #080116 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-spotlight",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%",
+              "top": "25%",
+              "width": "60%",
+              "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.2) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-celebrate-label",
+          "type": "text",
+          "settings": {
+            "font-size": "3.2vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#E0B0FF",
+            "letter-spacing": "0.5vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -390,
+          "width": 1700,
+          "text": "🎉  CELEBRATING  🎉",
+          "start": 0.3,
+          "comment": "y=-390 → abs 150px. 3.2vw=61px. Spans 119–181. Guest name spans 358–720. Gap 177px.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-ornament",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "35%",
+              "top": "30%",
+              "width": "30%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 0.5,
+          "duration": 5
+        },
+        {
+          "id": "bday-guest-name",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{guestName}}",
+              "font-family": "Playfair Display",
+              "font-size": "11vw",
+              "color": "#FFD700",
+              "font-weight": "700"
+            }
+          },
+          "comment": "1 line × 11vw × 1.25 = 264px — centered y 408–672. Celebrate at 119–181. Ornament at 324. Gap 84px.",
+          "start": 0.5,
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "bday-ornament2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "35%",
+              "top": "67%",
+              "width": "30%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 1,
+          "duration": 5
+        },
+        {
+          "id": "bday-age-badge",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "43%",
+              "top": "110%",
+              "width": "14vw",
+              "height": "14vw",
+              "animate": {
+                "duration": "800",
+                "easing": "easeOutBounce",
+                "top": "68%"
+              },
+              "background": "linear-gradient(135deg, #FFD700, #FF8C00)",
+              "border-radius": "50%",
+              "border-width": "0.5vw",
+              "border-color": "white"
+            }
+          },
+          "comment": "Badge: top 68%=734px, 14vw=269px → spans 734–1003. Name ends 672. Gap 62px.",
+          "start": 1.5
+        },
+        {
+          "id": "bday-age-text",
+          "type": "text",
+          "settings": {
+            "font-size": "6vw",
+            "font-family": "Anton",
+            "color": "#1a0533",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": 265,
+          "width": 200,
+          "text": "{{age}}",
+          "start": 2.2,
+          "comment": "Badge spans x=826–1095, y=734–1003. Badge center x=960, y=868. Text x=862+100=962 center. y=805+57=862 center. Properly inside badge.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-voice-2",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene2}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    },
+    {
+      "id": "bday-scene-3",
+      "comment": "Event Details — Glassmorphism Premium",
+      "elements": [
+        {
+          "id": "bday-bg-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #071520 0%, #102535 40%, #1a3d55 70%, #102535 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "bday-bg-glow-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "20%",
+              "width": "50%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "bday-details-card",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-110%",
+              "top": "6%",
+              "width": "80%",
+              "height": "85%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "10%"
+              },
+              "background": "rgba(255,255,255,0.06)",
+              "border-width": "0.2vw",
+              "border-color": "rgba(255,215,0,0.5)",
+              "border-radius": "1.2vw"
+            }
+          },
+          "comment": "Card: top 6%=65px, height 85%=918px → spans 65–983"
+        },
+        {
+          "id": "bday-details-card-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-110%",
+              "top": "8%",
+              "width": "76%",
+              "height": "81%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "12%"
+              },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(255,215,0,0.2)",
+              "border-radius": "0.8vw"
+            }
+          }
+        },
+        {
+          "id": "bday-details-header",
+          "type": "text",
+          "settings": {
+            "font-size": "3.2vw",
+            "font-family": "Playfair Display",
+            "color": "#FFD700",
+            "letter-spacing": "0.3vw",
+            "font-style": "italic"
+          },
+          "position": "center-center",
+          "y": -440,
+          "width": 1200,
+          "text": "✦  Event Details",
+          "start": 0.8,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-header-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%",
+              "top": "18%",
+              "width": "68%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(255,215,0,0.7), transparent)"
+            }
+          },
+          "start": 1,
+          "duration": 6
+        },
+        {
+          "id": "bday-date-line",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#ffffff"
+          },
+          "position": "center-center",
+          "y": -310,
+          "width": 1250,
+          "text": "📅  {{eventDate}}",
+          "start": 1.5,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-time-line",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#ffffff"
+          },
+          "position": "center-center",
+          "y": -200,
+          "width": 1250,
+          "text": "⏰  {{eventTime}}",
+          "start": 2.2,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-venue-line",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#ffffff"
+          },
+          "position": "center-center",
+          "y": -90,
+          "width": 1250,
+          "text": "📍  {{venueName}}",
+          "start": 2.9,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-address-line",
+          "type": "text",
+          "settings": {
+            "font-size": "2.6vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#aaccdd"
+          },
+          "position": "center-center",
+          "y": -5,
+          "width": 1200,
+          "text": "{{venueAddress}}",
+          "start": 3.6,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-mid-divider",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%",
+              "top": "60%",
+              "width": "68%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(255,215,0,0.5), transparent)"
+            }
+          },
+          "start": 2.5,
+          "duration": 6
+        },
+        {
+          "id": "bday-host-line",
+          "type": "text",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#E0B0FF"
+          },
+          "position": "center-center",
+          "y": 140,
+          "width": 1250,
+          "text": "Hosted by  {{hostName}}",
+          "start": 4.3,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-audiogram-3",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#FFD700",
+          "amplitude": 8
+        },
+        {
+          "id": "bday-voice-3",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene3}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 9
+    },
+    {
+      "id": "bday-scene-4",
+      "comment": "RSVP & Closing — Gold Burst",
+      "elements": [
+        {
+          "id": "bday-bg-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(145deg, #FFD700 0%, #FF9500 40%, #FF4500 70%, #FF9500 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-glow-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%",
+              "top": "10%",
+              "width": "60%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "bday-rsvp-eyebrow",
+          "type": "text",
+          "settings": {
+            "font-size": "2.4vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(26,5,51,0.6)",
+            "letter-spacing": "0.6vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -340,
+          "width": 1700,
+          "text": "✦  DON'T MISS IT  ✦",
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-rsvp-title",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "RSVP NOW!",
+              "font-family": "Anton",
+              "font-size": "10vw",
+              "color": "#1a0533"
+            }
+          },
+          "comment": "Single line 10vw=240px — centered y 420–660. Eyebrow at 200, gap 220. Date at 730, gap 70.",
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "bday-rsvp-date",
+          "type": "text",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#1a0533"
+          },
+          "position": "center-center",
+          "y": 190,
+          "width": 1920,
+          "text": "by  {{rsvpDate}}",
+          "start": 1,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "bday-contact-btn",
+          "type": "component",
+          "component": "advanced/050",
+          "settings": {
+            "button": {
+              "background": "#1a0533",
+              "padding": "0 9vw",
+              "text": "📞  {{rsvpContact}}",
+              "font-size": "3.8vw",
+              "font-family": "Lato",
+              "color": "#FFD700",
+              "border-radius": "5vw"
+            }
+          },
+          "x": 0,
+          "y": 820,
+          "width": 1920,
+          "height": 150,
+          "start": 1.5,
+          "extra-time": 2
+        },
+        {
+          "id": "bday-audiogram-4",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#1a0533",
+          "amplitude": 8
+        },
+        {
+          "id": "bday-voice-4",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene4}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    }
+  ],
+  "elements": [
+    {
+      "id": "bday-bg-music",
+      "type": "audio",
+      "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.15
+    }
+  ]
+}
