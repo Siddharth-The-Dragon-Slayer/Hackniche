@@ -1,0 +1,15 @@
+﻿# Sensitive files - DO NOT COMMIT
+web/scripts/serviceAccountKey.json
+web/.env.local
+**/.env.local
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# API Keys
+**/serviceAccountKey.json
