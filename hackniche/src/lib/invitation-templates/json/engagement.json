@@ -1,0 +1,697 @@
+{
+  "id": "banquetease-engagement-v1",
+  "comment": "BanquetEase Engagement Invitation — Jewel Rose, Blush & Champagne Gold",
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "variables": {
+    "partner1": "Aisha Khan",
+    "partner2": "Rohan Verma",
+    "eventDate": "Saturday, July 11, 2026",
+    "eventTime": "5:00 PM",
+    "venueName": "The ITC Windsor",
+    "venueAddress": "25, Golf Course Road, Bengaluru – 560052",
+    "hostFamily1": "The Khan Family",
+    "hostFamily2": "The Verma Family",
+    "rsvpContact": "+91 98765 43210",
+    "rsvpDate": "July 1, 2026",
+    "voiceScene1": "Love found its perfect match. A new chapter begins!",
+    "voiceScene2": "Two hearts from two wonderful families, now joined as one.",
+    "voiceScene3": "Celebrate the beginning of their forever with us.",
+    "voiceScene4": "We'd be honoured to have you join us on this joyous occasion."
+  },
+  "scenes": [
+    {
+      "id": "eng-scene-1",
+      "comment": "Opening — Jewel Dark Rose Reveal",
+      "elements": [
+        {
+          "id": "eng-bg-1",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #1a0510 0%, #40112a 40%, #6b1a42 70%, #40112a 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-shimmer",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "25%",
+              "top": "25%",
+              "width": "50%",
+              "height": "50%",
+              "background": "radial-gradient(ellipse, rgba(245,180,190,0.2) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-ring-circle",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "42%",
+              "top": "-60%",
+              "width": "8vw",
+              "height": "8vw",
+              "animate": {
+                "duration": "900",
+                "easing": "easeOutBounce",
+                "top": "1%"
+              },
+              "background": "transparent",
+              "border-radius": "50%",
+              "border-width": "0.7vw",
+              "border-color": "#F5C3C3"
+            }
+          },
+          "comment": "Ring: top 1%=11px, 8vw=154px → spans y 11–165"
+        },
+        {
+          "id": "eng-ring-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "44.5%",
+              "top": "-60%",
+              "width": "5vw",
+              "height": "5vw",
+              "animate": {
+                "duration": "900",
+                "easing": "easeOutBounce",
+                "top": "3%"
+              },
+              "background": "transparent",
+              "border-radius": "50%",
+              "border-width": "0.35vw",
+              "border-color": "#FFD700"
+            }
+          },
+          "comment": "Inner ring: top 3%=32px, 5vw=96px → spans y 32–128"
+        },
+        {
+          "id": "eng-we-are",
+          "type": "text",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#F5C3C3",
+            "letter-spacing": "0.8vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -350,
+          "width": 1700,
+          "text": "💍  WE ARE ENGAGED  💍",
+          "start": 1.2,
+          "comment": "y=-350 → abs 190px. Ring bottom at 165px. Gap 25px. Clear.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-ornament-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "22%",
+              "width": "40%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.6), transparent)"
+            }
+          },
+          "start": 1,
+          "duration": 5
+        },
+        {
+          "id": "eng-names",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{partner1}}<br>&amp;<br>{{partner2}}",
+              "font-family": "Playfair Display",
+              "font-size": "7.5vw",
+              "color": "#FFD8DD",
+              "font-style": "italic"
+            }
+          },
+          "comment": "3 lines × 7.5vw × 1.25 = 540px — centered y 270–810. Label at 121–179. Ornament at 238. Gap 91px.",
+          "start": 1.2,
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "eng-ornament-line2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "78%",
+              "width": "40%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.6), transparent)"
+            }
+          },
+          "start": 1.5,
+          "duration": 5
+        },
+        {
+          "id": "eng-voice-1",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene1}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 6
+    },
+    {
+      "id": "eng-scene-2",
+      "comment": "Families Banner — Soft Blush",
+      "elements": [
+        {
+          "id": "eng-bg-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #ffe8ea 0%, #ffd0d8 50%, #fcc0ca 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-bg-glow",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%",
+              "top": "20%",
+              "width": "60%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,215,0,0.1) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-corner-tl",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "3%",
+              "top": "3%",
+              "width": "7vw",
+              "height": "7vw",
+              "background": "transparent",
+              "border-top-width": "0.2vw",
+              "border-left-width": "0.2vw",
+              "border-color": "#c06080"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-corner-br",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "90%",
+              "top": "88%",
+              "width": "7vw",
+              "height": "7vw",
+              "background": "transparent",
+              "border-bottom-width": "0.2vw",
+              "border-right-width": "0.2vw",
+              "border-color": "#c06080"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-families-label",
+          "type": "text",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#8b2245",
+            "letter-spacing": "0.2vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -390,
+          "width": 1700,
+          "text": "With the blessings of",
+          "start": 0.3,
+          "comment": "y=-390 → abs 150px. Height 2.8vw=54px. Spans 123–177.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-family1",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{hostFamily1}}",
+              "font-family": "Playfair Display",
+              "font-size": "7vw",
+              "color": "#5c1a2e",
+              "font-style": "italic"
+            }
+          },
+          "comment": "1 line × 7vw × 1.25 = 168px — y=-170 → centered at 370, spans 286–454. Gap from label 177: 109px.",
+          "start": 0.6,
+          "y": -170,
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "eng-ampersand",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Playfair Display",
+            "color": "#c06080",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": 10,
+          "width": 200,
+          "text": "&",
+          "start": 1,
+          "comment": "y=10 → abs 550. family1 bottom 454, ampers top 550–617. Gap 96px.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-family2",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{hostFamily2}}",
+              "font-family": "Playfair Display",
+              "font-size": "7vw",
+              "color": "#5c1a2e",
+              "font-style": "italic"
+            }
+          },
+          "comment": "y=150 → centered at 690. 1 line 168px → spans 606–774. Ampers bottom 617. Gap 11px — touching intentionally.",
+          "start": 1.4,
+          "y": 150,
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "eng-audiogram-2",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#c06080",
+          "amplitude": 6
+        },
+        {
+          "id": "eng-voice-2",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene2}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    },
+    {
+      "id": "eng-scene-3",
+      "comment": "Event Details — Deep Jewel Maroon",
+      "elements": [
+        {
+          "id": "eng-bg-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #12000a 0%, #330010 45%, #5c0022 75%, #330010 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "eng-bg-shimmer",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "20%",
+              "width": "50%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(245,195,195,0.12) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "eng-card",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "120%",
+              "top": "7%",
+              "width": "80%",
+              "height": "83%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "10%"
+              },
+              "background": "rgba(255,255,255,0.06)",
+              "border-width": "0.25vw",
+              "border-color": "#F5C3C3",
+              "border-radius": "1vw"
+            }
+          },
+          "comment": "Card: top 7%=76px, height 83%=896px → spans 76–972"
+        },
+        {
+          "id": "eng-card-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "122%",
+              "top": "9%",
+              "width": "76%",
+              "height": "79%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "12%"
+              },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(245,195,195,0.3)",
+              "border-radius": "0.6vw"
+            }
+          }
+        },
+        {
+          "id": "eng-celebration",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#F5C3C3"
+          },
+          "position": "center-center",
+          "y": -430,
+          "width": 1450,
+          "text": "✦  Engagement Celebration",
+          "start": 1,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-divider",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "11%",
+              "top": "19%",
+              "width": "78%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, transparent, rgba(245,195,195,0.5), transparent)"
+            }
+          },
+          "start": 1.2,
+          "duration": 6
+        },
+        {
+          "id": "eng-date-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "center-center",
+          "y": -215,
+          "width": 1450,
+          "text": "📅  {{eventDate}}",
+          "start": 1.7,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-time-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "center-center",
+          "y": -100,
+          "width": 1450,
+          "text": "⏰  {{eventTime}} onwards",
+          "start": 2.4,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-venue-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#FFD8DD"
+          },
+          "position": "center-center",
+          "y": 5,
+          "width": 1450,
+          "text": "📍  {{venueName}}",
+          "start": 3.1,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-addr-d",
+          "type": "text",
+          "settings": {
+            "font-size": "2.6vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#c06080"
+          },
+          "position": "center-center",
+          "y": 100,
+          "width": 1450,
+          "text": "{{venueAddress}}",
+          "start": 3.8,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-audiogram-3",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#F5C3C3",
+          "amplitude": 7
+        },
+        {
+          "id": "eng-voice-3",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene3}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 9
+    },
+    {
+      "id": "eng-scene-4",
+      "comment": "RSVP & Closing — Pink Luxury",
+      "elements": [
+        {
+          "id": "eng-bg-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(145deg, #F5C3C3 0%, #D4737A 40%, #A33050 70%, #D4737A 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-glow-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "25%",
+              "top": "10%",
+              "width": "50%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(255,255,255,0.15) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "eng-rsvp-eyebrow",
+          "type": "text",
+          "settings": {
+            "font-size": "2.4vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(26,0,8,0.6)",
+            "letter-spacing": "0.7vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -340,
+          "width": 1700,
+          "text": "✦  YOU ARE INVITED  ✦",
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-rsvp-headline",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "JOIN THE JOY!",
+              "font-family": "Playfair Display",
+              "font-size": "9vw",
+              "color": "#1a0008",
+              "font-style": "italic"
+            }
+          },
+          "comment": "Single line 9vw=173px — centered y 453–627. Eyebrow at 200, gap 253. RSVP at 700, gap 73.",
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "eng-rsvp-by",
+          "type": "text",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#1a0008"
+          },
+          "position": "center-center",
+          "y": 165,
+          "width": 1920,
+          "text": "Kindly RSVP by  {{rsvpDate}}",
+          "start": 1.5,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "eng-contact-btn",
+          "type": "component",
+          "component": "advanced/050",
+          "settings": {
+            "button": {
+              "background": "#1a0008",
+              "padding": "0 9vw",
+              "text": "📞  {{rsvpContact}}",
+              "font-size": "3.8vw",
+              "font-family": "Lato",
+              "color": "#F5C3C3",
+              "border-radius": "5vw"
+            }
+          },
+          "x": 0,
+          "y": 800,
+          "width": 1920,
+          "height": 150,
+          "start": 2.5,
+          "extra-time": 2
+        },
+        {
+          "id": "eng-audiogram-4",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#1a0008",
+          "amplitude": 8
+        },
+        {
+          "id": "eng-voice-4",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene4}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    }
+  ],
+  "elements": [
+    {
+      "id": "eng-bg-music",
+      "type": "audio",
+      "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.12
+    }
+  ]
+}

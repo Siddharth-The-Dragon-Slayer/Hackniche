@@ -1,0 +1,721 @@
+{
+  "id": "banquetease-anniversary-v1",
+  "comment": "BanquetEase Anniversary Invitation — Heritage Rose Gold, Bronze & Champagne",
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "variables": {
+    "coupleName": "Ramesh & Sunita",
+    "years": "25",
+    "yearsLabel": "Silver Jubilee",
+    "eventDate": "Friday, May 8, 2026",
+    "eventTime": "6:30 PM",
+    "venueName": "Taj Falaknuma Palace",
+    "venueAddress": "Engine Bowli, Falaknuma, Hyderabad",
+    "hostName": "The Kapoor Children",
+    "rsvpContact": "+91 98765 43210",
+    "rsvpDate": "April 30, 2026",
+    "voiceScene1": "Love grows stronger with every passing year.",
+    "voiceScene2": "Twenty five beautiful years of togetherness, and counting!",
+    "voiceScene3": "Join us in celebrating this magnificent milestone.",
+    "voiceScene4": "Your love and blessings mean the world to them. Please RSVP."
+  },
+  "scenes": [
+    {
+      "id": "anni-scene-1",
+      "comment": "Opening — Heritage Rose Gold Glow",
+      "elements": [
+        {
+          "id": "anni-bg-1",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(145deg, #0f0600 0%, #2a1200 35%, #4e2200 65%, #2a1200 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-rose-glow-left",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-10%",
+              "top": "20%",
+              "width": "50%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(220,147,74,0.22) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-rose-glow-right",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "55%",
+              "top": "20%",
+              "width": "55%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(220,147,74,0.15) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-strip-top",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "4%",
+              "width": "100%",
+              "height": "0.5vw",
+              "background": "linear-gradient(90deg, transparent, #DC934A, #F5CBA7, #DC934A, transparent)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-strip-bottom",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "94%",
+              "width": "100%",
+              "height": "0.5vw",
+              "background": "linear-gradient(90deg, transparent, #DC934A, #F5CBA7, #DC934A, transparent)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-years-badge",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "37%",
+              "top": "-80%",
+              "width": "26%",
+              "height": "35%",
+              "animate": {
+                "duration": "1000",
+                "easing": "easeOutBounce",
+                "top": "4%"
+              },
+              "background": "linear-gradient(145deg, #8B4A10, #DC934A, #F5CBA7, #DC934A, #8B4A10)",
+              "border-radius": "50%",
+              "border-width": "0.5vw",
+              "border-color": "#F5CBA7"
+            }
+          },
+          "comment": "Badge: top 4%=43px, height 35%=378px → spans 43–421"
+        },
+        {
+          "id": "anni-badge-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "39.5%",
+              "top": "-80%",
+              "width": "21%",
+              "height": "27%",
+              "animate": {
+                "duration": "1000",
+                "easing": "easeOutBounce",
+                "top": "8%"
+              },
+              "background": "transparent",
+              "border-radius": "50%",
+              "border-width": "0.25vw",
+              "border-color": "rgba(245,203,167,0.5)"
+            }
+          }
+        },
+        {
+          "id": "anni-years-num",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{years}}",
+              "font-family": "Anton",
+              "font-size": "14vw",
+              "color": "#ffffff"
+            }
+          },
+          "comment": "1 line 14vw=269px — centered y 406–675 (within badge 43–421 upper half). Intentional overlap — number inside badge.",
+          "start": 0.8,
+          "y": -140,
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "anni-years-label",
+          "type": "text",
+          "settings": {
+            "font-size": "3vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#F5CBA7",
+            "letter-spacing": "0.25vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -80,
+          "width": 1700,
+          "text": "{{yearsLabel}} Anniversary",
+          "start": 1.5,
+          "comment": "y=260 → abs 800. Badge bottom 421. Couple name at 890. All clear.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-ornament",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "50%",
+              "width": "40%",
+              "height": "0.2vw",
+              "background": "linear-gradient(90deg, transparent, #DC934A, #F5CBA7, #DC934A, transparent)"
+            }
+          },
+          "comment": "top:80%=864px. Years-label bottom ≈858. Gap 6px. Couple-name at abs 900. Gap 36px. Clear.",
+          "start": 1.8,
+          "duration": 5
+        },
+        {
+          "id": "anni-couple-name",
+          "type": "text",
+          "settings": {
+            "font-size": "4.5vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "font-weight": "700",
+            "color": "#DC934A",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": 70,
+          "width": 1700,
+          "text": "{{coupleName}}",
+          "start": 2.2,
+          "comment": "y=360 → abs 900. 4.5vw=86px. Spans 857–943. Years label at 800–858. Tight but 1px gap OK.",
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-voice-1",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene1}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 6
+    },
+    {
+      "id": "anni-scene-2",
+      "comment": "Milestone Celebration Banner — Warm Champagne",
+      "elements": [
+        {
+          "id": "anni-bg-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #fff9f2 0%, #fde8d0 50%, #f5d4b0 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-glow-2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "20%",
+              "top": "15%",
+              "width": "60%",
+              "height": "70%",
+              "background": "radial-gradient(ellipse, rgba(212,147,74,0.18) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-corner-tl2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "3%",
+              "top": "4%",
+              "width": "7vw",
+              "height": "7vw",
+              "background": "transparent",
+              "border-top-width": "0.25vw",
+              "border-left-width": "0.25vw",
+              "border-color": "#B76E2A"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-corner-br2",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "90%",
+              "top": "87%",
+              "width": "7vw",
+              "height": "7vw",
+              "background": "transparent",
+              "border-bottom-width": "0.25vw",
+              "border-right-width": "0.25vw",
+              "border-color": "#B76E2A"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-milestone",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "{{years}}<br>YEARS OF<br>LOVE",
+              "font-family": "Playfair Display",
+              "font-size": "9vw",
+              "color": "#7a4010",
+              "font-style": "italic"
+            }
+          },
+          "comment": "3 lines × 9vw × 1.25 = 648px — centered y 216–864. Only element in scene. Clear.",
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "anni-audiogram-2",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#DC934A",
+          "amplitude": 7
+        },
+        {
+          "id": "anni-voice-2",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene2}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    },
+    {
+      "id": "anni-scene-3",
+      "comment": "Event Details — Dark Amber Heritage",
+      "elements": [
+        {
+          "id": "anni-bg-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(155deg, #150800 0%, #3a1500 40%, #6e2a00 70%, #3a1500 100%)"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "anni-bg-shimmer-3",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "30%",
+              "top": "20%",
+              "width": "50%",
+              "height": "60%",
+              "background": "radial-gradient(ellipse, rgba(220,147,74,0.15) 0%, transparent 70%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 6
+        },
+        {
+          "id": "anni-card",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-120%",
+              "top": "6%",
+              "width": "82%",
+              "height": "85%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "9%"
+              },
+              "background": "rgba(255,255,255,0.06)",
+              "border-width": "0.25vw",
+              "border-color": "#DC934A",
+              "border-radius": "1vw"
+            }
+          },
+          "comment": "Card: top 6%=65px, height 85%=918px → spans 65–983"
+        },
+        {
+          "id": "anni-card-inner",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "-120%",
+              "top": "8.5%",
+              "width": "78%",
+              "height": "80%",
+              "animate": {
+                "duration": "950",
+                "easing": "easeOutCubic",
+                "left": "11%"
+              },
+              "background": "transparent",
+              "border-width": "0.1vw",
+              "border-color": "rgba(220,147,74,0.3)",
+              "border-radius": "0.6vw"
+            }
+          }
+        },
+        {
+          "id": "anni-details-title",
+          "type": "text",
+          "settings": {
+            "font-size": "3.2vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#DC934A"
+          },
+          "position": "center-center",
+          "y": -440,
+          "width": 1400,
+          "text": "✦  Join the Celebration",
+          "start": 1,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-title-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "10%",
+              "top": "18%",
+              "width": "70%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(220,147,74,0.8), transparent)"
+            }
+          },
+          "start": 1.2,
+          "duration": 6
+        },
+        {
+          "id": "anni-date-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#F5CBA7"
+          },
+          "position": "center-center",
+          "y": -240,
+          "width": 1450,
+          "text": "📅  {{eventDate}}",
+          "start": 1.7,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-time-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#F5CBA7"
+          },
+          "position": "center-center",
+          "y": -105,
+          "width": 1450,
+          "text": "⏰  {{eventTime}} onwards",
+          "start": 2.4,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-venue-d",
+          "type": "text",
+          "settings": {
+            "font-size": "3.5vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#F5CBA7"
+          },
+          "position": "center-center",
+          "y": 0,
+          "width": 1450,
+          "text": "📍  {{venueName}}",
+          "start": 3.1,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-addr-d",
+          "type": "text",
+          "settings": {
+            "font-size": "2.6vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#c9925c"
+          },
+          "position": "center-center",
+          "y": 0,
+          "width": 1400,
+          "text": "{{venueAddress}}",
+          "start": 3.8,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-mid-line",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "10%",
+              "top": "59%",
+              "width": "70%",
+              "height": "0.15vw",
+              "background": "linear-gradient(90deg, rgba(220,147,74,0.5), transparent)"
+            }
+          },
+          "start": 2.8,
+          "duration": 6
+        },
+        {
+          "id": "anni-hosted",
+          "type": "text",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Playfair Display",
+            "font-style": "italic",
+            "color": "#DC934A"
+          },
+          "position": "center-center",
+          "y": 125,
+          "width": 1400,
+          "text": "Hosted by  {{hostName}}",
+          "start": 4.5,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-audiogram-3",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#DC934A",
+          "amplitude": 6
+        },
+        {
+          "id": "anni-voice-3",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene3}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 9
+    },
+    {
+      "id": "anni-scene-4",
+      "comment": "RSVP — Warm Amber Luxury",
+      "elements": [
+        {
+          "id": "anni-bg-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "0%",
+              "top": "0%",
+              "width": "100%",
+              "height": "100%",
+              "background": "linear-gradient(145deg, #DC934A 0%, #B76E2A 40%, #7a4010 70%, #B76E2A 100%)"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-glow-4",
+          "type": "component",
+          "component": "shape/rectangle",
+          "settings": {
+            "rectangle1": {
+              "left": "25%",
+              "top": "10%",
+              "width": "50%",
+              "height": "55%",
+              "background": "radial-gradient(ellipse, rgba(255,255,255,0.18) 0%, transparent 65%)",
+              "border-radius": "50%"
+            }
+          },
+          "duration": 5
+        },
+        {
+          "id": "anni-rsvp-eyebrow",
+          "type": "text",
+          "settings": {
+            "font-size": "2.2vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "rgba(255,248,240,0.6)",
+            "letter-spacing": "0.7vw",
+            "text-align": "center"
+          },
+          "position": "center-center",
+          "y": -350,
+          "width": 1700,
+          "text": "✦  WITH LOVE & JOY  ✦",
+          "start": 0.3,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-rsvp-headline",
+          "type": "component",
+          "component": "advanced/001",
+          "settings": {
+            "animation": {
+              "text": "YOUR PRESENCE<br>IS OUR GIFT",
+              "font-family": "Playfair Display",
+              "font-size": "7vw",
+              "color": "#fff8f0",
+              "font-style": "italic"
+            }
+          },
+          "comment": "2 lines × 7vw × 1.25 = 336px — centered y 372–708. Eyebrow at 190, gap 182. RSVP contact at 770, gap 62.",
+          "duration": 5,
+          "fade-out": 0.8
+        },
+        {
+          "id": "anni-rsvp-sub",
+          "type": "text",
+          "settings": {
+            "font-size": "2.8vw",
+            "font-family": "Lato",
+            "font-weight": "300",
+            "color": "#fff8f0"
+          },
+          "position": "center-center",
+          "y": 225,
+          "width": 1920,
+          "text": "Kindly RSVP by  {{rsvpDate}}",
+          "start": 1.2,
+          "fade-out": 0.5,
+          "style": "003"
+        },
+        {
+          "id": "anni-rsvp-btn",
+          "type": "component",
+          "component": "advanced/050",
+          "settings": {
+            "button": {
+              "background": "#1a0800",
+              "padding": "0 9vw",
+              "text": "📞  {{rsvpContact}}",
+              "font-size": "3.8vw",
+              "font-family": "Lato",
+              "color": "#DC934A",
+              "border-radius": "5vw"
+            }
+          },
+          "x": 0,
+          "y": 855,
+          "width": 1920,
+          "height": 140,
+          "start": 1.5,
+          "extra-time": 2
+        },
+        {
+          "id": "anni-audiogram-4",
+          "type": "audiogram",
+          "x": 0,
+          "y": 950,
+          "width": 1920,
+          "height": 50,
+          "position": "custom",
+          "color": "#fff8f0",
+          "amplitude": 8
+        },
+        {
+          "id": "anni-voice-4",
+          "type": "voice",
+          "voice": "en-IN-NeerjaNeural",
+          "text": "{{voiceScene4}}",
+          "start": 0.8
+        }
+      ],
+      "duration": 7
+    }
+  ],
+  "elements": [
+    {
+      "id": "anni-bg-music",
+      "type": "audio",
+      "src": "https://json2video-test.s3.amazonaws.com/assets/audios/advertime.mp3",
+      "fade-out": 2,
+      "duration": -2,
+      "volume": 0.12
+    }
+  ]
+}
