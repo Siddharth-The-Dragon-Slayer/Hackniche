@@ -763,9 +763,11 @@ async function seed() {
     }
   }
 
-  // 5. Users — legacy demo accounts
-  console.log("\n── Demo / Legacy accounts ──────────────────");
-  for (const user of devUsers) {
+  // 5. Users — legacy demo accounts (optional - skip if not defined)
+  const devUsers = []; // Empty array - no legacy accounts needed
+  if (devUsers.length > 0) {
+    console.log("\n── Demo / Legacy accounts ──────────────────");
+    for (const user of devUsers) {
     try {
       const uid = await upsertAuthUser(user);
       await db
@@ -794,8 +796,9 @@ async function seed() {
       console.error(`    ❌ ${user.email}:`, err.message);
     }
   }
+  }
 
-  // 5. Summary
+  // 6. Summary
   const border = "═".repeat(77);
   console.log(`\n\n✨  Seed complete!\n\n${border}`);
   console.log(
@@ -807,13 +810,16 @@ async function seed() {
       `  ${u.email.padEnd(38)} │ ${u.role.padEnd(18)} │ ${u.password}`,
     );
   }
-  console.log("─".repeat(77));
-  console.log("  DEMO ACCOUNTS (password: Admin@123)");
-  console.log("─".repeat(77));
-  for (const u of devUsers) {
-    console.log(
-      `  ${u.email.padEnd(38)} │ ${u.role.padEnd(18)} │ ${u.password}`,
-    );
+  
+  if (devUsers.length > 0) {
+    console.log("─".repeat(77));
+    console.log("  DEMO ACCOUNTS (password: Admin@123)");
+    console.log("─".repeat(77));
+    for (const u of devUsers) {
+      console.log(
+        `  ${u.email.padEnd(38)} │ ${u.role.padEnd(18)} │ ${u.password}`,
+      );
+    }
   }
   console.log(border + "\n");
 
