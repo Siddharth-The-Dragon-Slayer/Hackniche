@@ -27,6 +27,7 @@ const EVENT_TYPES = [
       { key: 'venueAddress', label: 'Venue Address', placeholder: 'Outer Ring Road, Bengaluru', required: true },
       { key: 'rsvpContact', label: 'RSVP Contact', placeholder: '+91 98765 43210', required: true },
       { key: 'rsvpDate', label: 'RSVP By Date', placeholder: 'April 15, 2026', required: false },
+      { key: 'numberOfPeople', label: 'Number of People', placeholder: '2', required: true },
     ],
   },
   {
@@ -46,6 +47,7 @@ const EVENT_TYPES = [
       { key: 'venueAddress', label: 'Venue Address', placeholder: '12, MG Road, Bengaluru', required: true },
       { key: 'rsvpContact', label: 'RSVP Contact', placeholder: '+91 98765 43210', required: true },
       { key: 'rsvpDate', label: 'RSVP By', placeholder: 'March 10, 2026', required: false },
+      { key: 'numberOfPeople', label: 'Number of People', placeholder: '2', required: true },
     ],
   },
   {
@@ -66,6 +68,7 @@ const EVENT_TYPES = [
       { key: 'venueAddress', label: 'Venue Address', placeholder: 'Engine Bowli, Hyderabad', required: true },
       { key: 'rsvpContact', label: 'RSVP Contact', placeholder: '+91 98765 43210', required: true },
       { key: 'rsvpDate', label: 'RSVP By', placeholder: 'April 30, 2026', required: false },
+      { key: 'numberOfPeople', label: 'Number of People', placeholder: '2', required: true },
     ],
   },
   {
@@ -86,6 +89,7 @@ const EVENT_TYPES = [
       { key: 'venueAddress', label: 'Venue Address', placeholder: 'HITEC City, Hyderabad', required: true },
       { key: 'registrationLink', label: 'Registration Link', placeholder: 'nexus.com/register', required: false },
       { key: 'contactEmail', label: 'Contact Email', placeholder: 'events@nexus.com', required: true },
+      { key: 'numberOfPeople', label: 'Number of People', placeholder: '1', required: true },
     ],
   },
   {
@@ -106,6 +110,7 @@ const EVENT_TYPES = [
       { key: 'venueAddress', label: 'Venue Address', placeholder: 'Golf Course Road, Bengaluru', required: true },
       { key: 'rsvpContact', label: 'RSVP Contact', placeholder: '+91 98765 43210', required: true },
       { key: 'rsvpDate', label: 'RSVP By', placeholder: 'July 1, 2026', required: false },
+      { key: 'numberOfPeople', label: 'Number of People', placeholder: '2', required: true },
     ],
   },
 ];
@@ -209,10 +214,18 @@ export default function InvitationsPage() {
     setPosterLoading(true);
     setPosterError(null);
     try {
+      // Generate a unique booking ID for QR code with timestamp and random component
+      const bookingId = `${posterEventType.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const res = await fetch('/api/ai/generate-poster', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventType: posterEventType, formValues: posterFormValues }),
+        body: JSON.stringify({ 
+          eventType: posterEventType, 
+          formValues: posterFormValues,
+          bookingId: bookingId,
+          includeQR: true
+        }),
       });
       const data = await res.json();
       if (data.success && data.imageBase64) {
@@ -423,88 +436,86 @@ export default function InvitationsPage() {
         {/* ── TAB 1: INVITATION POSTER ──────────────────────────────── */}
         {activeTab === 1 && (
           <motion.div key="poster" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+            
+            {/* Controls Section */}
+            <div className="card" style={{ padding: 28, marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 4 }}>
+                Invitation Poster
+              </h2>
+              <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 20 }}>
+                Choose your event type, fill in the details, and generate a beautiful printed invitation card.
+              </p>
 
-              {/* Left — Controls */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <div className="card" style={{ padding: 28 }}>
-                  <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text-h)', marginBottom: 4 }}>
-                    Invitation Poster
-                  </h2>
-                  <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 20 }}>
-                    Choose your event type, fill in the details, and generate a beautiful printed invitation card.
-                  </p>
-
-                  {/* Event type selector */}
-                  <div style={{ marginBottom: 20 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
-                      Event Type
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {EVENT_TYPES.map(et => (
-                        <button
-                          key={et.key}
-                          onClick={() => handlePosterEventTypeSelect(et.key)}
-                          style={{
-                            padding: '6px 14px',
-                            borderRadius: 20,
-                            border: `1.5px solid ${posterEventType === et.key ? et.color : 'var(--color-border)'}`,
-                            background: posterEventType === et.key ? et.colorBg : 'transparent',
-                            color: posterEventType === et.key ? et.color : 'var(--color-text-muted)',
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                        >
-                          {et.icon} {et.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Form fields */}
-                  {(() => {
-                    const pConf = EVENT_TYPES.find(e => e.key === posterEventType);
-                    return (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-                        {(pConf?.fields || []).map(f => (
-                          <Field key={f.key} f={f} value={posterFormValues[f.key]} onChange={handlePosterFieldChange} />
-                        ))}
-                      </div>
-                    );
-                  })()}
-
-                  {posterError && (
-                    <div style={{ padding: '10px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', color: 'var(--color-danger)', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                      <AlertCircle size={15} /> {posterError}
-                    </div>
-                  )}
-
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleGeneratePoster}
-                    disabled={posterLoading}
-                    style={{ width: '100%', padding: '13px', justifyContent: 'center', gap: 8, fontSize: 15 }}
-                  >
-                    {posterLoading ? (
-                      <><Loader2 size={16} className="animate-spin" /> Generating poster…</>
-                    ) : (
-                      <><Sparkles size={16} /> Generate Invitation Poster</>
-                    )}
-                  </button>
+              {/* Event type selector */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
+                  Event Type
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {EVENT_TYPES.map(et => (
+                    <button
+                      key={et.key}
+                      onClick={() => handlePosterEventTypeSelect(et.key)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 20,
+                        border: `1.5px solid ${posterEventType === et.key ? et.color : 'var(--color-border)'}`,
+                        background: posterEventType === et.key ? et.colorBg : 'transparent',
+                        color: posterEventType === et.key ? et.color : 'var(--color-text-muted)',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {et.icon} {et.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Right — Poster Output */}
-              <div className="card" style={{ padding: 28, minHeight: 480, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: posterImageBase64 ? 'flex-start' : 'center' }}>
+              {/* Form fields */}
+              {(() => {
+                const pConf = EVENT_TYPES.find(e => e.key === posterEventType);
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
+                    {(pConf?.fields || []).map(f => (
+                      <Field key={f.key} f={f} value={posterFormValues[f.key]} onChange={handlePosterFieldChange} />
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {posterError && (
+                <div style={{ padding: '10px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', color: 'var(--color-danger)', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <AlertCircle size={15} /> {posterError}
+                </div>
+              )}
+
+              <button
+                className="btn btn-primary"
+                onClick={handleGeneratePoster}
+                disabled={posterLoading}
+                style={{ width: '100%', maxWidth: 400, padding: '13px', justifyContent: 'center', gap: 8, fontSize: 15, margin: '0 auto', display: 'flex' }}
+              >
+                {posterLoading ? (
+                  <><Loader2 size={16} className="animate-spin" /> Generating poster…</>
+                ) : (
+                  <><Sparkles size={16} /> Generate Invitation Poster</>
+                )}
+              </button>
+            </div>
+
+            {/* Poster Display Section - Centered and Larger */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div className="card" style={{ padding: 40, minHeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: posterImageBase64 ? 'flex-start' : 'center', maxWidth: 900, width: '100%' }}>
                 {!posterImageBase64 && !posterLoading && (
                   <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                    <div style={{ fontSize: 64, marginBottom: 16, opacity: 0.25 }}>
+                    <div style={{ fontSize: 80, marginBottom: 20, opacity: 0.25 }}>
                       {EVENT_TYPES.find(e => e.key === posterEventType)?.icon || '🖼️'}
                     </div>
-                    <p style={{ fontSize: 14, fontWeight: 600 }}>Your poster will appear here</p>
-                    <p style={{ fontSize: 12, marginTop: 4 }}>Fill in the details and click Generate</p>
+                    <p style={{ fontSize: 16, fontWeight: 600 }}>Your poster will appear here</p>
+                    <p style={{ fontSize: 14, marginTop: 6 }}>Fill in the details and click Generate</p>
                   </div>
                 )}
                 {posterLoading && (
@@ -512,10 +523,10 @@ export default function InvitationsPage() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                      style={{ width: 56, height: 56, borderRadius: '50%', border: '3px solid var(--color-primary-ghost)', borderTopColor: 'var(--color-primary)', margin: '0 auto 16px' }}
+                      style={{ width: 64, height: 64, borderRadius: '50%', border: '4px solid var(--color-primary-ghost)', borderTopColor: 'var(--color-primary)', margin: '0 auto 20px' }}
                     />
-                    <p style={{ fontSize: 14, fontWeight: 600 }}>Rendering your invitation card…</p>
-                    <p style={{ fontSize: 12, marginTop: 4 }}>This usually takes 5–10 seconds.</p>
+                    <p style={{ fontSize: 16, fontWeight: 600 }}>Rendering your invitation card…</p>
+                    <p style={{ fontSize: 14, marginTop: 6 }}>This usually takes 5–10 seconds.</p>
                   </div>
                 )}
                 {posterImageBase64 && !posterLoading && (
@@ -523,19 +534,19 @@ export default function InvitationsPage() {
                     <img
                       src={posterImageBase64}
                       alt="Invitation Poster"
-                      style={{ width: '100%', borderRadius: 12, display: 'block', marginBottom: 16 }}
+                      style={{ maxWidth: '700px', width: '100%', borderRadius: 16, display: 'block', marginBottom: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}
                     />
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                       <a
                         href={posterImageBase64}
                         download={`${posterEventType}-invitation.png`}
-                        className="btn btn-primary btn-sm"
-                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+                        className="btn btn-primary"
+                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px' }}
                       >
-                        <Download size={13} /> Download Poster
+                        <Download size={16} /> Download Poster
                       </a>
-                      <button className="btn btn-outline btn-sm" onClick={handleGeneratePoster} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <RefreshCcw size={13} /> Regenerate
+                      <button className="btn btn-outline" onClick={handleGeneratePoster} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px' }}>
+                        <RefreshCcw size={16} /> Regenerate
                       </button>
                     </div>
                   </>

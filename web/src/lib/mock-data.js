@@ -1277,10 +1277,11 @@ export const sidebarMenus = {
   ],
   operations_staff: [
     { icon: "⬡", label: "Dashboard", href: "/dashboard/branch" },
-    { icon: "�", label: "Leads", href: "/leads" },
+    { icon: "🎯", label: "Leads", href: "/leads" },
     { icon: "📋", label: "Bookings", href: "/bookings" },
     { icon: "🎉", label: "Events", href: "/events" },
     { icon: "📅", label: "Calendar", href: "/calendar" },
+    { icon: "✅", label: "Check-in", href: "/check-in" },
     { icon: "🤝", label: "Vendors", href: "/vendors" },
     { icon: "🎨", label: "Decor Packages", href: "/decor" },
   ],

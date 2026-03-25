@@ -21,7 +21,7 @@ export async function POST(request) {
     }
 
     // Generate QR code for guest check-in
-    const checkInUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/gre/check-in?booking=${bookingId}`;
+    const checkInUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/check-in?booking=${bookingId}`;
     
     const qrCodeDataURL = await QRCode.toDataURL(checkInUrl, {
       errorCorrectionLevel: 'H',
@@ -81,7 +81,7 @@ export async function GET() {
       eventTime: "7:00 PM",
       venueName: "Grand Ballroom"
     },
-    qrCodeContains: "/gre/check-in?booking={bookingId}",
+    qrCodeContains: "/check-in?booking={bookingId}",
     usage: "Scan QR code at event entrance for guest check-in"
   });
 }

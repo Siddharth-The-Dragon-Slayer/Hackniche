@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import React from "react";
+import QRCode from 'qrcode';
+import {
+  createWeddingQR,
+  createBirthdayQR,
+  createAnniversaryQR,
+  createCorporateQR,
+  createEngagementQR,
+} from '@/lib/poster-qr-helper';
 
 // ── font loader with module-level cache ───────────────────────────────────────
 // satori supports: TTF / OTF / WOFF  — NOT WOFF2 (wOF2 signature = crash)
@@ -39,7 +47,7 @@ async function fetchFontFromGoogle(family, weight) {
   ).then(r => r.text());
   // old Android UA returns TTF URLs from gstatic
   const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.(?:ttf|woff))\)/)
-             || css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/);
+    || css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/);
   if (!match) throw new Error(`Google Fonts CSS had no TTF/woff URL for ${family} ${weight}`);
   return fetchFontBuffer(match[1]);
 }
@@ -82,19 +90,19 @@ async function loadFonts() {
 
   const fonts = [];
   if (playfairBold) fonts.push({ name: 'Playfair Display', data: playfairBold, weight: 700, style: 'normal' });
-  if (playfairReg)  fonts.push({ name: 'Playfair Display', data: playfairReg,  weight: 400, style: 'normal' });
-  if (ralewayBold)  fonts.push({ name: 'Raleway',          data: ralewayBold,  weight: 700, style: 'normal' });
-  if (ralewayReg)   fonts.push({ name: 'Raleway',          data: ralewayReg,   weight: 400, style: 'normal' });
+  if (playfairReg) fonts.push({ name: 'Playfair Display', data: playfairReg, weight: 400, style: 'normal' });
+  if (ralewayBold) fonts.push({ name: 'Raleway', data: ralewayBold, weight: 700, style: 'normal' });
+  if (ralewayReg) fonts.push({ name: 'Raleway', data: ralewayReg, weight: 400, style: 'normal' });
 
   // satori requires at least one font — if somehow all failed, load Inter directly
   if (fonts.length === 0) {
     console.error('All fonts failed — loading emergency Inter fallback');
-    const interBold  = await fetchFontBuffer(FONT_URLS.Inter[700]);
-    const interReg   = await fetchFontBuffer(FONT_URLS.Inter[400]);
-    fonts.push({ name: 'Raleway',          data: interBold, weight: 700, style: 'normal' });
-    fonts.push({ name: 'Raleway',          data: interReg,  weight: 400, style: 'normal' });
+    const interBold = await fetchFontBuffer(FONT_URLS.Inter[700]);
+    const interReg = await fetchFontBuffer(FONT_URLS.Inter[400]);
+    fonts.push({ name: 'Raleway', data: interBold, weight: 700, style: 'normal' });
+    fonts.push({ name: 'Raleway', data: interReg, weight: 400, style: 'normal' });
     fonts.push({ name: 'Playfair Display', data: interBold, weight: 700, style: 'normal' });
-    fonts.push({ name: 'Playfair Display', data: interReg,  weight: 400, style: 'normal' });
+    fonts.push({ name: 'Playfair Display', data: interReg, weight: 400, style: 'normal' });
   }
 
   _fonts = fonts;
@@ -106,7 +114,7 @@ const v = (val, fallback) =>
   val && String(val).trim() ? String(val).trim() : fallback;
 
 // ── TEMPLATE: Wedding ─────────────────────────────────────────────────────────
-function WeddingPoster({ f }) {
+function WeddingPoster({ f, qrCode }) {
   const bride = v(f.bride, "Priya Mehta");
   const groom = v(f.groom, "Arjun Kapoor");
   const date = v(f.weddingDate, "Sunday, April 27, 2026");
@@ -409,39 +417,39 @@ function WeddingPoster({ f }) {
 
       /* RSVP */
       rsvp &&
+      React.createElement(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            marginBottom: 16,
+          },
+        },
+        React.createElement("div", {
+          style: { width: 40, height: 1, background: gold },
+        }),
         React.createElement(
-          "div",
+          "p",
           {
             style: {
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              marginBottom: 16,
+              fontFamily: '"Raleway"',
+              fontSize: 13,
+              fontWeight: 700,
+              color: darkGold,
+              textAlign: "center",
+              marginBottom: 0,
+              marginTop: 0,
+              letterSpacing: 1,
             },
           },
-          React.createElement("div", {
-            style: { width: 40, height: 1, background: gold },
-          }),
-          React.createElement(
-            "p",
-            {
-              style: {
-                fontFamily: '"Raleway"',
-                fontSize: 13,
-                fontWeight: 700,
-                color: darkGold,
-                textAlign: "center",
-                marginBottom: 0,
-                marginTop: 0,
-                letterSpacing: 1,
-              },
-            },
-            `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
-          ),
-          React.createElement("div", {
-            style: { width: 40, height: 1, background: gold },
-          }),
+          `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
         ),
+        React.createElement("div", {
+          style: { width: 40, height: 1, background: gold },
+        }),
+      ),
 
       /* Bottom ornament */
       React.createElement(
@@ -486,11 +494,14 @@ function WeddingPoster({ f }) {
         ),
       ),
     ),
+
+    // QR Code for guest check-in
+    qrCode && createWeddingQR(qrCode),
   );
 }
 
 // ── TEMPLATE: Birthday ────────────────────────────────────────────────────────
-function BirthdayPoster({ f }) {
+function BirthdayPoster({ f, qrCode }) {
   const name = v(f.guestName, "Rahul Sharma");
   const age = v(f.age, "");
   const hostedBy = v(f.hostName, "The Sharma Family");
@@ -718,21 +729,21 @@ function BirthdayPoster({ f }) {
       ),
 
       rsvp &&
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 13,
-              fontWeight: 600,
-              color: lightGold,
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
+      React.createElement(
+        "p",
+        {
+          style: {
+            fontFamily: '"Raleway"',
+            fontSize: 13,
+            fontWeight: 600,
+            color: lightGold,
+            textAlign: "center",
+            marginBottom: 0,
+            marginTop: 0,
           },
-          `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
-        ),
+        },
+        `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
+      ),
 
       React.createElement(
         "div",
@@ -770,11 +781,14 @@ function BirthdayPoster({ f }) {
         }),
       ),
     ),
+
+    // QR Code for guest check-in
+    qrCode && createBirthdayQR(qrCode),
   );
 }
 
 // ── TEMPLATE: Anniversary ─────────────────────────────────────────────────────
-function AnniversaryPoster({ f }) {
+function AnniversaryPoster({ f, qrCode }) {
   const couple = v(f.coupleName, "Ramesh & Sunita");
   const years = v(f.years, "25");
   const label = v(f.yearsLabel, "Silver Jubilee");
@@ -1065,21 +1079,21 @@ function AnniversaryPoster({ f }) {
       ),
 
       rsvp &&
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 13,
-              fontWeight: 600,
-              color: bronze,
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
+      React.createElement(
+        "p",
+        {
+          style: {
+            fontFamily: '"Raleway"',
+            fontSize: 13,
+            fontWeight: 600,
+            color: bronze,
+            textAlign: "center",
+            marginBottom: 0,
+            marginTop: 0,
           },
-          `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
-        ),
+        },
+        `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
+      ),
 
       React.createElement(
         "div",
@@ -1118,11 +1132,14 @@ function AnniversaryPoster({ f }) {
         }),
       ),
     ),
+
+    // QR Code for guest check-in
+    qrCode && createAnniversaryQR(qrCode),
   );
 }
 
 // ── TEMPLATE: Corporate ───────────────────────────────────────────────────────
-function CorporatePoster({ f }) {
+function CorporatePoster({ f, qrCode }) {
   const title = v(f.eventTitle, "Annual Leadership Summit");
   const company = v(f.companyName, "Nexus Technologies");
   const speaker = v(f.speakerName, "");
@@ -1266,41 +1283,41 @@ function CorporatePoster({ f }) {
 
       /* Theme/Tagline */
       theme &&
+      React.createElement(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 40,
+          },
+        },
+        React.createElement("div", {
+          style: {
+            width: 3,
+            height: 28,
+            background: blue,
+            borderRadius: 2,
+            flexShrink: 0,
+          },
+        }),
         React.createElement(
-          "div",
+          "p",
           {
             style: {
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              marginBottom: 40,
+              fontFamily: '"Raleway"',
+              fontSize: 16,
+              fontWeight: 400,
+              color: lightBlue,
+              marginBottom: 0,
+              marginTop: 0,
+              fontStyle: "italic",
             },
           },
-          React.createElement("div", {
-            style: {
-              width: 3,
-              height: 28,
-              background: blue,
-              borderRadius: 2,
-              flexShrink: 0,
-            },
-          }),
-          React.createElement(
-            "p",
-            {
-              style: {
-                fontFamily: '"Raleway"',
-                fontSize: 16,
-                fontWeight: 400,
-                color: lightBlue,
-                marginBottom: 0,
-                marginTop: 0,
-                fontStyle: "italic",
-              },
-            },
-            `"${theme}"`,
-          ),
+          `"${theme}"`,
         ),
+      ),
 
       /* Speaker highlight */
       speaker && React.createElement('div', { style: { background: 'rgba(59,130,246,0.1)', border: `1px solid rgba(59,130,246,0.3)`, borderRadius: 10, padding: '16px 24px', marginBottom: 32, display: 'flex', alignItems: 'center', gap: 14 } },
@@ -1378,7 +1395,7 @@ function CorporatePoster({ f }) {
 }
 
 // ── TEMPLATE: Engagement ──────────────────────────────────────────────────────
-function EngagementPoster({ f }) {
+function EngagementPoster({ f, qrCode }) {
   const p1 = v(f.partner1, "Aisha Khan");
   const p2 = v(f.partner2, "Rohan Verma");
   const hf1 = v(f.hostFamily1, "");
@@ -1613,21 +1630,21 @@ function EngagementPoster({ f }) {
 
       /* Host families */
       (hf1 || hf2) &&
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 14,
-              fontWeight: 400,
-              color: "#A06070",
-              textAlign: "center",
-              marginBottom: 30,
-              marginTop: 10,
-            },
+      React.createElement(
+        "p",
+        {
+          style: {
+            fontFamily: '"Raleway"',
+            fontSize: 14,
+            fontWeight: 400,
+            color: "#A06070",
+            textAlign: "center",
+            marginBottom: 30,
+            marginTop: 10,
           },
-          [hf1, hf2].filter(Boolean).join("  ·  "),
-        ),
+        },
+        [hf1, hf2].filter(Boolean).join("  ·  "),
+      ),
 
       /* Rose divider */
       React.createElement(
@@ -1669,21 +1686,21 @@ function EngagementPoster({ f }) {
       ),
 
       rsvp &&
-        React.createElement(
-          "p",
-          {
-            style: {
-              fontFamily: '"Raleway"',
-              fontSize: 13,
-              fontWeight: 600,
-              color: rose,
-              textAlign: "center",
-              marginBottom: 0,
-              marginTop: 0,
-            },
+      React.createElement(
+        "p",
+        {
+          style: {
+            fontFamily: '"Raleway"',
+            fontSize: 13,
+            fontWeight: 600,
+            color: rose,
+            textAlign: "center",
+            marginBottom: 0,
+            marginTop: 0,
           },
-          `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
-        ),
+        },
+        `RSVP${rsvpBy ? ` by ${rsvpBy}` : ""}: ${rsvp}`,
+      ),
 
       React.createElement(
         "div",
@@ -1719,28 +1736,51 @@ function EngagementPoster({ f }) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { eventType = "wedding", formValues = {} } = body;
+    const { eventType = "wedding", formValues = {}, bookingId = null, includeQR = true } = body;
+
+    // Generate QR code if bookingId provided
+    let qrCodeDataURL = null;
+    if (includeQR && bookingId) {
+      try {
+        const numberOfPeople = formValues.numberOfPeople || '1';
+        const checkInUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/check-in?booking=${bookingId}&people=${numberOfPeople}`;
+        qrCodeDataURL = await QRCode.toDataURL(checkInUrl, {
+          errorCorrectionLevel: 'H',
+          type: 'image/png',
+          quality: 0.95,
+          margin: 1,
+          width: 200,
+          color: {
+            dark: '#1a1a1a',
+            light: '#FFFFFF',
+          },
+        });
+      } catch (qrErr) {
+        console.warn('QR generation failed:', qrErr);
+      }
+    }
 
     // Load fonts — loadFonts() never throws; always returns ≥1 font
     const fonts = await loadFonts();
 
-    // Select template element
+    // Select template element with QR code
+    const templateProps = { f: formValues, qrCode: qrCodeDataURL };
     let element;
     switch (eventType) {
       case "birthday":
-        element = React.createElement(BirthdayPoster, { f: formValues });
+        element = React.createElement(BirthdayPoster, templateProps);
         break;
       case "anniversary":
-        element = React.createElement(AnniversaryPoster, { f: formValues });
+        element = React.createElement(AnniversaryPoster, templateProps);
         break;
       case "corporate":
-        element = React.createElement(CorporatePoster, { f: formValues });
+        element = React.createElement(CorporatePoster, templateProps);
         break;
       case "engagement":
-        element = React.createElement(EngagementPoster, { f: formValues });
+        element = React.createElement(EngagementPoster, templateProps);
         break;
       default:
-        element = React.createElement(WeddingPoster, { f: formValues });
+        element = React.createElement(WeddingPoster, templateProps);
     }
 
     // Dynamically import optional renderer libraries (satori + resvg)
