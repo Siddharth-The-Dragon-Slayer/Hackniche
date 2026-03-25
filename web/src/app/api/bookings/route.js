@@ -312,6 +312,9 @@ export async function POST(req) {
 
     // ── Write booking ──
     const ref = adminDb.collection("bookings").doc();
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    bookingData.sharelink = `${appUrl}/gallery/${ref.id}`;
+    
     await ref.set(bookingData);
 
     // ── Link to lead ──

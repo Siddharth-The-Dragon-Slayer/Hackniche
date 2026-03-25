@@ -665,6 +665,10 @@ export async function PUT(request, { params }) {
         created_at: now,
         updated_at: now,
       };
+      // Insert sharelink for guest photo gallery
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      bookingDoc.sharelink = `${appUrl}/gallery/${bookingRef.id}`;
+      
       batch.set(bookingRef, bookingDoc);
 
       // ── Auto-create INVOICE from booking data ────────────────────────
