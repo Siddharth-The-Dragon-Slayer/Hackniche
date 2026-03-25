@@ -1,0 +1,174 @@
+/* ── ENTRANCE ─────────────────────────────── */
+@keyframes fadeUp    { from { opacity:0; transform:translateY(40px); filter:blur(5px); } to { opacity:1; transform:none; filter:none; } }
+@keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeDown  { from { opacity:0; transform:translateY(-28px); filter:blur(3px); } to { opacity:1; transform:none; filter:none; } }
+@keyframes scaleIn   { from { opacity:0; transform:scale(0.88); } to { opacity:1; transform:scale(1); } }
+@keyframes slideLeft { from { opacity:0; transform:translateX(50px); } to { opacity:1; transform:none; } }
+@keyframes slideRight{ from { opacity:0; transform:translateX(-50px); } to { opacity:1; transform:none; } }
+
+/* ── LOOPING / AMBIENT ────────────────────── */
+@keyframes float    { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+@keyframes floatX   { 0%,100%{ transform:translateX(0); } 50%{ transform:translateX(8px); } }
+@keyframes pulse    { 0%,100%{ opacity:.7; transform:scale(1); } 50%{ opacity:1; transform:scale(1.05); } }
+@keyframes spin     { from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+@keyframes glow     { 0%,100%{ box-shadow:0 0 12px rgba(201,146,26,.2); } 50%{ box-shadow:0 0 32px rgba(201,146,26,.55); } }
+@keyframes glowAmber { 0%,100%{ box-shadow:0 0 16px rgba(232,184,75,.15); } 50%{ box-shadow:0 0 40px rgba(232,184,75,.45), 0 0 80px rgba(232,184,75,.10); } }
+
+/* ── TEXT ─────────────────────────────────── */
+@keyframes textGlow { 0%{ background-position:200% center; } 100%{ background-position:-200% center; } }
+@keyframes typewriter { from{ width:0; } to{ width:100%; } }
+@keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
+
+/* ── DECORATIVE ───────────────────────────── */
+@keyframes drawLine { from{ width:0; } to{ width:100%; } }
+@keyframes shimmer  { 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
+@keyframes scrollBounce { 0%,100%{ transform:translateY(0); opacity:1; } 50%{ transform:translateY(10px); opacity:.4; } }
+@keyframes scanLine { from{ background-position:0 -100%; } to{ background-position:0 200%; } }
+
+/* ── HERO ─────────────────────────────────── */
+@keyframes heroZoom { from { transform: scale(1.08); } to { transform: scale(1.00); } }
+
+/* ── TOASTS / NOTIFICATIONS ───────────────── */
+@keyframes toastIn  { from{ opacity:0; transform:translateX(100%) scale(.9); } to{ opacity:1; transform:none; } }
+@keyframes toastOut { from{ opacity:1; transform:none; } to{ opacity:0; transform:translateX(100%); } }
+
+/* ── TICKER ───────────────────────────────── */
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ── SKELETON SHIMMER ────────────────────── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* ── SKELETON UTILITY ───────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 0%,
+    rgba(255,255,255,0.12) 50%,
+    var(--color-border) 100%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ── PAGE TRANSITION ─────────────────────── */
+.page-enter {
+  animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── BOUNCE DOT LOADER ────────────────────── */
+@keyframes bounceDot {
+  0%, 80%, 100% { transform: scale(0); }
+  40%           { transform: scale(1); }
+}
+.bounce-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: bounceDot 1.4s ease-in-out infinite both;
+}
+.bounce-dot:nth-child(2) { animation-delay: 0.16s; }
+.bounce-dot:nth-child(3) { animation-delay: 0.32s; }
+
+/* ── GRADIENT TEXT ANIMATION ─────────────── */
+.animated-gradient-text {
+  background: linear-gradient(270deg, #E8B84B, #C9921A, #7B1C1C, #C9603A, #E8B84B);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 8s ease infinite;
+}
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+/* ── HOVER LIFT ──────────────────────────── */
+.hover-lift { transition: transform 0.25s cubic-bezier(0,0,0.2,1), box-shadow 0.25s cubic-bezier(0,0,0.2,1); }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+/* ── FOCUS RING ──────────────────────────── */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+/* ── DECOR PAGE ENHANCEMENTS ─────────────── */
+@keyframes cardHover3D {
+  from { transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px); }
+  to   { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(20px); }
+}
+
+@keyframes imageZoom {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1.08); }
+}
+
+@keyframes quickActionSlide {
+  from { transform: translateY(-10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes priceTagFloat {
+  0%,100% { transform: translateY(0px) scale(1); }
+  50%     { transform: translateY(-2px) scale(1.02); }
+}
+
+@keyframes modelSpinner {
+  0%   { transform: rotate(0deg); border-color: var(--color-border) var(--color-primary) var(--color-border) var(--color-border); }
+  25%  { border-color: var(--color-border) var(--color-border) var(--color-primary) var(--color-border); }
+  50%  { border-color: var(--color-border) var(--color-border) var(--color-border) var(--color-primary); }
+  75%  { border-color: var(--color-primary) var(--color-border) var(--color-border) var(--color-border); }
+  100% { transform: rotate(360deg); border-color: var(--color-border) var(--color-primary) var(--color-border) var(--color-border); }
+}
+
+/* ── LABEL SMALL UTILITY ────────────────── */
+.label-small {
+  fontSize: 10;
+  color: var(--color-text-muted);
+  marginBottom: 5;
+  textTransform: uppercase;
+  letterSpacing: 0.8px;
+  fontWeight: 600;
+}
+
+/* ── ENHANCED CARD TRANSITIONS ───────────── */
+.decor-card {
+  transition: 
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    border-color 0.3s ease;
+}
+
+.decor-card:hover .card-image {
+  transform: scale(1.08);
+}
+
+.decor-card .card-image {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.decor-card .quick-actions {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.decor-card:hover .quick-actions {
+  animation: quickActionSlide 0.3s ease forwards;
+}
+
+/* ── MODEL VIEWER ENHANCEMENTS ───────────── */
+model-viewer {
+  --progress-bar-color: var(--color-primary);
+  --progress-bar-height: 4px;
+  --progress-bar-background-color: var(--color-border);
+}
+
+model-viewer::part(default-progress-bar) {
+  border-radius: var(--radius-sm);
+}
