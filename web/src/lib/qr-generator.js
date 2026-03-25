@@ -45,7 +45,7 @@ export async function generateQRDataURL(data, options = {}) {
  * @returns {Promise<string>} QR code data URL
  */
 export async function generateGuestCheckInQR(bookingId, guestId) {
-  const checkInUrl = `${process.env.NEXT_PUBLIC_APP_URL}/gre/check-in?booking=${bookingId}&guest=${encodeURIComponent(guestId)}`;
+  const checkInUrl = `${process.env.NEXT_PUBLIC_APP_URL}/check-in?booking=${bookingId}&guest=${encodeURIComponent(guestId)}`;
   return generateQRDataURL(checkInUrl, { width: 250 });
 }
 
