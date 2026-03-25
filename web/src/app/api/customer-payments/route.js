@@ -40,31 +40,54 @@ export async function GET(req) {
       .where("customer_uid", "==", customerUid)
       .get();
 
+    // Also try leads by phone (fallback for leads without customer_uid)
+    let phoneLeadsSnap = { docs: [] };
+    if (userPhone) {
+      phoneLeadsSnap = await adminDb
+        .collection("leads")
+        .where("phone", "==", userPhone)
+        .get();
+    }
+
+    // Merge leads, deduplicate
+    const seenLeadIds = new Set();
+    const allLeadDocs = [...leadsSnap.docs, ...phoneLeadsSnap.docs]
+      .filter(d => { if (seenLeadIds.has(d.id)) return false; seenLeadIds.add(d.id); return true; });
+
     // ── 1b. Standalone bookings for this customer ──────────────────────
     const bookingsSnap = await adminDb
       .collection("bookings")
       .where("customer_uid", "==", customerUid)
       .get();
 
-    const standaloneBookings = bookingsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // ── 1c. Also try fetching bookings by phone (fallback for old bookings without customer_uid) ──
+    let phoneBookingsSnap = { docs: [] };
+    const userSnap = await adminDb.collection("users").doc(customerUid).get();
+    const userPhone = userSnap.exists ? userSnap.data()?.phone : null;
+    if (userPhone) {
+      phoneBookingsSnap = await adminDb
+        .collection("bookings")
+        .where("phone", "==", userPhone)
+        .get();
+    }
+
+    // Merge bookings, deduplicate by id
+    const seenIds = new Set();
+    const standaloneBookings = [...bookingsSnap.docs, ...phoneBookingsSnap.docs]
+      .filter(d => { if (seenIds.has(d.id)) return false; seenIds.add(d.id); return true; })
+      .map(d => ({ id: d.id, ...d.data() }));
 
     // If no leads AND no standalone bookings, return empty
-    if (leadsSnap.empty && standaloneBookings.length === 0) {
+    if (allLeadDocs.length === 0 && standaloneBookings.length === 0) {
       return NextResponse.json({
         payments: [],
         bookings: [],
         enquiries: [],
-        summary: {
-          totalPaid: 0,
-          totalDue: 0,
-          transactionCount: 0,
-          bookingCount: 0,
-          enquiryCount: 0,
-        },
+        summary: { totalPaid: 0, totalDue: 0, transactionCount: 0, bookingCount: 0, enquiryCount: 0 },
       });
     }
 
-    const leadsData = leadsSnap.empty ? [] : leadsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const leadsData = allLeadDocs.map((d) => ({ id: d.id, ...d.data() }));
     const leadIds = leadsData.map((l) => l.id);
 
     // ── 2. Invoices by lead_id (authoritative payment source) ─────────

@@ -7,6 +7,7 @@ import { fadeUp, staggerContainer } from '@/lib/motion-variants';
 import { useAuth } from '@/contexts/auth-context';
 import Badge from '@/components/ui/Badge';
 import RazorpayButton from '@/components/shared/RazorpayButton';
+import EMIPanel from '@/components/shared/EMIPanel';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 import { onSnapshot, collection, query, where, getDocs, doc as fireDoc } from 'firebase/firestore';
@@ -113,6 +114,7 @@ export default function BookingDetailPage(){
   const TABS=[
     {key:'overview',  label:'Overview',  icon:<FileText size={13}/>},
     {key:'payments',  label:'Payments',  icon:<CreditCard size={13}/>,count:pay.payment_history?.length||0},
+    {key:'emi',       label:'EMI',       icon:<DollarSign size={13}/>,count:b.emi_plan?.installments?.filter(i=>i.status==='paid').length||0},
     {key:'checklist', label:'Checklist', icon:<CheckSquare size={13}/>,count:b.checklist?.length||0},
     {key:'vendors',   label:'Vendors',   icon:<Truck size={13}/>,count:b.vendors?.length||0},
     {key:'staff',     label:'Staff',     icon:<UserPlus size={13}/>,count:b.staff_assigned?.length||0},
@@ -273,6 +275,18 @@ export default function BookingDetailPage(){
             </div>
           }
         </div>
+      )}
+
+      {/* ═══ EMI ═══ */}
+      {tab==='emi'&&(
+        <EMIPanel
+          booking={b}
+          bookingId={id}
+          franchiseId={fid}
+          branchId={bid}
+          userProfile={userProfile}
+          onRefresh={fetchB}
+        />
       )}
 
       {/* ═══ CHECKLIST ═══ */}

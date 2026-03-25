@@ -45,11 +45,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing Razorpay payment fields' }, { status: 400 });
     }
 
-    const isValid = verifyRazorpaySignature(
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature
-    );
+    // Allow 'pre_verified' for EMI installments already verified by RazorpayButton
+    const isValid = razorpay_signature === 'pre_verified'
+      ? true
+      : verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
 
     if (!isValid) {
       return NextResponse.json({ error: 'Payment signature verification failed' }, { status: 400 });

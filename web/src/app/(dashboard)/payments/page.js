@@ -173,7 +173,8 @@ function PipelineDots({ status }) {
 export default function PaymentsPage() {
   const router = useRouter();
   const { userProfile } = useAuth();
-  const isCustomer = userProfile?.role === "customer";
+  // Show customer view for customer role OR if user has no franchise (end-user)
+  const isCustomer = userProfile?.role === "customer" || !userProfile?.franchise_id;
   const uid = userProfile?.uid;
   const fid = userProfile?.franchise_id || "pfd";
   const bid = userProfile?.branch_id || "pfd_b1";
